@@ -1,5 +1,5 @@
 
-prefixe=exo3
+prefixe=p
 
 # exige 3 fichiers:
 # - $(prefixe).y (fichier bison)

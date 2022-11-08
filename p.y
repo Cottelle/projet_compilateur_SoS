@@ -11,7 +11,7 @@ void yyerror(const char *msg);
 
 
 %token <entier> entier
-%token declare if then elif else fi for do done in while until case esac echo read return exit mot chaine test expr id local
+%token declare if_ then elif else_ fi for_ do_ done in while_ until case_ esac echo read return_ exit mot chaine test expr id local
 %start PROGRAMME
 
 %%
@@ -26,25 +26,25 @@ LISTE_INTRSUCTIONS: LISTE_INTRSUCTIONS ';' INSTRUCTION
 INSTRUCTION : id '=' CONCATENATION
             |id'['OPERANDE_ENTIER']' '=' CONCATENATION
             |declare id'['entier']'
-            |if TEST_BLOC then LISTE_INTRSUCTIONS ELSE_PART fi
-            |for id do LISTE_INTRSUCTIONS done
-            |for id in LISTE_OPERANDES do LISTE_INTRSUCTIONS done
-            |while TEST_BLOC do LISTE_INTRSUCTIONS done
-            |until TEST_BLOC do LISTE_INTRSUCTIONS done
-            |case OPERANDE in LISTE_CAS esac
+            |if_ TEST_BLOC then LISTE_INTRSUCTIONS ELSE_PART fi
+            |for_ id do_ LISTE_INTRSUCTIONS done
+            |for_ id in LISTE_OPERANDES do_ LISTE_INTRSUCTIONS done
+            |while_ TEST_BLOC do_ LISTE_INTRSUCTIONS done
+            |until TEST_BLOC do_ LISTE_INTRSUCTIONS done
+            |case_ OPERANDE in LISTE_CAS esac
             |echo LISTE_OPERANDES
             |read id
             |read id'['OPERANDE_ENTIER']'
             |DECLARATION_FONTION
             |APPEL_FONCTION
-            |return
-            |return OPERANDE_ENTIER
+            |return_
+            |return_ OPERANDE_ENTIER
             |exit
             |exit OPERANDE_ENTIER
             ;
 
 ELSE_PART: elif TEST_BLOC then LISTE_INTRSUCTIONS ELSE_PART
-            |else LISTE_INTRSUCTIONS
+            |else_ LISTE_INTRSUCTIONS
             |%empty
             ;
 
@@ -53,7 +53,7 @@ LISTE_CAS: LISTE_CAS FILTRE ')' LISTE_INTRSUCTIONS ';'';'
             ;
 
 FILTRE: mot
-           |'''chaine'''
+           |'\''chaine'\''
            |'"'chaine'"'
            |FILTRE '|' mot
            |FILTRE '|' '"'chaine'"'
@@ -99,7 +99,7 @@ OPERANDE:'$''{'id'}'
             |'$''*'
             |'$''?'
             |'"'chaine'"'
-            |'''chaine '''
+            |'\''chaine '\''
             |'$''('expr SOMME_ENTIER ')'
             |'$' '('APPEL_FONCTION ')'
             ;
@@ -159,8 +159,6 @@ APPEL_FONCTION: id LISTE_OPERANDES
             ;
 
     
-
-
 
 
 
