@@ -55,29 +55,29 @@ extern int yydebug;
     YYerror = 256,                 /* error  */
     YYUNDEF = 257,                 /* "invalid token"  */
     entier = 258,                  /* entier  */
-    declare = 259,                 /* declare  */
-    if_ = 260,                     /* if_  */
-    then = 261,                    /* then  */
-    elif = 262,                    /* elif  */
-    else_ = 263,                   /* else_  */
-    fi = 264,                      /* fi  */
-    for_ = 265,                    /* for_  */
-    do_ = 266,                     /* do_  */
-    done = 267,                    /* done  */
-    in = 268,                      /* in  */
-    while_ = 269,                  /* while_  */
-    until = 270,                   /* until  */
-    case_ = 271,                   /* case_  */
-    esac = 272,                    /* esac  */
-    echo = 273,                    /* echo  */
-    read = 274,                    /* read  */
-    return_ = 275,                 /* return_  */
-    exit = 276,                    /* exit  */
-    mot = 277,                     /* mot  */
-    chaine = 278,                  /* chaine  */
-    test = 279,                    /* test  */
-    expr = 280,                    /* expr  */
-    id = 281,                      /* id  */
+    id = 259,                      /* id  */
+    declare = 260,                 /* declare  */
+    if_ = 261,                     /* if_  */
+    then = 262,                    /* then  */
+    elif = 263,                    /* elif  */
+    else_ = 264,                   /* else_  */
+    fi = 265,                      /* fi  */
+    for_ = 266,                    /* for_  */
+    do_ = 267,                     /* do_  */
+    done = 268,                    /* done  */
+    in = 269,                      /* in  */
+    while_ = 270,                  /* while_  */
+    until = 271,                   /* until  */
+    case_ = 272,                   /* case_  */
+    esac = 273,                    /* esac  */
+    echo = 274,                    /* echo  */
+    read_ = 275,                   /* read_  */
+    return_ = 276,                 /* return_  */
+    exit_ = 277,                   /* exit_  */
+    mot = 278,                     /* mot  */
+    chaine = 279,                  /* chaine  */
+    test = 280,                    /* test  */
+    expr = 281,                    /* expr  */
     local = 282                    /* local  */
   };
   typedef enum yytokentype yytoken_kind_t;
@@ -90,7 +90,7 @@ union YYSTYPE
 #line 7 "p.y"
 
     int entier;
-
+    char *name;
 
 #line 96 "p.tab.h"
 

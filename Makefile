@@ -10,6 +10,8 @@ prefixe=p
 # note : le programme principal ne doit surtout pas s'appeler $(prefixe).c
 # (make l'écraserait parce qu'il a une règle "%.c: %.y")
 
+LDFLAGS = -g -Werror -Wextra -Wall
+
 all: main
 
 main: $(prefixe).tab.o lex.yy.o main.o
