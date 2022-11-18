@@ -95,12 +95,11 @@ TEST_INSTRUCTION :CONCATENATION '=' CONCATENATION
 
 OPERANDE:'$''{'id'}' 
             |'$''{'id'['OPERANDE_ENTIER']''}' 
-            |mot 
-            |'$'entier      {printf("Ici %d\n",$2);}
+            |mot {printf("mot\n");}
+            |'$'entier      
             |'$''*' 
             |'$''?' 
-            |'"'chaine'"' 
-            |'\''chaine '\'' 
+            |chaine  {printf("chaine\n");}
             |'$''('expr SOMME_ENTIER ')' 
             |'$' '('APPEL_FONCTION ')' 
             ;

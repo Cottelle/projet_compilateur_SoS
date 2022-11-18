@@ -4,6 +4,7 @@
 %{
     #include <stdio.h>
     #include <stdlib.h>
+    #include <string.h>
     #include "p.tab.h"
 %}
 
@@ -14,6 +15,8 @@ LETTRE [a-zA-Z]
 
 ID {LETTRE}({NUMBER}|{LETTRE}|_)*
 
+QUOTE (\"|\')
+ALLE [^\"\'" "";""="]
 %%
 
 
@@ -58,18 +61,22 @@ ID {LETTRE}({NUMBER}|{LETTRE}|_)*
 "exit " {return exit_;}
 "test " {return test;}
 "expr " {return expr;}
-"local " {return local;}
+"local " {return local;};
 
 {NUMBER} { yylval = (YYSTYPE)atoi(yytext) ;return entier;}
-{ID} {char *value; value =malloc(100);strcpy(value,yytext);yylval =(YYSTYPE)value;return id;}
+{ID} {printf("ID\n");char *value; value =malloc(strlen(yytext));strcpy(value,yytext);yylval =(YYSTYPE)value;return id;}
 
-%{/*
-\".*\" {printf("MOTCHAINE");yyval = (YYSTYPE)strcpy((char *)yytext,(char *)yylval);return chaine;}
-\'.*\' {printf("MOTCHAINE");yyval = (YYSTYPE)strcpy((char *)yytext,(char *)yylval);return chaine;}*/%}
-%{//.*" "     {printf("MOTCHAINE");yylval = (YYSTYPE)yytext; return mot;} %}
 
-"\n" ;
+{QUOTE}.*{QUOTE} {char *value; value =malloc(strlen(yytext));strcpy(value,yytext);yylval =(YYSTYPE)value;return chaine;}
+
+{ALLE}+" "     {char *value; value =malloc(strlen(yytext));strcpy(value,yytext);yylval =(YYSTYPE)value;printf("yytext %s\n",yytext);return mot;}
+
+
+[[:space:]] ;
+%{/* "\n" ;
 "\t" ;
-" "  ;
+" "  ; */%}
+
+. {printf("Unknow symbol %c\n",*yytext);}
 
 %%
