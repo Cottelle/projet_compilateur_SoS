@@ -3,6 +3,7 @@
 
 %{
     #include <stdio.h>
+    #include <stdlib.h>
     #include "p.tab.h"
 %}
 
@@ -60,10 +61,11 @@ ID {LETTRE}({NUMBER}|{LETTRE}|_)*
 "local " {return local;}
 
 {NUMBER} { yylval = (YYSTYPE)atoi(yytext) ;return entier;}
-{ID}    {yylval = (YYSTYPE)yytext; return id;}
+{ID} {char *value; value =malloc(100);strcpy(value,yytext);yylval =(YYSTYPE)value;return id;}
 
-\".*\" {printf("MOTCHAINE");yylval = (YYSTYPE)yytext;return chaine;}
-\'.*\' {printf("MOTCHAINE");yylval = (YYSTYPE)yytext;return chaine;}
+%{/*
+\".*\" {printf("MOTCHAINE");yyval = (YYSTYPE)strcpy((char *)yytext,(char *)yylval);return chaine;}
+\'.*\' {printf("MOTCHAINE");yyval = (YYSTYPE)strcpy((char *)yytext,(char *)yylval);return chaine;}*/%}
 %{//.*" "     {printf("MOTCHAINE");yylval = (YYSTYPE)yytext; return mot;} %}
 
 "\n" ;

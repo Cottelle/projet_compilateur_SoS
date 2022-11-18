@@ -24,8 +24,8 @@ LISTE_INTRSUCTIONS: LISTE_INTRSUCTIONS ';' INSTRUCTION
                 | INSTRUCTION       
                 ;
 
-INSTRUCTION : id '=' CONCATENATION 
-            |id'['OPERANDE_ENTIER']' '=' CONCATENATION 
+INSTRUCTION : id '=' CONCATENATION  {printf("Id= %s\n",$1);} 
+            |id'['OPERANDE_ENTIER']' '=' CONCATENATION {printf("Id[]= %s\n",$1);} 
             |declare id'['entier']'
             |if_ TEST_BLOC then LISTE_INTRSUCTIONS ELSE_PART fi 
             |for_ id do_ LISTE_INTRSUCTIONS done 
@@ -96,7 +96,7 @@ TEST_INSTRUCTION :CONCATENATION '=' CONCATENATION
 OPERANDE:'$''{'id'}' 
             |'$''{'id'['OPERANDE_ENTIER']''}' 
             |mot 
-            |'$'entier {printf("Icci");}
+            |'$'entier      {printf("Ici %d\n",$2);}
             |'$''*' 
             |'$''?' 
             |'"'chaine'"' 

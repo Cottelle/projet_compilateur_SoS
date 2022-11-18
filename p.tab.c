@@ -1296,18 +1296,24 @@ yyreduce:
     {
   case 5: /* INSTRUCTION: id '=' CONCATENATION  */
 #line 27 "p.y"
-                                    {printf("Ici");}
+                                    {printf("Id= %s\n",(yyvsp[-2].name));}
 #line 1301 "p.tab.c"
+    break;
+
+  case 6: /* INSTRUCTION: id '[' OPERANDE_ENTIER ']' '=' CONCATENATION  */
+#line 28 "p.y"
+                                                       {printf("Id[]= %s\n",(yyvsp[-5].name));}
+#line 1307 "p.tab.c"
     break;
 
   case 55: /* OPERANDE: '$' entier  */
 #line 99 "p.y"
-                       {printf("Icci");}
-#line 1307 "p.tab.c"
+                            {printf("Ici %d\n",(yyvsp[0].entier));}
+#line 1313 "p.tab.c"
     break;
 
 
-#line 1311 "p.tab.c"
+#line 1317 "p.tab.c"
 
       default: break;
     }
