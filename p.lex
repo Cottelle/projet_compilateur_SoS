@@ -38,10 +38,11 @@ ALLE [^\"\'" "";""="]
 "%" return yytext[0];
 
 
+[[:space:]] ;
 
 
 
-"declare "  {return declare;}
+"declare "  {printf("lex declare\n");return declare;}
 "if " {return if_;}
 "then " {return then;}
 "elif " {return elif;}
@@ -64,15 +65,14 @@ ALLE [^\"\'" "";""="]
 "local " {return local;};
 
 {NUMBER} { yylval = (YYSTYPE)atoi(yytext) ;return entier;}
-{ID} {printf("ID\n");char *value; value =malloc(strlen(yytext));strcpy(value,yytext);yylval =(YYSTYPE)value;return id;}
+{ID} {char *value; value =malloc(strlen(yytext));strcpy(value,yytext);yylval =(YYSTYPE)value;return id;}
 
 
 {QUOTE}.*{QUOTE} {char *value; value =malloc(strlen(yytext));strcpy(value,yytext);yylval =(YYSTYPE)value;return chaine;}
 
-{ALLE}+" "     {char *value; value =malloc(strlen(yytext));strcpy(value,yytext);yylval =(YYSTYPE)value;printf("yytext %s\n",yytext);return mot;}
+{ALLE}+" "     {char *value; value =malloc(strlen(yytext));strcpy(value,yytext);yylval =(YYSTYPE)value;return mot;}
 
 
-[[:space:]] ;
 %{/* "\n" ;
 "\t" ;
 " "  ; */%}

@@ -1,0 +1,59 @@
+p.y: avertissement: 3 conflits par décalage/réduction [-Wconflicts-sr]
+p.y: avertissement: conflit par décalage/réduction sur le jeton '-' [-Wcounterexamples]
+time limit exceeded: 6,000000
+  Premier exemple: test TEST_EXPR2 • '-' 'a' TEST_EXPR3 TEST_BLOC then LISTE_INTRSUCTIONS ELSE_PART fi $end
+  Dérivation par décalage
+    $accept
+    ↳ 0: PROGRAMME                                                                                                            $end
+         ↳ 1: LISTE_INTRSUCTIONS
+              ↳ 3: INSTRUCTION
+                   ↳ 7: TEST_BLOC                                              TEST_BLOC then LISTE_INTRSUCTIONS ELSE_PART fi
+                        ↳ 38: test TEST_EXPR
+                                   ↳ 40: TEST_EXPR2
+                                         ↳ 41: TEST_EXPR2 • '-' 'a' TEST_EXPR3
+  Deuxième exemple: if_ test TEST_EXPR2 • '-' 'o' TEST_EXPR2 then LISTE_INTRSUCTIONS ELSE_PART fi $end
+  Dérivation par réduction
+    $accept
+    ↳ 0: PROGRAMME                                                                                                      $end
+         ↳ 1: LISTE_INTRSUCTIONS
+              ↳ 3: INSTRUCTION
+                   ↳ 7: if_ TEST_BLOC                                              then LISTE_INTRSUCTIONS ELSE_PART fi
+                            ↳ 38: test TEST_EXPR
+                                       ↳ 39: TEST_EXPR          '-' 'o' TEST_EXPR2
+                                             ↳ 40: TEST_EXPR2 •
+p.y: avertissement: conflit par décalage/réduction sur le jeton '-' [-Wcounterexamples]
+time limit exceeded: 6,000000
+  Premier exemple: if_ test TEST_EXPR '-' 'o' TEST_EXPR2 • '-' 'a' TEST_EXPR3 then LISTE_INTRSUCTIONS ELSE_PART fi $end
+  Dérivation par décalage
+    $accept
+    ↳ 0: PROGRAMME                                                                                                                        $end
+         ↳ 1: LISTE_INTRSUCTIONS
+              ↳ 3: INSTRUCTION
+                   ↳ 7: if_ TEST_BLOC                                                                then LISTE_INTRSUCTIONS ELSE_PART fi
+                            ↳ 38: test TEST_EXPR
+                                       ↳ 39: TEST_EXPR '-' 'o' TEST_EXPR2
+                                                               ↳ 41: TEST_EXPR2 • '-' 'a' TEST_EXPR3
+  Deuxième exemple: if_ test TEST_EXPR '-' 'o' TEST_EXPR2 • '-' 'o' TEST_EXPR2 then LISTE_INTRSUCTIONS ELSE_PART fi $end
+  Dérivation par réduction
+    $accept
+    ↳ 0: PROGRAMME                                                                                                                        $end
+         ↳ 1: LISTE_INTRSUCTIONS
+              ↳ 3: INSTRUCTION
+                   ↳ 7: if_ TEST_BLOC                                                                then LISTE_INTRSUCTIONS ELSE_PART fi
+                            ↳ 38: test TEST_EXPR
+                                       ↳ 39: TEST_EXPR                            '-' 'o' TEST_EXPR2
+                                             ↳ 39: TEST_EXPR '-' 'o' TEST_EXPR2 •
+p.y: avertissement: conflit par décalage/réduction sur le jeton id [-Wcounterexamples]
+Productions leading up to the conflict state found.  Still finding a possible unifying counterexample...time limit exceeded: 6,000000
+  Premier exemple: id '(' ')' DECL_LOC local id '=' CONCATENATION • id LISTE_INTRSUCTIONS '}'
+  Dérivation par décalage
+    DECLARATION_FONTION
+    ↳ 87: id '(' ')' DECL_LOC                                                   LISTE_INTRSUCTIONS '}'
+                     ↳ 88: DECL_LOC local id '=' CONCATENATION
+                                                 ↳ 36: CONCATENATION OPERANDE
+                                                                     ↳ 54: • id
+  Deuxième exemple: id '(' ')' DECL_LOC local id '=' CONCATENATION • id '}'
+  Dérivation par réduction
+    DECLARATION_FONTION
+    ↳ 87: id '(' ')' DECL_LOC                                    id '}'
+                     ↳ 88: DECL_LOC local id '=' CONCATENATION •

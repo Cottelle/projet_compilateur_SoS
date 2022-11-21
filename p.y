@@ -20,13 +20,13 @@ void yyerror(const char *msg);
 PROGRAMME : LISTE_INTRSUCTIONS      
             ;
 
-LISTE_INTRSUCTIONS: LISTE_INTRSUCTIONS ';' INSTRUCTION 
-                | INSTRUCTION       
+LISTE_INTRSUCTIONS: LISTE_INTRSUCTIONS ';' INSTRUCTION {printf("Instriction\n");}
+                | INSTRUCTION  {printf("Instrictionqsd\n");}     
                 ;
 
 INSTRUCTION : id '=' CONCATENATION  {printf("Id= %s\n",$1);} 
             |id'['OPERANDE_ENTIER']' '=' CONCATENATION {printf("Id[]= %s\n",$1);} 
-            |declare id'['entier']'
+            |declare id'['entier']' {printf("declare %s[%i]\n",$2,$4);}
             |if_ TEST_BLOC then LISTE_INTRSUCTIONS ELSE_PART fi 
             |for_ id do_ LISTE_INTRSUCTIONS done 
             |for_ id in LISTE_OPERANDES do_ LISTE_INTRSUCTIONS done 
@@ -96,6 +96,7 @@ TEST_INSTRUCTION :CONCATENATION '=' CONCATENATION
 OPERANDE:'$''{'id'}' 
             |'$''{'id'['OPERANDE_ENTIER']''}' 
             |mot {printf("mot\n");}
+            |id {printf("id mais mot enfait");}     //Rajouter a la grammaire
             |'$'entier      
             |'$''*' 
             |'$''?' 

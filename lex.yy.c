@@ -365,20 +365,20 @@ struct yy_trans_info
 	};
 static const flex_int16_t yy_accept[127] =
     {   0,
-        0,    0,   45,   43,   42,   42,   42,    7,   43,    9,
-       16,    4,    5,   10,   13,   14,   15,   38,   38,    1,
-        6,   39,    2,    3,   39,   39,   39,   39,   39,   39,
-       39,   39,   39,   39,   11,    8,   12,    0,   41,    0,
-       40,   38,   39,   39,   39,   39,   39,   39,   39,   39,
-       39,   39,   39,   39,   39,   39,   39,   39,   39,   39,
-       39,   39,   39,   39,   39,   24,   39,   39,   39,   39,
-       39,   39,   39,   22,   39,   18,   26,   39,   39,   39,
-       39,   39,   39,   39,   39,   39,   39,   39,   39,   39,
-       39,   39,   39,   23,   39,   39,   39,   39,   39,   39,
+        0,    0,   45,   43,   17,   17,   17,    7,   43,    9,
+       16,    4,    5,   10,   13,   14,   15,   39,   39,    1,
+        6,   40,    2,    3,   40,   40,   40,   40,   40,   40,
+       40,   40,   40,   40,   11,    8,   12,    0,   42,    0,
+       41,   39,   40,   40,   40,   40,   40,   40,   40,   40,
+       40,   40,   40,   40,   40,   40,   40,   40,   40,   40,
+       40,   40,   40,   40,   40,   25,   40,   40,   40,   40,
+       40,   40,   40,   23,   40,   19,   27,   40,   40,   40,
+       40,   40,   40,   40,   40,   40,   40,   40,   40,   40,
+       40,   40,   40,   24,   40,   40,   40,   40,   40,   40,
 
-       39,   29,   39,   25,   31,   20,   21,   30,   34,   36,
-       39,   32,   39,   35,   19,   39,   39,   39,   37,   39,
-       28,   27,   39,   33,   17,    0
+       40,   30,   40,   26,   32,   21,   22,   31,   35,   37,
+       40,   33,   40,   36,   20,   40,   40,   40,   38,   40,
+       29,   28,   40,   34,   18,    0
     } ;
 
 static const YY_CHAR yy_ec[256] =
@@ -898,136 +898,136 @@ YY_RULE_SETUP
 return yytext[0];
 	YY_BREAK
 case 17:
+/* rule 17 can match eol */
 YY_RULE_SETUP
-#line 44 "p.lex"
-{return declare;}
+#line 41 "p.lex"
+;
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
 #line 45 "p.lex"
-{return if_;}
+{printf("lex declare\n");return declare;}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
 #line 46 "p.lex"
-{return then;}
+{return if_;}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
 #line 47 "p.lex"
-{return elif;}
+{return then;}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
 #line 48 "p.lex"
-{return else_;}
+{return elif;}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
 #line 49 "p.lex"
-{return fi;}
+{return else_;}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
 #line 50 "p.lex"
-{return for_;}
+{return fi;}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
 #line 51 "p.lex"
-{return do_;}
+{return for_;}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
 #line 52 "p.lex"
-{return done;}
+{return do_;}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
 #line 53 "p.lex"
-{return in;}
+{return done;}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
 #line 54 "p.lex"
-{return while_;}
+{return in;}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
 #line 55 "p.lex"
-{return until;}
+{return while_;}
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
 #line 56 "p.lex"
-{return case_;}
+{return until;}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
 #line 57 "p.lex"
-{return esac;}
+{return case_;}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
 #line 58 "p.lex"
-{return echo;}
+{return esac;}
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
 #line 59 "p.lex"
-{return read_;}
+{return echo;}
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
 #line 60 "p.lex"
-{return return_;}
+{return read_;}
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
 #line 61 "p.lex"
-{return exit_;}
+{return return_;}
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
 #line 62 "p.lex"
-{return test;}
+{return exit_;}
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
 #line 63 "p.lex"
-{return expr;}
+{return test;}
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
 #line 64 "p.lex"
-{return local;};
+{return expr;}
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 66 "p.lex"
-{ yylval = (YYSTYPE)atoi(yytext) ;return entier;}
+#line 65 "p.lex"
+{return local;};
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
 #line 67 "p.lex"
-{printf("ID\n");char *value; value =malloc(strlen(yytext));strcpy(value,yytext);yylval =(YYSTYPE)value;return id;}
+{ yylval = (YYSTYPE)atoi(yytext) ;return entier;}
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 70 "p.lex"
-{char *value; value =malloc(strlen(yytext));strcpy(value,yytext);yylval =(YYSTYPE)value;return chaine;}
+#line 68 "p.lex"
+{char *value; value =malloc(strlen(yytext));strcpy(value,yytext);yylval =(YYSTYPE)value;return id;}
 	YY_BREAK
 case 41:
-/* rule 41 can match eol */
 YY_RULE_SETUP
-#line 72 "p.lex"
-{char *value; value =malloc(strlen(yytext));strcpy(value,yytext);yylval =(YYSTYPE)value;printf("yytext %s\n",yytext);return mot;}
+#line 71 "p.lex"
+{char *value; value =malloc(strlen(yytext));strcpy(value,yytext);yylval =(YYSTYPE)value;return chaine;}
 	YY_BREAK
 case 42:
 /* rule 42 can match eol */
 YY_RULE_SETUP
-#line 75 "p.lex"
-;
+#line 73 "p.lex"
+{char *value; value =malloc(strlen(yytext));strcpy(value,yytext);yylval =(YYSTYPE)value;return mot;}
 	YY_BREAK
 /* "\n" ;
 "\t" ;
