@@ -11,8 +11,8 @@ void yyerror(const char *msg);
 
 
 %token <entier> entier
-%token <name> id
-%token declare if_ then elif else_ fi for_ do_ done in while_ until case_ esac echo read_ return_ exit_ mot chaine test expr local
+%token <name> id mot
+%token declare if_ then elif else_ fi for_ do_ done in while_ until case_ esac echo read_ return_ exit_ chaine test expr local
 %start PROGRAMME
 
 %%
@@ -20,8 +20,8 @@ void yyerror(const char *msg);
 PROGRAMME : LISTE_INTRSUCTIONS      
             ;
 
-LISTE_INTRSUCTIONS: LISTE_INTRSUCTIONS ';' INSTRUCTION {printf("Instriction\n");}
-                | INSTRUCTION  {printf("Instrictionqsd\n");}     
+LISTE_INTRSUCTIONS: LISTE_INTRSUCTIONS ';' INSTRUCTION {printf("Instruction\n");}
+                | INSTRUCTION   {printf("Instructionqsd\n");}      
                 ;
 
 INSTRUCTION : id '=' CONCATENATION  {printf("Id= %s\n",$1);} 
@@ -34,12 +34,13 @@ INSTRUCTION : id '=' CONCATENATION  {printf("Id= %s\n",$1);}
             |until TEST_BLOC do_ LISTE_INTRSUCTIONS done 
             |case_ OPERANDE in LISTE_CAS esac 
             |echo LISTE_OPERANDES 
-            |read_ id 
+            |read_ mot 
+            |read_ id
             |read_ id'['OPERANDE_ENTIER']' 
             |DECLARATION_FONTION 
-            |APPEL_FONCTION 
             |return_ 
             |return_ OPERANDE_ENTIER 
+            |APPEL_FONCTION 
             |exit_ 
             |exit_ OPERANDE_ENTIER 
             ;
@@ -66,11 +67,11 @@ LISTE_OPERANDES:LISTE_OPERANDES OPERANDE
             |'$''{'id'[''*'']''}' 
             ;
 
-CONCATENATION: CONCATENATION OPERANDE 
-            |OPERANDE 
+CONCATENATION: CONCATENATION OPERANDE {printf("CONCATENATION\n");}
+            |OPERANDE {printf("CONCATENATION\n");}
             ;
 
-TEST_BLOC: test TEST_EXPR 
+TEST_BLOC: test TEST_EXPR {printf("Test Block\n");}
             ;
         
 TEST_EXPR: TEST_EXPR '-''o' TEST_EXPR2 
@@ -95,7 +96,7 @@ TEST_INSTRUCTION :CONCATENATION '=' CONCATENATION
 
 OPERANDE:'$''{'id'}' 
             |'$''{'id'['OPERANDE_ENTIER']''}' 
-            |mot {printf("mot\n");}
+            |mot {printf("mot %s\n",$1);}
             |id {printf("id mais mot enfait");}     //Rajouter a la grammaire
             |'$'entier      
             |'$''*' 
@@ -150,15 +151,20 @@ DECLARATION_FONTION: id '('')''{'DECL_LOC LISTE_INTRSUCTIONS '}'
             ;
 
 
-DECL_LOC: DECL_LOC local id '=' CONCATENATION 
+/* DECL_LOC: DECL_LOC local id '=' CONCATENATION 
             |%empty 
             ;
+ */
 
-
-APPEL_FONCTION: id LISTE_OPERANDES 
-            |id 
+ DECL_LOC: %empty
             ;
 
+APPEL_FONCTION: id LISTE_OPERANDES {printf("Appel fonction \n");} 
+            |id {printf("Appel fonction \n");}
+            ;
+ID : id {printf("C'est bien un id\n");}
+    |mot    {printf("C'est ppirt pour mot mais peut être que c'est un id?? \n");}
+    ;
     
 
 

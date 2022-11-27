@@ -1,0 +1,12 @@
+
+declare valeurs[4] ;
+
+echo "Nombre de valeurs : " ;
+read nombre ;
+lecture_valeurs ${nombre} ;
+if test $? = 0 then
+echo "Moyenne = " $(moyenne ${nombre} ) "\n"
+else
+echo "Erreur\n"
+fi ;
+exit

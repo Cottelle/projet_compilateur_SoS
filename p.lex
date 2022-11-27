@@ -16,7 +16,7 @@ LETTRE [a-zA-Z]
 ID {LETTRE}({NUMBER}|{LETTRE}|_)*
 
 QUOTE (\"|\')
-ALLE [^\"\'" "";""="]
+ALLE [^\"\'" "";""=""\n""\t""\]""\)""\[""\("]       
 %%
 
 
@@ -38,7 +38,7 @@ ALLE [^\"\'" "";""="]
 "%" return yytext[0];
 
 
-[[:space:]] ;
+[[:space:]] {printf("Space\n");}
 
 
 
@@ -58,7 +58,7 @@ ALLE [^\"\'" "";""="]
 "esac " {return esac;}
 "echo " {return echo;}
 "read " {return read_;}
-"return " {return return_;}
+"return" {return return_;}
 "exit " {return exit_;}
 "test " {return test;}
 "expr " {return expr;}
@@ -67,15 +67,11 @@ ALLE [^\"\'" "";""="]
 {NUMBER} { yylval = (YYSTYPE)atoi(yytext) ;return entier;}
 {ID} {char *value; value =malloc(strlen(yytext));strcpy(value,yytext);yylval =(YYSTYPE)value;return id;}
 
-
 {QUOTE}.*{QUOTE} {char *value; value =malloc(strlen(yytext));strcpy(value,yytext);yylval =(YYSTYPE)value;return chaine;}
 
 {ALLE}+" "     {char *value; value =malloc(strlen(yytext));strcpy(value,yytext);yylval =(YYSTYPE)value;return mot;}
 
 
-%{/* "\n" ;
-"\t" ;
-" "  ; */%}
 
 . {printf("Unknow symbol %c\n",*yytext);}
 
