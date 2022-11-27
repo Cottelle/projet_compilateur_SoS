@@ -78,7 +78,15 @@ extern int yydebug;
     chaine = 279,                  /* chaine  */
     test = 280,                    /* test  */
     expr = 281,                    /* expr  */
-    local = 282                    /* local  */
+    local = 282,                   /* local  */
+    to = 283,                      /* to  */
+    ta = 284,                      /* ta  */
+    teq = 285,                     /* teq  */
+    tne = 286,                     /* tne  */
+    tgt = 287,                     /* tgt  */
+    tge = 288,                     /* tge  */
+    tlt = 289,                     /* tlt  */
+    tle = 290                      /* tle  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -92,7 +100,7 @@ union YYSTYPE
     int entier;
     char *name;
 
-#line 96 "p.tab.h"
+#line 104 "p.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

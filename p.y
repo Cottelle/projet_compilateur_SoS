@@ -12,7 +12,7 @@ void yyerror(const char *msg);
 
 %token <entier> entier
 %token <name> id mot
-%token declare if_ then elif else_ fi for_ do_ done in while_ until case_ esac echo read_ return_ exit_ chaine test expr local
+%token declare if_ then elif else_ fi for_ do_ done in while_ until case_ esac echo read_ return_ exit_ chaine test expr local to ta teq tne tgt tge tlt tle
 %type <name> ID
 %start PROGRAMME
 
@@ -71,14 +71,14 @@ CONCATENATION: CONCATENATION OPERANDE
             |OPERANDE 
             ;
 
-TEST_BLOC: test TEST_EXPR
+TEST_BLOC: test TEST_EXPR   {printf("Test Bloc\n");}
             ;
         
-TEST_EXPR: TEST_EXPR '-''o' TEST_EXPR2 
+TEST_EXPR: TEST_EXPR to TEST_EXPR2 
             |TEST_EXPR2 
             ;
 
-TEST_EXPR2: TEST_EXPR2 '-''a' TEST_EXPR3 
+TEST_EXPR2: TEST_EXPR2 ta TEST_EXPR3 
             |TEST_EXPR3 
             ;
     
@@ -96,8 +96,9 @@ TEST_INSTRUCTION :CONCATENATION '=' CONCATENATION
 
 OPERANDE:'$''{'ID'}' 
             |'$''{'ID'['OPERANDE_ENTIER']''}' 
-            |mot           
-            |id {printf("id mais mot enfait");}     //Rajouter a la grammaire
+            |mot   
+            |entier                 //Rajouter a la grammaire        
+            |id {printf("id mais mot enfait %s\n",$1);}     //Rajouter a la grammaire
             |'$'entier      
             |'$''*' 
             |'$''?' 
@@ -111,12 +112,12 @@ OPERATEUR1: '-''n'
             ;
 
 
-OPERATEUR2: '-''e''q' 
-            |'-''n''e' 
-            |'-''g''t' 
-            |'-''g''e' 
-            |'-''l''t' 
-            |'-''l''e' 
+OPERATEUR2: teq 
+            |tne 
+            | tgt
+            |tge 
+            | tlt
+            |tle
             ;
 
 SOMME_ENTIER:SOMME_ENTIER PLUS_MOINS PRODUIT_ENTIER 
@@ -151,19 +152,15 @@ DECLARATION_FONTION: ID '('')''{'DECL_LOC LISTE_INTRSUCTIONS '}'
             ;
 
 
-/* DECL_LOC: DECL_LOC local ID '=' CONCATENATION 
+DECL_LOC: DECL_LOC  local ID '=' CONCATENATION ';' {printf(">Local\n");}
             |%empty 
-            ;
- */
-
- DECL_LOC: %empty
             ;
 
 APPEL_FONCTION: ID LISTE_OPERANDES 
             |ID 
             ;
-ID : id {printf("C'est bien un id\n");$$=$1;}
-    |mot    {printf("C'est prit pour mot mais peut être que c'est un id?? \n");$$=$1;}
+ID : id {printf("C'est bien un id %s\n",$1);$$=$1;}
+    |mot    {printf("C'est prit pour mot mais peut être que c'est un id?? %s\n",$1);$$=$1;}
     ;
     
 

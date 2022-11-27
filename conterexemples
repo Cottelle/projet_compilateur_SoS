@@ -1,4 +1,4 @@
-p.y: avertissement: 3 conflits par décalage/réduction [-Wconflicts-sr]
+p.y: avertissement: 2 conflits par décalage/réduction [-Wconflicts-sr]
 p.y: avertissement: conflit par décalage/réduction sur le jeton '-' [-Wcounterexamples]
 time limit exceeded: 6,000000
   Premier exemple: test TEST_EXPR2 • '-' 'a' TEST_EXPR3 TEST_BLOC then LISTE_INTRSUCTIONS ELSE_PART fi $end
@@ -43,17 +43,3 @@ time limit exceeded: 6,000000
                             ↳ 38: test TEST_EXPR
                                        ↳ 39: TEST_EXPR                            '-' 'o' TEST_EXPR2
                                              ↳ 39: TEST_EXPR '-' 'o' TEST_EXPR2 •
-p.y: avertissement: conflit par décalage/réduction sur le jeton id [-Wcounterexamples]
-Productions leading up to the conflict state found.  Still finding a possible unifying counterexample...time limit exceeded: 6,000000
-  Premier exemple: id '(' ')' DECL_LOC local id '=' CONCATENATION • id LISTE_INTRSUCTIONS '}'
-  Dérivation par décalage
-    DECLARATION_FONTION
-    ↳ 87: id '(' ')' DECL_LOC                                                   LISTE_INTRSUCTIONS '}'
-                     ↳ 88: DECL_LOC local id '=' CONCATENATION
-                                                 ↳ 36: CONCATENATION OPERANDE
-                                                                     ↳ 54: • id
-  Deuxième exemple: id '(' ')' DECL_LOC local id '=' CONCATENATION • id '}'
-  Dérivation par réduction
-    DECLARATION_FONTION
-    ↳ 87: id '(' ')' DECL_LOC                                    id '}'
-                     ↳ 88: DECL_LOC local id '=' CONCATENATION •
