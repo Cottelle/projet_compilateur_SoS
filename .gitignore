@@ -1,2 +1,7 @@
 sujet.pdf
 */
+
+*.o
+p.tab.*
+main*
+lex.*
