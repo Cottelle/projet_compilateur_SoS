@@ -1,6 +1,4 @@
 
-declare valeurs[4] ;
-
 echo "Nombre de valeurs : " ;
 read nombre ;
 lecture_valeurs ${nombre} ;

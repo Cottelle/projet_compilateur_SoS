@@ -13,6 +13,7 @@ void yyerror(const char *msg);
 %token <entier> entier
 %token <name> id mot
 %token declare if_ then elif else_ fi for_ do_ done in while_ until case_ esac echo read_ return_ exit_ chaine test expr local
+%type <name> ID
 %start PROGRAMME
 
 %%
@@ -20,29 +21,28 @@ void yyerror(const char *msg);
 PROGRAMME : LISTE_INTRSUCTIONS      
             ;
 
-LISTE_INTRSUCTIONS: LISTE_INTRSUCTIONS ';' INSTRUCTION {printf("Instruction\n");}
-                | INSTRUCTION   {printf("Instructionqsd\n");}      
+LISTE_INTRSUCTIONS: LISTE_INTRSUCTIONS ';' INSTRUCTION
+                | INSTRUCTION       
                 ;
 
-INSTRUCTION : id '=' CONCATENATION  {printf("Id= %s\n",$1);} 
-            |id'['OPERANDE_ENTIER']' '=' CONCATENATION {printf("Id[]= %s\n",$1);} 
-            |declare id'['entier']' {printf("declare %s[%i]\n",$2,$4);}
-            |if_ TEST_BLOC then LISTE_INTRSUCTIONS ELSE_PART fi 
-            |for_ id do_ LISTE_INTRSUCTIONS done 
-            |for_ id in LISTE_OPERANDES do_ LISTE_INTRSUCTIONS done 
-            |while_ TEST_BLOC do_ LISTE_INTRSUCTIONS done 
-            |until TEST_BLOC do_ LISTE_INTRSUCTIONS done 
-            |case_ OPERANDE in LISTE_CAS esac 
-            |echo LISTE_OPERANDES 
-            |read_ mot 
-            |read_ id
-            |read_ id'['OPERANDE_ENTIER']' 
-            |DECLARATION_FONTION 
-            |return_ 
-            |return_ OPERANDE_ENTIER 
-            |APPEL_FONCTION 
-            |exit_ 
-            |exit_ OPERANDE_ENTIER 
+INSTRUCTION : ID '=' CONCATENATION  {printf(">ID= %s\n",$1);} 
+            |ID'['OPERANDE_ENTIER']' '=' CONCATENATION {printf(">ID[]= %s\n",$1);} 
+            |declare ID'['entier']' {printf(">declare %s[%i]\n",$2,$4);}
+            |if_ TEST_BLOC then LISTE_INTRSUCTIONS ELSE_PART fi {printf(">if \n");}
+            |for_ ID do_ LISTE_INTRSUCTIONS done {printf(">for \n");}
+            |for_ ID in LISTE_OPERANDES do_ LISTE_INTRSUCTIONS done {printf(">for do \n");}
+            |while_ TEST_BLOC do_ LISTE_INTRSUCTIONS done {printf(">while \n");}
+            |until TEST_BLOC do_ LISTE_INTRSUCTIONS done {printf(">until \n");}
+            |case_ OPERANDE in LISTE_CAS esac {printf(">case \n");}
+            |echo LISTE_OPERANDES {printf(">echo \n");}
+            |read_ ID   {printf(">Read %s\n",$2);} 
+            |read_ ID'['OPERANDE_ENTIER']' {printf(">Read %s[ent]\n",$2);}
+            |DECLARATION_FONTION {printf(">declaration fonction \n");}
+            |return_ {printf(">return \n");}
+            |return_ OPERANDE_ENTIER {printf(">return entier \n");}
+            |APPEL_FONCTION {printf(">appel fonction \n");}
+            |exit_ {printf(">exit \n");}
+            |exit_ OPERANDE_ENTIER {printf(">exit entier \n");}
             ;
 
 ELSE_PART: elif TEST_BLOC then LISTE_INTRSUCTIONS ELSE_PART 
@@ -64,14 +64,14 @@ FILTRE: mot
 
 LISTE_OPERANDES:LISTE_OPERANDES OPERANDE 
             |OPERANDE 
-            |'$''{'id'[''*'']''}' 
+            |'$''{'ID'[''*'']''}' 
             ;
 
-CONCATENATION: CONCATENATION OPERANDE {printf("CONCATENATION\n");}
-            |OPERANDE {printf("CONCATENATION\n");}
+CONCATENATION: CONCATENATION OPERANDE
+            |OPERANDE 
             ;
 
-TEST_BLOC: test TEST_EXPR {printf("Test Block\n");}
+TEST_BLOC: test TEST_EXPR
             ;
         
 TEST_EXPR: TEST_EXPR '-''o' TEST_EXPR2 
@@ -94,14 +94,14 @@ TEST_INSTRUCTION :CONCATENATION '=' CONCATENATION
             |OPERANDE OPERATEUR2 OPERANDE 
             ;
 
-OPERANDE:'$''{'id'}' 
-            |'$''{'id'['OPERANDE_ENTIER']''}' 
-            |mot {printf("mot %s\n",$1);}
+OPERANDE:'$''{'ID'}' 
+            |'$''{'ID'['OPERANDE_ENTIER']''}' 
+            |mot           
             |id {printf("id mais mot enfait");}     //Rajouter a la grammaire
             |'$'entier      
             |'$''*' 
             |'$''?' 
-            |chaine  {printf("chaine\n");}
+            |chaine
             |'$''('expr SOMME_ENTIER ')' 
             |'$' '('APPEL_FONCTION ')' 
             ;
@@ -127,11 +127,11 @@ PRODUIT_ENTIER:PRODUIT_ENTIER FOIS_DIV_MOD OPERANDE_ENTIER
             |OPERANDE_ENTIER 
             ;
 
-OPERANDE_ENTIER:'$''{'id'}' 
-            |'$''{'id'['OPERANDE_ENTIER']''}' 
+OPERANDE_ENTIER:'$''{'ID'}' 
+            |'$''{'ID'['OPERANDE_ENTIER']''}' 
             |'$' entier 
-            |PLUS_MOINS '$''{'id'}' 
-            |PLUS_MOINS '$''{'id'['OPERANDE_ENTIER']''}' 
+            |PLUS_MOINS '$''{'ID'}' 
+            |PLUS_MOINS '$''{'ID'['OPERANDE_ENTIER']''}' 
             |PLUS_MOINS '$'entier 
             |entier 
             |PLUS_MOINS entier 
@@ -147,11 +147,11 @@ FOIS_DIV_MOD: '*'
             |'%' 
             ;
 
-DECLARATION_FONTION: id '('')''{'DECL_LOC LISTE_INTRSUCTIONS '}' 
+DECLARATION_FONTION: ID '('')''{'DECL_LOC LISTE_INTRSUCTIONS '}' 
             ;
 
 
-/* DECL_LOC: DECL_LOC local id '=' CONCATENATION 
+/* DECL_LOC: DECL_LOC local ID '=' CONCATENATION 
             |%empty 
             ;
  */
@@ -159,11 +159,11 @@ DECLARATION_FONTION: id '('')''{'DECL_LOC LISTE_INTRSUCTIONS '}'
  DECL_LOC: %empty
             ;
 
-APPEL_FONCTION: id LISTE_OPERANDES {printf("Appel fonction \n");} 
-            |id {printf("Appel fonction \n");}
+APPEL_FONCTION: ID LISTE_OPERANDES 
+            |ID 
             ;
-ID : id {printf("C'est bien un id\n");}
-    |mot    {printf("C'est ppirt pour mot mais peut être que c'est un id?? \n");}
+ID : id {printf("C'est bien un id\n");$$=$1;}
+    |mot    {printf("C'est prit pour mot mais peut être que c'est un id?? \n");$$=$1;}
     ;
     
 

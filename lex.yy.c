@@ -899,12 +899,12 @@ case 17:
 /* rule 17 can match eol */
 YY_RULE_SETUP
 #line 41 "p.lex"
-{printf("Space\n");}
+
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
 #line 45 "p.lex"
-{printf("lex declare\n");return declare;}
+
 	YY_BREAK
 case 19:
 YY_RULE_SETUP

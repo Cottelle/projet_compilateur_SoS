@@ -38,11 +38,11 @@ ALLE [^\"\'" "";""=""\n""\t""\]""\)""\[""\("]
 "%" return yytext[0];
 
 
-[[:space:]] {printf("Space\n");}
+[[:space:]] 
 
 
 
-"declare "  {printf("lex declare\n");return declare;}
+"declare "  
 "if " {return if_;}
 "then " {return then;}
 "elif " {return elif;}
