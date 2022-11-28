@@ -1,7 +1,8 @@
 sujet.pdf
-*/
+MARS\ Simulateur\ MIPS\ en\ java-20221117/
 
 *.o
 p.tab.*
-main*
+main.o
+main
 lex.*

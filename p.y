@@ -1,7 +1,14 @@
 %{
 #include<stdio.h>
+
+#include "tabsymbole.h"
+
+
 extern int yylex(void);
 void yyerror(const char *msg);
+
+
+
     %}
 
 %union{
@@ -25,18 +32,18 @@ LISTE_INTRSUCTIONS: LISTE_INTRSUCTIONS ';' INSTRUCTION
                 | INSTRUCTION       
                 ;
 
-INSTRUCTION : ID '=' CONCATENATION  {printf(">ID= %s\n",$1);} 
-            |ID'['OPERANDE_ENTIER']' '=' CONCATENATION {printf(">ID[]= %s\n",$1);} 
+INSTRUCTION : ID '=' CONCATENATION  {printf(">ID= %s(%i)\n",$1,findtable($1,1));} 
+            |ID'['OPERANDE_ENTIER']' '=' CONCATENATION {printf(">ID[]= %s(%i)\n",$1,findtable($1,1));} 
             |declare ID'['entier']' {printf(">declare %s[%i]\n",$2,$4);}
             |if_ TEST_BLOC then LISTE_INTRSUCTIONS ELSE_PART fi {printf(">if \n");}
-            |for_ ID do_ LISTE_INTRSUCTIONS done {printf(">for \n");}
-            |for_ ID in LISTE_OPERANDES do_ LISTE_INTRSUCTIONS done {printf(">for do \n");}
+            |for_ ID do_ LISTE_INTRSUCTIONS done {printf(">for (%i)\n",findtable($2,1));}   //peut ecraser les ancien même id
+            |for_ ID in LISTE_OPERANDES do_ LISTE_INTRSUCTIONS done {printf(">for in (%i)\n",findtable($2,1));} //idem
             |while_ TEST_BLOC do_ LISTE_INTRSUCTIONS done {printf(">while \n");}
             |until TEST_BLOC do_ LISTE_INTRSUCTIONS done {printf(">until \n");}
             |case_ OPERANDE in LISTE_CAS esac {printf(">case \n");}
             |echo LISTE_OPERANDES {printf(">echo \n");}
-            |read_ ID   {printf(">Read %s\n",$2);} 
-            |read_ ID'['OPERANDE_ENTIER']' {printf(">Read %s[ent]\n",$2);}
+            |read_ ID   {printf(">Read %s(%i)\n",$2,findtable($2,1));}
+            |read_ ID'['OPERANDE_ENTIER']' {printf(">Read %s[ent](%i)\n",$2,findtable($2,1));}
             |DECLARATION_FONTION {printf(">declaration fonction \n");}
             |return_ {printf(">return \n");}
             |return_ OPERANDE_ENTIER {printf(">return entier \n");}
@@ -94,7 +101,7 @@ TEST_INSTRUCTION :CONCATENATION '=' CONCATENATION
             |OPERANDE OPERATEUR2 OPERANDE 
             ;
 
-OPERANDE:'$''{'ID'}' 
+OPERANDE:'$''{'ID'}' {if (findtable($3,0)<0) printf("Erreur %s n'existe pas\n ",$3); else printf("sdf");}       //bizarre
             |'$''{'ID'['OPERANDE_ENTIER']''}' 
             |mot   
             |entier                 //Rajouter a la grammaire        
