@@ -101,7 +101,7 @@ TEST_INSTRUCTION :CONCATENATION '=' CONCATENATION
             |OPERANDE OPERATEUR2 OPERANDE 
             ;
 
-OPERANDE:'$''{'ID'}' {if (findtable($3,0)<0) printf("Erreur %s n'existe pas\n ",$3); else printf("sdf");}       //bizarre
+OPERANDE:'$''{'ID'}' {int a; if ((a=findtable($3,0))<0) { printf("Erreur %s n'existe pas\n ",$3); exit(2);}}
             |'$''{'ID'['OPERANDE_ENTIER']''}' 
             |mot   
             |entier                 //Rajouter a la grammaire        

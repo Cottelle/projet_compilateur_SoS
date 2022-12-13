@@ -10,7 +10,7 @@ unsigned int findtable(char *id, int create)
     {
         if (tabsymbole.tab[i].used && strcmp(id, tabsymbole.tab[i].name) == 0)
             return i;
-        if (!tabsymbole.tab[i].used)
+        if (!(tabsymbole.tab[i].used))
         {
             if (!create)
                 return -1;
@@ -37,4 +37,5 @@ unsigned int findtable(char *id, int create)
 
         return place;
     }
+    return -1;
 }

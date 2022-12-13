@@ -47,7 +47,7 @@ ALLE [^\"\'" "";""=""\n""\t""\]""\)""\[""\(""$""{""}"]
 "-lt" return tlt;
 "-le" return tle;
 
-"#".*"\n" {printf("Commentaire %s\n",yytext);}
+"#".*"\n" ;
 
 
 [[:space:]] ;

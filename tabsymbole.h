@@ -2,6 +2,8 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
+
 #define INITSIZETAB 0;
 
 
@@ -19,4 +21,7 @@ struct tabsymbole{
  * *  return the index in the tabsymbole -1 if issn't present and create = 0, else create (Isint id create =2)  
  */
 unsigned int findtable(char *id,int create);
+
+
+    
 
