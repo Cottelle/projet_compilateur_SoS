@@ -1,6 +1,7 @@
 #include "gencode.h"
 
-quad quad;
+
+struct quad quad;
 
 lpos *crelist(int position)
 {
@@ -52,7 +53,8 @@ void gencode(char *code, int allowed)
     {
         if (quad.size ==0)
             quad.size++;
-        quad.quadrup = realloc(quad.quadrup, 2*quad.size);
+        quad.size=2* quad.size;
+        quad.quadrup = realloc(quad.quadrup, quad.size);
         if (!quad.quadrup)
             {
                 fprintf(stderr,"[gSoSSoS]Erreur genecode: realloc");

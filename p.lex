@@ -47,6 +47,8 @@ ALLE [^\"\'" "";""=""\n""\t""\]""\)""\[""\(""$""{""}"]
 "-lt" return tlt;
 "-le" return tle;
 
+"mm" return magic;
+
 "#".*"\n" ;
 
 
