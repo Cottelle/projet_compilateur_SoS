@@ -14,6 +14,13 @@ typedef struct quadrup
     char *instruction;
     int cible;
     char free;
+    /* 
+    char instruction
+    char z;                 On pert l'ecriture des id par exemple (juste indice dans tabsymbole) 
+    char u;
+    char d;
+    char t;
+     */
 } quadrup;
 
 struct quad
