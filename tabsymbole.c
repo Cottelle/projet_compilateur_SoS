@@ -22,7 +22,6 @@ unsigned int findtable(char *id, int create)
     }
     if (create)
     {
-        printf("<<%i\n",tabsymbole.size);
         void *temp = realloc(tabsymbole.tab, (tabsymbole.size + 1) * 2);
         if (!temp)
         {
