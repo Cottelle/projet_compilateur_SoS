@@ -4,6 +4,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
+
+
+#define SIZECODE 32
 
 typedef struct quadrup
 {
@@ -34,7 +38,7 @@ lpos *concat(lpos *l1, lpos *l2);
 
 void complete(lpos *liste, int cible);
 
-void gencode(char *code, int allowed);
+void gencode(int alowed,char *code,...);
 
 
 #endif

@@ -15,11 +15,14 @@ void yyerror(const char *msg);
 
 %union{
     int entier;
+    int quad;
     char *name;
     struct {
         struct lpos* true;
         struct lpos* false;
     } cond;
+
+    struct lpos* next;
 
 
 }
@@ -30,6 +33,8 @@ void yyerror(const char *msg);
 %token declare if_ then elif else_ fi for_ do_ done in while_ until case_ esac echo read_ return_ exit_ chaine test expr local to ta teq tne tgt tge tlt tle magic
 %type <name> ID
 %type <cond> TEST_EXPR TEST_EXPR2 TEST_EXPR3 TEST_INSTRUCTION TEST_BLOC
+%type <next> INSTRUCTION LISTE_INTRSUCTIONS ELSE_PART 
+%type <quad> M
 %start PROGRAMME
 
 %%
@@ -37,17 +42,17 @@ void yyerror(const char *msg);
 PROGRAMME : LISTE_INTRSUCTIONS      
             ;
 
-LISTE_INTRSUCTIONS: LISTE_INTRSUCTIONS ';' INSTRUCTION
-                | INSTRUCTION       
+LISTE_INTRSUCTIONS: LISTE_INTRSUCTIONS ';' {complete($1,quad.next);} INSTRUCTION 
+                | INSTRUCTION {$$= $1;}       
                 ;
 
-INSTRUCTION : ID '=' CONCATENATION  {char *buf = malloc(32); if(!buf) {fprintf(stderr,"Error malloc"); exit(1);} snprintf(buf,32,"%s(%i):=",$1,findtable($1,1) ); gencode(buf,1); } 
+INSTRUCTION : ID '=' CONCATENATION  { gencode(1,"%s(%i)",$1,findtable($1,1)); } 
             |ID'['OPERANDE_ENTIER']' '=' CONCATENATION {printf(">ID[]= %s(%i)\n",$1,findtable($1,1));} 
             |declare ID'['entier']' {printf(">declare %s[%i]\n",$2,$4);}
-            |if_ TEST_BLOC then {complete($2.true, quad.next);} LISTE_INTRSUCTIONS {complete($2.false, quad.next);}  ELSE_PART fi {printf(">if \n");}
+            |if_ TEST_BLOC then {complete($2.true, quad.next);} LISTE_INTRSUCTIONS M {gencode(0,"goto"); complete($2.false, quad.next);}  ELSE_PART fi {printf(">if \n"); $$ = concat($5, crelist($6) ); }
             |for_ ID do_ LISTE_INTRSUCTIONS done {printf(">for (%i)\n",findtable($2,1));}   //peut ecraser les ancien même id
             |for_ ID in LISTE_OPERANDES do_ LISTE_INTRSUCTIONS done {printf(">for in (%i)\n",findtable($2,1));} //idem
-            |while_ TEST_BLOC do_ LISTE_INTRSUCTIONS done {printf(">while \n");}
+            |while_ M TEST_BLOC do_ {complete($3.true,quad.next);} LISTE_INTRSUCTIONS done {printf(">while \n"); $$ = $3.false; complete($6, $2), gencode(1,"goto %i",$2);  }
             |until TEST_BLOC do_ LISTE_INTRSUCTIONS done {printf(">until \n");}
             |case_ OPERANDE in LISTE_CAS esac {printf(">case \n");}
             |echo LISTE_OPERANDES {printf(">echo \n");}
@@ -61,8 +66,8 @@ INSTRUCTION : ID '=' CONCATENATION  {char *buf = malloc(32); if(!buf) {fprintf(s
             |exit_ OPERANDE_ENTIER {printf(">exit entier \n");}
             ;
 
-ELSE_PART: elif TEST_BLOC then LISTE_INTRSUCTIONS ELSE_PART 
-            |else_ LISTE_INTRSUCTIONS 
+ELSE_PART: elif TEST_BLOC {complete($2.true, quad.next);} then LISTE_INTRSUCTIONS M {gencode(0,"goto");complete($2.false, quad.next); } ELSE_PART { $$ = concat(crelist($6),$5); $$ = concat($$,crelist(quad.next)); gencode(0,"goto");}
+            |else_ LISTE_INTRSUCTIONS {$$ = $2; $$ = concat($$,crelist(quad.next)); gencode(0,"goto");}
             |%empty 
             ;
 
@@ -118,7 +123,7 @@ TEST_INSTRUCTION :CONCATENATION '=' CONCATENATION
             |OPERANDE OPERATEUR2 OPERANDE 
             |magic {
                 $$.true = crelist(quad.next);
-                gencode("goto",0);
+                gencode(0,"goto");
                 $$.false = NULL;}
             ;
 
@@ -192,6 +197,8 @@ APPEL_FONCTION: ID LISTE_OPERANDES
 ID : id {printf("C'est bien un id %s\n",$1);$$=$1;}
     |mot    {printf("C'est prit pour mot mais peut être que c'est un id?? %s\n",$1);$$=$1;}
     ;
+
+M: %empty { $$ = quad.next;}
 
 %%
 

@@ -1,11 +1,15 @@
 #include "gencode.h"
 
-
 struct quad quad;
 
 lpos *crelist(int position)
 {
     lpos *new = malloc(sizeof(lpos));
+    if (!new)
+    {
+        fprintf(stderr, "Error malloc\n");
+        exit(1);
+    }
     new->position = position;
     new->suivant = NULL;
     return new;
@@ -47,20 +51,37 @@ void complete(lpos *liste, int cible)
     }
 }
 
-void gencode(char *code, int allowed)
+void gencode(int allowed, char *code, ...)
 {
     if (quad.size <= quad.next)
     {
-        if (quad.size ==0)
+        if (quad.size == 0)
             quad.size++;
-        quad.size=100;
-        quad.quadrup = realloc(quad.quadrup,100);
+        quad.size = 100;
+        quad.quadrup = realloc(quad.quadrup, 100);
         if (!quad.quadrup)
-            {
-                fprintf(stderr,"[gSoSSoS]Erreur genecode: realloc");
-                exit(1);
-            }
+        {
+            fprintf(stderr, "[gSoSSoS]Erreur genecode: realloc");
+            exit(1);
+        }
     }
+    if (allowed)
+    {
+        va_list ap;
+        va_start(ap, code);
+
+        char *buf = malloc(SIZECODE);
+        if (!buf)
+        {
+            fprintf(stderr, "Error malloc");
+            exit(1);
+        }
+
+        vsnprintf(buf, SIZECODE, code, ap);
+        va_end(ap);
+        code = buf;
+    }
+
     quad.quadrup[quad.next].instruction = code;
     quad.quadrup[quad.next].cible = -1;
     if (allowed)
