@@ -53,7 +53,7 @@ INSTRUCTION : ID '=' CONCATENATION  { gencode(1,"%s(%i)",$1,findtable($1,1)); }
             |for_ ID do_ LISTE_INTRSUCTIONS done {printf(">for (%i)\n",findtable($2,1));}   //peut ecraser les ancien même id
             |for_ ID in LISTE_OPERANDES do_ LISTE_INTRSUCTIONS done {printf(">for in (%i)\n",findtable($2,1));} //idem
             |while_ M TEST_BLOC do_ {complete($3.true,quad.next);} LISTE_INTRSUCTIONS done {printf(">while \n"); $$ = $3.false; complete($6, $2), gencode(1,"goto %i",$2);  }
-            |until TEST_BLOC do_ LISTE_INTRSUCTIONS done {printf(">until \n");}
+            |until M TEST_BLOC do_ {complete($3.false, quad.next);} LISTE_INTRSUCTIONS done {printf(">until \n"); $$ = $3.true; complete($6, $2), gencode(1,"goto %i",$2);}
             |case_ OPERANDE in LISTE_CAS esac {printf(">case \n");}
             |echo LISTE_OPERANDES {printf(">echo \n");}
             |read_ ID   {printf(">Read %s(%i)\n",$2,findtable($2,1));}
