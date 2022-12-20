@@ -2,6 +2,8 @@
 
 struct quad quad;
 
+struct casestack *casestack;
+
 lpos *crelist(int position)
 {
     lpos *new = malloc(sizeof(lpos));
@@ -40,18 +42,18 @@ void complete(lpos *liste, int cible)
     lpos *last = liste;
     if (liste)
     {
-        quad.quadrup[liste->position].cible = cible;
+        quad.quadrup[liste->position].zero = cible;
         while (liste->suivant != NULL)
         {
             liste = liste->suivant;
-            quad.quadrup[liste->position].cible = cible;
+            quad.quadrup[liste->position].zero = cible;
             free(last);
             last = liste;
         }
     }
 }
 
-void gencode(int allowed, char *code, ...)
+void gencode(enum instruction instruction, int z, int o, int t, int th )
 {
     if (quad.size <= quad.next)
     {
@@ -65,26 +67,77 @@ void gencode(int allowed, char *code, ...)
             exit(1);
         }
     }
-    if (allowed)
-    {
-        va_list ap;
-        va_start(ap, code);
 
-        char *buf = malloc(SIZECODE);
-        if (!buf)
-        {
-            fprintf(stderr, "Error malloc");
-            exit(1);
-        }
+    quad.quadrup[quad.next].instruction= instruction;
+    quad.quadrup[quad.next].zero = z;
+    quad.quadrup[quad.next].one = o;
+    quad.quadrup[quad.next].two = t;
+    quad.quadrup[quad.next].three = th;
 
-        vsnprintf(buf, SIZECODE, code, ap);
-        va_end(ap);
-        code = buf;
-    }
-
-    quad.quadrup[quad.next].instruction = code;
-    quad.quadrup[quad.next].cible = -1;
-    if (allowed)
-        quad.quadrup[quad.next].free = 1;
     quad.next++;
+}
+
+
+void printquad()
+{
+    for(int i=0; i<quad.next;i++)
+    {
+        printf("%i ",i);
+        switch (quad.quadrup[i].instruction)
+        {
+        case GOTO:
+            printf("goto %i\n",quad.quadrup[i].zero);
+            break;
+
+        case AFF:
+            printf("[%i]:=\n",quad.quadrup[i].zero);
+            break;
+        
+        case IF:
+            printf("if %i = %i goto %i",quad.quadrup[i].zero,quad.quadrup[i].one,quad.quadrup[i].two);
+            break;
+        
+        case CALL:
+            printf("call %i\n",quad.quadrup[i].zero);
+            break;
+
+        case SYS:
+            printf("sys %i\n",quad.quadrup[i].zero);
+
+        default:
+            printf("??\n");
+            break;
+        }
+    }
+}
+
+
+
+void casepush(int value)
+{
+    struct casestack *head = malloc(sizeof(struct casestack));
+    if (!head)
+    {
+        fprintf(stderr,"Error malloc (casepush)\n");
+        exit(1);
+    }
+    head->head= value;
+    head->tail= casestack;
+    casestack = head;
+}
+
+int casepop(void)
+{
+    if(!casestack)
+    {
+        fprintf(stderr,"Error casestack is empty\n");
+        exit(2);
+    }
+    int ret = casestack->head;
+    struct casestack *temp = casestack->tail;
+    free(casestack);
+    casestack = temp;
+
+    return ret;
+
 }

@@ -18,11 +18,16 @@ void yyerror(const char *msg);
     int quad;
     char *name;
     struct {
-        struct lpos* true;
-        struct lpos* false;
+        struct lpos *true;
+        struct lpos *false;
     } cond;
 
-    struct lpos* next;
+    struct lpos *next;
+
+    struct {
+        struct lpos *next;
+        struct lpos *follow;
+    } nexfoll;
 
 
 }
@@ -34,6 +39,7 @@ void yyerror(const char *msg);
 %type <name> ID
 %type <cond> TEST_EXPR TEST_EXPR2 TEST_EXPR3 TEST_INSTRUCTION TEST_BLOC
 %type <next> INSTRUCTION LISTE_INTRSUCTIONS ELSE_PART 
+%type <nexfoll> LISTE_CAS
 %type <quad> M
 %start PROGRAMME
 
@@ -46,15 +52,15 @@ LISTE_INTRSUCTIONS: LISTE_INTRSUCTIONS ';' {complete($1,quad.next);} INSTRUCTION
                 | INSTRUCTION {$$= $1;}       
                 ;
 
-INSTRUCTION : ID '=' CONCATENATION  { gencode(1,"%s(%i)",$1,findtable($1,1)); } 
+INSTRUCTION : ID '=' CONCATENATION  { gencode(AFF, findtable($1,1),-1,-1,-1); printf("Ara\n");} 
             |ID'['OPERANDE_ENTIER']' '=' CONCATENATION {printf(">ID[]= %s(%i)\n",$1,findtable($1,1));} 
             |declare ID'['entier']' {printf(">declare %s[%i]\n",$2,$4);}
-            |if_ TEST_BLOC then {complete($2.true, quad.next);} LISTE_INTRSUCTIONS M {gencode(0,"goto"); complete($2.false, quad.next);}  ELSE_PART fi {printf(">if \n"); $$ = concat($5, crelist($6) ); }
+            |if_ TEST_BLOC then {complete($2.true, quad.next);} LISTE_INTRSUCTIONS M {gencode(GOTO,-1,-1,-1,-1); complete($2.false, quad.next);}  ELSE_PART fi {printf(">if \n"); $$ = concat($5, crelist($6) ); }
             |for_ ID do_ LISTE_INTRSUCTIONS done {printf(">for (%i)\n",findtable($2,1));}   //peut ecraser les ancien même id
             |for_ ID in LISTE_OPERANDES do_ LISTE_INTRSUCTIONS done {printf(">for in (%i)\n",findtable($2,1));} //idem
-            |while_ M TEST_BLOC do_ {complete($3.true,quad.next);} LISTE_INTRSUCTIONS done {printf(">while \n"); $$ = $3.false; complete($6, $2), gencode(1,"goto %i",$2);  }
-            |until M TEST_BLOC do_ {complete($3.false, quad.next);} LISTE_INTRSUCTIONS done {printf(">until \n"); $$ = $3.true; complete($6, $2), gencode(1,"goto %i",$2);}
-            |case_ OPERANDE in LISTE_CAS esac {printf(">case \n");}
+            |while_ M TEST_BLOC do_ {complete($3.true,quad.next);} LISTE_INTRSUCTIONS done {printf(">while \n"); $$ = $3.false; complete($6, $2), gencode(GOTO,$2,-1,-1,-1);  }
+            |until M TEST_BLOC do_ {complete($3.false, quad.next);} LISTE_INTRSUCTIONS done {printf(">until \n"); $$ = $3.true; complete($6, $2), gencode(GOTO,$2,-1,-1,-1);}
+            |case_  OPERANDE {casepush(2);} in LISTE_CAS esac {printf(">case \n");  $$ = concat($5.follow,$5.next); casepop();}
             |echo LISTE_OPERANDES {printf(">echo \n");}
             |read_ ID   {printf(">Read %s(%i)\n",$2,findtable($2,1));}
             |read_ ID'['OPERANDE_ENTIER']' {printf(">Read %s[ent](%i)\n",$2,findtable($2,1));}
@@ -66,16 +72,16 @@ INSTRUCTION : ID '=' CONCATENATION  { gencode(1,"%s(%i)",$1,findtable($1,1)); }
             |exit_ OPERANDE_ENTIER {printf(">exit entier \n");}
             ;
 
-ELSE_PART: elif TEST_BLOC {complete($2.true, quad.next);} then LISTE_INTRSUCTIONS M {gencode(0,"goto");complete($2.false, quad.next); } ELSE_PART { $$ = concat(crelist($6),$5); $$ = concat($$,crelist(quad.next)); gencode(0,"goto");}
-            |else_ LISTE_INTRSUCTIONS {$$ = $2; $$ = concat($$,crelist(quad.next)); gencode(0,"goto");}
+ELSE_PART: elif TEST_BLOC {complete($2.true, quad.next);} then LISTE_INTRSUCTIONS M {gencode(GOTO,-1,-1,-1,-1);complete($2.false, quad.next); } ELSE_PART { $$ = concat(crelist($6),$5); $$ = concat($$,crelist(quad.next)); gencode(GOTO,-1,-1,-1,-1);}
+            |else_ LISTE_INTRSUCTIONS {$$ = $2; $$ = concat($$,crelist(quad.next)); gencode(GOTO,-1,-1,-1,-1);}
             |%empty 
             ;
 
-LISTE_CAS: LISTE_CAS FILTRE ')' LISTE_INTRSUCTIONS ';'';' 
-            |FILTRE ')'LISTE_INTRSUCTIONS ';'';' 
+LISTE_CAS: LISTE_CAS FILTRE ')' LISTE_INTRSUCTIONS ';'';' {$$.next = concat($4,crelist(quad.next)); gencode(GOTO,-1,-1,-1,-1); }
+            |FILTRE ')'LISTE_INTRSUCTIONS ';'';' {$$.next = concat($3,crelist(quad.next)); gencode(GOTO,-1,-1,-1,-1); }
             ; 
 
-FILTRE: mot
+FILTRE: mot                             {/*Il faut metre les ids pour ne pas exclure les mots ids*/}
            |'\''chaine'\'' 
            |'"'chaine'"' 
            |FILTRE '|' mot 
@@ -123,13 +129,13 @@ TEST_INSTRUCTION :CONCATENATION '=' CONCATENATION
             |OPERANDE OPERATEUR2 OPERANDE 
             |magic {
                 $$.true = crelist(quad.next);
-                gencode(0,"goto");
+                gencode(GOTO,-1,-1,-1,-1);
                 $$.false = NULL;}
             ;
 
 
 
-OPERANDE:'$''{'ID'}' {int a; if ((a=findtable($3,0))<0) { printf("Erreur %s n'existe pas\n ",$3); exit(2);}}
+OPERANDE:'$''{'ID'}' {;}
             |'$''{'ID'['OPERANDE_ENTIER']''}' 
             |mot   
             |entier                 //Rajouter a la grammaire        

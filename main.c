@@ -9,14 +9,6 @@ int main(void)
     quad.quadrup = NULL; // Sinon pb de realloc
     if (yyparse() != 0)
         ;
-    printf("<%i>\n", quad.next);
-    for (int i = 0; i < quad.next; i++)
-    {
-        printf("[%i]%s ", i, quad.quadrup[i].instruction);
-        if (quad.quadrup[i].cible!=-1)
-            printf("%i\n",quad.quadrup[i].cible);
-        else
-            printf("\n");
-    }
+    printquad();
     return 0;
 }

@@ -1,3 +1,6 @@
-if test $1=$1 then 
-a=$1
-fi
+a=$1;
+case ${a} in
+Anne|Corinne|Sabine|Emilie) new_phrase = ${new_phrase}" "elle ;;
+Pierre|Paul|Jacques|Albert) new_phrase = ${new_phrase}" "lui ;;
+*) new_phrase = ${new_phrase}" "${mot} ;;
+esac
