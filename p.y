@@ -83,8 +83,8 @@ ELSE_PART: elif TEST_BLOC {complete($2.true, quad.next);} then LISTE_INTRSUCTION
             |%empty 
             ;
 
-LISTE_CAS: LISTE_CAS FILTRE ')' M { gencode(IF,-1,casetop(),2,findtable($2.last,1)); complete($2.entrer,quad.next);} LISTE_INTRSUCTIONS ';'';' {$$.next = concat($6,crelist(quad.next)); gencode(GOTO,-1,-1,-1,-1); $$.next = concat($$.next,$1.next); complete($1.follow,$4); $$.follow = crelist($4) ;  } 
-            |FILTRE ')'M { gencode(IF,-1,casetop(),2,findtable($1.last,1)); complete($1.entrer,quad.next);} LISTE_INTRSUCTIONS ';'';' {$$.next = concat($5,crelist(quad.next)); gencode(GOTO,-1,-1,-1,-1); $$.follow = crelist($3) ;}
+LISTE_CAS: LISTE_CAS M FILTRE ')' M { gencode(IF,-1,casetop(),2,findtable($3.last,1)); complete($3.entrer,quad.next);} LISTE_INTRSUCTIONS ';'';' {$$.next = concat($7,crelist(quad.next)); gencode(GOTO,-1,-1,-1,-1); $$.next = concat($$.next,$1.next); complete($1.follow,$2); $$.follow = crelist($5) ;  } 
+            |M FILTRE ')'M { gencode(IF,-1,casetop(),2,findtable($2.last,1)); complete($2.entrer,quad.next);} LISTE_INTRSUCTIONS ';'';' {$$.next = concat($6,crelist(quad.next)); gencode(GOTO,-1,-1,-1,-1); $$.follow = crelist($4) ;}
             ; 
 
 FILTRE: ID {$$.last=$1; $$.entrer = NULL;}                      
@@ -92,7 +92,7 @@ FILTRE: ID {$$.last=$1; $$.entrer = NULL;}
            |'"'chaine'"' {$$.last=$2;$$.entrer = NULL;}           
            |FILTRE '|' mot  {$$.last=$3; $$.entrer = concat($1.entrer, crelist(quad.next)) ; gencode(IF,-1,casetop(),1,findtable($1.last,1)) ;  }           
            |FILTRE '|' '"'chaine'"' {$$.last=$4; $$.entrer = concat($1.entrer, crelist(quad.next)) ; gencode(IF,-1,casetop(),1,findtable($1.last,1)) ;}           
-           | '*' {$$.entrer = crelist(quad.next) ; gencode(GOTO,-1,-1,-1,-1); $$.entrer = NULL; }
+           | '*' {$$.entrer = crelist(quad.next) ; gencode(GOTO,-1,-1,-1,-1); $$.last = "Bidon"; }
            ;
 
 LISTE_OPERANDES:LISTE_OPERANDES OPERANDE 
