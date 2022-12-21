@@ -29,14 +29,20 @@ void yyerror(const char *msg);
         struct lpos *follow;
     } nexfoll;
 
+    struct {
+        struct lpos *entrer;
+        char *last;
+    } filtre;
+
 
 }
 
 
 %token <entier> entier
-%token <name> id mot
-%token declare if_ then elif else_ fi for_ do_ done in while_ until case_ esac echo read_ return_ exit_ chaine test expr local to ta teq tne tgt tge tlt tle magic
-%type <name> ID
+%token <name> id mot chaine
+%token declare if_ then elif else_ fi for_ do_ done in while_ until case_ esac echo read_ return_ exit_  test expr local to ta teq tne tgt tge tlt tle magic
+%type <name> ID  OPERANDE
+%type <filtre> FILTRE
 %type <cond> TEST_EXPR TEST_EXPR2 TEST_EXPR3 TEST_INSTRUCTION TEST_BLOC
 %type <next> INSTRUCTION LISTE_INTRSUCTIONS ELSE_PART 
 %type <nexfoll> LISTE_CAS
@@ -48,19 +54,19 @@ void yyerror(const char *msg);
 PROGRAMME : LISTE_INTRSUCTIONS      
             ;
 
-LISTE_INTRSUCTIONS: LISTE_INTRSUCTIONS ';' {complete($1,quad.next);} INSTRUCTION 
-                | INSTRUCTION {$$= $1;}       
+LISTE_INTRSUCTIONS: LISTE_INTRSUCTIONS ';'INSTRUCTION  {complete($3,quad.next);} 
+                | INSTRUCTION {complete($1,quad.next);}       
                 ;
 
-INSTRUCTION : ID '=' CONCATENATION  { gencode(AFF, findtable($1,1),-1,-1,-1); printf("Ara\n");} 
-            |ID'['OPERANDE_ENTIER']' '=' CONCATENATION {printf(">ID[]= %s(%i)\n",$1,findtable($1,1));} 
-            |declare ID'['entier']' {printf(">declare %s[%i]\n",$2,$4);}
+INSTRUCTION : ID '=' CONCATENATION  { $$= NULL; gencode(AFF, findtable($1,1),-1,-1,-1);} 
+            |ID'['OPERANDE_ENTIER']' '=' CONCATENATION {$$= NULL;printf(">ID[]= %s(%i)\n",$1,findtable($1,1));} 
+            |declare ID'['entier']' {$$= NULL;printf(">declare %s[%i]\n",$2,$4);}
             |if_ TEST_BLOC then {complete($2.true, quad.next);} LISTE_INTRSUCTIONS M {gencode(GOTO,-1,-1,-1,-1); complete($2.false, quad.next);}  ELSE_PART fi {printf(">if \n"); $$ = concat($5, crelist($6) ); }
             |for_ ID do_ LISTE_INTRSUCTIONS done {printf(">for (%i)\n",findtable($2,1));}   //peut ecraser les ancien même id
             |for_ ID in LISTE_OPERANDES do_ LISTE_INTRSUCTIONS done {printf(">for in (%i)\n",findtable($2,1));} //idem
             |while_ M TEST_BLOC do_ {complete($3.true,quad.next);} LISTE_INTRSUCTIONS done {printf(">while \n"); $$ = $3.false; complete($6, $2), gencode(GOTO,$2,-1,-1,-1);  }
             |until M TEST_BLOC do_ {complete($3.false, quad.next);} LISTE_INTRSUCTIONS done {printf(">until \n"); $$ = $3.true; complete($6, $2), gencode(GOTO,$2,-1,-1,-1);}
-            |case_  OPERANDE {casepush(2);} in LISTE_CAS esac {printf(">case \n");  $$ = concat($5.follow,$5.next); casepop();}
+            |case_  OPERANDE {casepush(findtable($2,0));} in LISTE_CAS esac {printf(">case \n");  $$ = concat($5.follow,$5.next) ;casepop();}
             |echo LISTE_OPERANDES {printf(">echo \n");}
             |read_ ID   {printf(">Read %s(%i)\n",$2,findtable($2,1));}
             |read_ ID'['OPERANDE_ENTIER']' {printf(">Read %s[ent](%i)\n",$2,findtable($2,1));}
@@ -77,16 +83,16 @@ ELSE_PART: elif TEST_BLOC {complete($2.true, quad.next);} then LISTE_INTRSUCTION
             |%empty 
             ;
 
-LISTE_CAS: LISTE_CAS FILTRE ')' LISTE_INTRSUCTIONS ';'';' {$$.next = concat($4,crelist(quad.next)); gencode(GOTO,-1,-1,-1,-1); }
-            |FILTRE ')'LISTE_INTRSUCTIONS ';'';' {$$.next = concat($3,crelist(quad.next)); gencode(GOTO,-1,-1,-1,-1); }
+LISTE_CAS: LISTE_CAS FILTRE ')' M { gencode(IF,-1,casetop(),2,findtable($2.last,1)); complete($2.entrer,quad.next);} LISTE_INTRSUCTIONS ';'';' {$$.next = concat($6,crelist(quad.next)); gencode(GOTO,-1,-1,-1,-1); $$.next = concat($$.next,$1.next); complete($1.follow,$4); $$.follow = crelist($4) ;  } 
+            |FILTRE ')'M { gencode(IF,-1,casetop(),2,findtable($1.last,1)); complete($1.entrer,quad.next);} LISTE_INTRSUCTIONS ';'';' {$$.next = concat($5,crelist(quad.next)); gencode(GOTO,-1,-1,-1,-1); $$.follow = crelist($3) ;}
             ; 
 
-FILTRE: mot                             {/*Il faut metre les ids pour ne pas exclure les mots ids*/}
-           |'\''chaine'\'' 
-           |'"'chaine'"' 
-           |FILTRE '|' mot 
-           |FILTRE '|' '"'chaine'"' 
-           | '*' 
+FILTRE: ID {$$.last=$1; $$.entrer = NULL;}                      
+           |'\''chaine'\'' {$$.last=$2;$$.entrer = NULL;}           
+           |'"'chaine'"' {$$.last=$2;$$.entrer = NULL;}           
+           |FILTRE '|' mot  {$$.last=$3; $$.entrer = concat($1.entrer, crelist(quad.next)) ; gencode(IF,-1,casetop(),1,findtable($1.last,1)) ;  }           
+           |FILTRE '|' '"'chaine'"' {$$.last=$4; $$.entrer = concat($1.entrer, crelist(quad.next)) ; gencode(IF,-1,casetop(),1,findtable($1.last,1)) ;}           
+           | '*' {$$.entrer = crelist(quad.next) ; gencode(GOTO,-1,-1,-1,-1); $$.entrer = NULL; }
            ;
 
 LISTE_OPERANDES:LISTE_OPERANDES OPERANDE 
@@ -135,7 +141,7 @@ TEST_INSTRUCTION :CONCATENATION '=' CONCATENATION
 
 
 
-OPERANDE:'$''{'ID'}' {;}
+OPERANDE:'$''{'ID'}' {$$ = $3;}
             |'$''{'ID'['OPERANDE_ENTIER']''}' 
             |mot   
             |entier                 //Rajouter a la grammaire        

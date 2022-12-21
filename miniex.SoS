@@ -1,6 +1,8 @@
 a=$1;
 case ${a} in
-Anne|Corinne|Sabine|Emilie) new_phrase = ${new_phrase}" "elle ;;
-Pierre|Paul|Jacques|Albert) new_phrase = ${new_phrase}" "lui ;;
-*) new_phrase = ${new_phrase}" "${mot} ;;
-esac
+1e|2e) a = $1 ;;
+2es) b = $2 ;;
+3e) c = $3 ;;
+esac;
+e=$2;
+m=$2

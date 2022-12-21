@@ -22,7 +22,7 @@ unsigned int findtable(char *id, int create)
     }
     if (create)
     {
-        void *temp = realloc(tabsymbole.tab, (tabsymbole.size + 1) * 2);
+        void *temp = realloc(tabsymbole.tab, ((tabsymbole.size + 1) * 2)* sizeof(*tabsymbole.tab));
         if (!temp)
         {
             free(tabsymbole.tab);

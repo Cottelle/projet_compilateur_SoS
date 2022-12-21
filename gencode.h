@@ -60,4 +60,6 @@ void casepush(int);
 
 int casepop(void);
 
+int casetop(void);
+
 #endif

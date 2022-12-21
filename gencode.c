@@ -59,8 +59,8 @@ void gencode(enum instruction instruction, int z, int o, int t, int th )
     {
         if (quad.size == 0)
             quad.size++;
-        quad.size = 100;
-        quad.quadrup = realloc(quad.quadrup, 100);
+        quad.size*=2;
+        quad.quadrup = realloc(quad.quadrup, quad.size* sizeof(quadrup));
         if (!quad.quadrup)
         {
             fprintf(stderr, "[gSoSSoS]Erreur genecode: realloc");
@@ -94,7 +94,7 @@ void printquad()
             break;
         
         case IF:
-            printf("if %i = %i goto %i",quad.quadrup[i].zero,quad.quadrup[i].one,quad.quadrup[i].two);
+            printf("if %i (%i) %i goto %i\n",quad.quadrup[i].one,quad.quadrup[i].two,quad.quadrup[i].three,quad.quadrup[i].zero);
             break;
         
         case CALL:
@@ -105,7 +105,7 @@ void printquad()
             printf("sys %i\n",quad.quadrup[i].zero);
 
         default:
-            printf("??\n");
+            printf("?(%i)\n", quad.quadrup[i].instruction);
             break;
         }
     }
@@ -140,4 +140,12 @@ int casepop(void)
 
     return ret;
 
+}
+
+int casetop(void)
+{
+    if (casestack)
+        return casestack->head;
+    fprintf(stderr,"Error casestack is empty\n");
+    exit(2);
 }
