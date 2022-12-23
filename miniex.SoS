@@ -1,13 +1,5 @@
+for i in er df cv do
 a=$1;
-case ${a} in
-1e|2e) a = $1 ;;
-2es) b = $2 ;;
-3e) c = $3 ;;
-*) s=$1;;
-esac;
-e=$2;
-m=$2
-
-if test mm then 
-a=$1
-fi
+b=$1
+done 
+s=$1

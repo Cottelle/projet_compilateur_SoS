@@ -53,14 +53,14 @@ void complete(lpos *liste, int cible)
     }
 }
 
-void gencode(enum instruction instruction, int z, int o, int t, int th )
+void gencode(enum instruction instruction, int z, int o, int t, int th)
 {
     if (quad.size <= quad.next)
     {
         if (quad.size == 0)
             quad.size++;
-        quad.size*=2;
-        quad.quadrup = realloc(quad.quadrup, quad.size* sizeof(quadrup));
+        quad.size *= 2;
+        quad.quadrup = realloc(quad.quadrup, quad.size * sizeof(quadrup));
         if (!quad.quadrup)
         {
             fprintf(stderr, "[gSoSSoS]Erreur genecode: realloc");
@@ -68,7 +68,7 @@ void gencode(enum instruction instruction, int z, int o, int t, int th )
         }
     }
 
-    quad.quadrup[quad.next].instruction= instruction;
+    quad.quadrup[quad.next].instruction = instruction;
     quad.quadrup[quad.next].zero = z;
     quad.quadrup[quad.next].one = o;
     quad.quadrup[quad.next].two = t;
@@ -77,32 +77,38 @@ void gencode(enum instruction instruction, int z, int o, int t, int th )
     quad.next++;
 }
 
-
 void printquad()
 {
-    for(int i=0; i<quad.next;i++)
+    for (int i = 0; i < quad.next; i++)
     {
-        printf("%i ",i);
+        printf("%i ", i);
         switch (quad.quadrup[i].instruction)
         {
         case GOTO:
-            printf("goto %i\n",quad.quadrup[i].zero);
+            if (quad.quadrup[i].one == 0)
+                printf("goto [%i]\n", quad.quadrup[i].zero);
+            else
+                printf("goto %i\n", quad.quadrup[i].zero);
             break;
 
         case AFF:
-            printf("[%i]:=\n",quad.quadrup[i].zero);
+            if (quad.quadrup[i].two>=0)
+            printf("[%i]:=%i %s %i\n", quad.quadrup[i].zero, quad.quadrup[i].one, (quad.quadrup[i].two==1)? "+" :"??", quad.quadrup[i].three);
+            else
+            printf("[%i]:=%i \n", quad.quadrup[i].zero, quad.quadrup[i].one);
+
             break;
-        
+
         case IF:
-            printf("if %i (%i) %i goto %i\n",quad.quadrup[i].one,quad.quadrup[i].two,quad.quadrup[i].three,quad.quadrup[i].zero);
+            printf("if %i (%i) %i goto %i\n", quad.quadrup[i].one, quad.quadrup[i].two, quad.quadrup[i].three, quad.quadrup[i].zero);
             break;
-        
+
         case CALL:
-            printf("call %i\n",quad.quadrup[i].zero);
+            printf("call %i\n", quad.quadrup[i].zero);
             break;
 
         case SYS:
-            printf("sys %i\n",quad.quadrup[i].zero);
+            printf("sys %i\n", quad.quadrup[i].zero);
 
         default:
             printf("?(%i)\n", quad.quadrup[i].instruction);
@@ -111,26 +117,24 @@ void printquad()
     }
 }
 
-
-
 void casepush(int value)
 {
     struct casestack *head = malloc(sizeof(struct casestack));
     if (!head)
     {
-        fprintf(stderr,"Error malloc (casepush)\n");
+        fprintf(stderr, "Error malloc (casepush)\n");
         exit(1);
     }
-    head->head= value;
-    head->tail= casestack;
+    head->head = value;
+    head->tail = casestack;
     casestack = head;
 }
 
 int casepop(void)
 {
-    if(!casestack)
+    if (!casestack)
     {
-        fprintf(stderr,"Error casestack is empty\n");
+        fprintf(stderr, "Error casestack is empty\n");
         exit(2);
     }
     int ret = casestack->head;
@@ -139,13 +143,12 @@ int casepop(void)
     casestack = temp;
 
     return ret;
-
 }
 
 int casetop(void)
 {
     if (casestack)
         return casestack->head;
-    fprintf(stderr,"Error casestack is empty\n");
+    fprintf(stderr, "Error casestack is empty\n");
     exit(2);
 }

@@ -42,6 +42,7 @@ unsigned int findtable(char *id, int create)
 
 void printtabsymbole(void)
 {
+    printf("\n Table symbole : \n");
     for(int i=0;i<tabsymbole.size; i++)
     if (tabsymbole.tab[i].used)
         printf("-%i- %s\n",i,tabsymbole.tab[i].name);
