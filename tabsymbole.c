@@ -22,7 +22,7 @@ unsigned int findtable(char *id, int create)
     }
     if (create)
     {
-        void *temp = realloc(tabsymbole.tab, ((tabsymbole.size + 1) * 2)* sizeof(*tabsymbole.tab));
+        void *temp = realloc(tabsymbole.tab, ((tabsymbole.size + 1) * 2) * sizeof(*tabsymbole.tab));
         if (!temp)
         {
             free(tabsymbole.tab);
@@ -38,4 +38,11 @@ unsigned int findtable(char *id, int create)
         return place;
     }
     return -1;
+}
+
+void printtabsymbole(void)
+{
+    for(int i=0;i<tabsymbole.size; i++)
+    if (tabsymbole.tab[i].used)
+        printf("-%i- %s\n",i,tabsymbole.tab[i].name);
 }

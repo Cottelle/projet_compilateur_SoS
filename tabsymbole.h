@@ -1,4 +1,5 @@
-
+#ifndef TABSYMBOL
+#define TABSYMBOL
 
 #include <stdlib.h>
 #include <string.h>
@@ -23,5 +24,13 @@ struct tabsymbole{
 unsigned int findtable(char *id,int create);
 
 
-    
+
+/**
+ * Print the tabsymbol
+ */
+void printtabsymbole(void);
+
+
+
+#endif
 

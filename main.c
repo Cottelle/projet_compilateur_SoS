@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "gencode.h"
+#include "tabsymbole.h"
 
 extern int yyparse(void);
 extern struct quad quad;
@@ -10,5 +11,6 @@ int main(void)
     if (yyparse() != 0)
         ;
     printquad();
+    printtabsymbole();
     return 0;
 }

@@ -7,3 +7,7 @@ case ${a} in
 esac;
 e=$2;
 m=$2
+
+if test mm then 
+a=$1
+fi
