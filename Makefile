@@ -14,7 +14,7 @@ LDFLAGS = -g -Werror -Wextra -Wall
 
 all: main
 
-main: $(prefixe).tab.o lex.yy.o main.o tabsymbole.o gencode.o
+main: $(prefixe).tab.o lex.yy.o main.o tabsymbole.o gencode.o usefull.o
 	$(CC) $(LDFLAGS) $^ -o $@ $(LDLIBS)
 
 tabsymbole.o : tabsymbole.c
@@ -22,6 +22,9 @@ tabsymbole.o : tabsymbole.c
 
 gencode.o : gencode.c
 	gcc -o gencode.o -c gencode.c
+
+usefull.o : usefull.c
+	gcc -o usefull.o -c usefull.c
 
 $(prefixe).tab.c: $(prefixe).y
 	bison -t -d $(prefixe).y

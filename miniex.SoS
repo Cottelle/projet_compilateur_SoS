@@ -1,5 +1,8 @@
 for i in er df cv do
 a=$1;
-b=$1
-done 
+b=$1;
+for s in zer zs do
+a=$1
+done
+done;
 s=$1

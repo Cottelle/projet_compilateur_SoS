@@ -3,11 +3,14 @@
 
 #include "tabsymbole.h"
 #include "gencode.h"
+#include "usefull.h"
 
 
 extern int yylex(void);
 extern struct quad quad;
 void yyerror(const char *msg);
+
+unsigned int nbfor;
 
 
 
@@ -71,7 +74,7 @@ INSTRUCTION : ID '=' CONCATENATION  { $$= NULL; gencode(AFF, findtable($1,1),-1,
             |declare ID'['entier']' {$$= NULL;printf(">declare %s[%i]\n",$2,$4);}
             |if_ TEST_BLOC then {complete($2.true, quad.next);} LISTE_INTRSUCTIONS M {gencode(GOTO,-1,-1,-1,-1); complete($2.false, quad.next);}  ELSE_PART fi {printf(">if \n"); $$ = concat($5, crelist($6) ); }
             |for_ ID do_ LISTE_INTRSUCTIONS done {printf(">for (%i)\n",findtable($2,1));}   //il faudrait savoir cb il y a de parametre ...
-            |for_ ID in {gencode(AFF,findtable("_for",1),quad.next+1,-1,-1);} M LISTE_OPERANDES do_ M {gencode(GOTO,-1,-1,-1,-1);  complete($6.value, findtable($2,1)); complete($6.start,quad.next); gencode(AFF,findtable("_for",0),findtable("_for",0),1,2);} LISTE_INTRSUCTIONS done {printf(">for in (%i)\n",findtable($2,1)); $$ =crelist($8); gencode(GOTO,findtable("_for",0),0,-1,-1); } //idem
+            |for_ ID in {gencode(AFF,findtable(createbuf("_for%i",++nbfor),1),quad.next+1,-1,-1);} M LISTE_OPERANDES do_ M {char *buf = createbuf("_for%i",nbfor); gencode(GOTO,-1,-1,-1,-1);  complete($6.value, findtable($2,1)); complete($6.start,quad.next); gencode(AFF,findtable(buf,0),findtable(buf,0),1,2);} LISTE_INTRSUCTIONS done {printf(">for in (%i)\n",findtable($2,1)); $$ =crelist($8); gencode(GOTO,findtable(createbuf("_for%i",nbfor--),0),0,-1,-1); } //idem
             |while_ M TEST_BLOC do_ {complete($3.true,quad.next);} LISTE_INTRSUCTIONS done {printf(">while \n"); $$ = $3.false; complete($6, $2), gencode(GOTO,$2,-1,-1,-1);  }
             |until M TEST_BLOC do_ {complete($3.false, quad.next);} LISTE_INTRSUCTIONS done {printf(">until \n"); $$ = $3.true; complete($6, $2), gencode(GOTO,$2,-1,-1,-1);}
             |case_  OPERANDE {casepush($2);} in LISTE_CAS esac {printf(">case \n");  $$ = concat($5.follow,$5.next) ;casepop();}
@@ -151,10 +154,10 @@ TEST_INSTRUCTION :CONCATENATION '=' CONCATENATION
 
 OPERANDE:'$''{'ID'}' {$$ = findtable($3,0);}
             |'$''{'ID'['OPERANDE_ENTIER']''}' {$$= findtable($3,0); }
-            |mot   {$$=findtable($1,1);}
-            |entier  { char *mal = malloc(32); if (!mal){fprintf(stderr,"Error malloc qs"); exit(1); } snprintf(mal,32,"%i",$1); $$ = findtable(mal,1);}               //Rajouter a la grammaire        
-            |id {printf("id mais mot enfait %s\n",$1); $$ =findtable($1,1);}     //Rajouter a la grammaire
-            |chaine {$$ =findtable($1,1);}
+            |mot   {$$=writestringmemory($1);}
+            |entier  { char *mal = malloc(32); if (!mal){fprintf(stderr,"Error malloc qs"); exit(1); } snprintf(mal,32,"%i",$1); $$ = writestringmemory(mal);}               //Rajouter a la grammaire        
+            |id {printf("id mais mot enfait %s\n",$1); $$ =writestringmemory($1);}     //Rajouter a la grammaire
+            |chaine {$$ =writestringmemory($1);}
             |'$'entier      
             |'$''*' 
             |'$''?' 
