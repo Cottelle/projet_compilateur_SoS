@@ -4,6 +4,8 @@ struct quad quad;
 
 struct casestack *casestack;
 
+unsigned int nbarg;
+
 lpos *crelist(int position)
 {
     lpos *new = malloc(sizeof(lpos));
@@ -92,10 +94,10 @@ void printquad()
             break;
 
         case AFF:
-            if (quad.quadrup[i].two>=0)
-            printf("[%i]:=%i %s %i\n", quad.quadrup[i].zero, quad.quadrup[i].one, (quad.quadrup[i].two==1)? "+" :"??", quad.quadrup[i].three);
+            if (quad.quadrup[i].two >= 0)
+                printf("[%i]:=%i %s %i\n", quad.quadrup[i].zero, quad.quadrup[i].one, (quad.quadrup[i].two == 1) ? "+" : "??", quad.quadrup[i].three);
             else
-            printf("[%i]:=%i \n", quad.quadrup[i].zero, quad.quadrup[i].one);
+                printf("[%i]:=%i \n", quad.quadrup[i].zero, quad.quadrup[i].one);
 
             break;
 
@@ -151,4 +153,21 @@ int casetop(void)
         return casestack->head;
     fprintf(stderr, "Error casestack is empty\n");
     exit(2);
+}
+
+lpos *arggencode(lpos **start)
+{
+    struct lpos *value=NULL;
+    nbarg =3;               //pour tester
+    
+
+    for (int i = 0; i < nbarg; i++)
+    {
+        value = concat(value, crelist(quad.next));
+        gencode(AFF,-1,'s'+'p'-i,-1,-1);            //les argument sont quelque part je sais pas où 's' 'p' à la place
+        *start = concat(*start,crelist(quad.next)); 
+        gencode(GOTO,-1,-1,-1,-1);
+    }
+
+    return value;
 }

@@ -73,8 +73,9 @@ INSTRUCTION : ID '=' CONCATENATION  { $$= NULL; gencode(AFF, findtable($1,1),-1,
             |ID'['OPERANDE_ENTIER']' '=' CONCATENATION {$$= NULL;printf(">ID[]= %s(%i)\n",$1,findtable($1,1));} 
             |declare ID'['entier']' {$$= NULL;printf(">declare %s[%i]\n",$2,$4);}
             |if_ TEST_BLOC then {complete($2.true, quad.next);} LISTE_INTRSUCTIONS M {gencode(GOTO,-1,-1,-1,-1); complete($2.false, quad.next);}  ELSE_PART fi {printf(">if \n"); $$ = concat($5, crelist($6) ); }
-            |for_ ID do_ LISTE_INTRSUCTIONS done {printf(">for (%i)\n",findtable($2,1));}   //il faudrait savoir cb il y a de parametre ...
-            |for_ ID in {gencode(AFF,findtable(createbuf("_for%i",++nbfor),1),quad.next+1,-1,-1);} M LISTE_OPERANDES do_ M {char *buf = createbuf("_for%i",nbfor); gencode(GOTO,-1,-1,-1,-1);  complete($6.value, findtable($2,1)); complete($6.start,quad.next); gencode(AFF,findtable(buf,0),findtable(buf,0),1,2);} LISTE_INTRSUCTIONS done {printf(">for in (%i)\n",findtable($2,1)); $$ =crelist($8); gencode(GOTO,findtable(createbuf("_for%i",nbfor--),0),0,-1,-1); } //idem
+            |for_ ID  {gencode(AFF,findtable(createbuf("_for%i",++nbfor),1),quad.next+1,-1,-1);}  do_ M {lpos *start; lpos *value =arggencode(&start); ; char *buf = createbuf("_for%i",nbfor); gencode(GOTO,-1,-1,-1,-1);  complete(value, findtable($2,1)); complete(start,quad.next); gencode(AFF,findtable(buf,0),findtable(buf,0),1,2);} LISTE_INTRSUCTIONS done {printf(">for in (%i)\n",findtable($2,1)); $$ =crelist($5); gencode(GOTO,findtable(createbuf("_for%i",nbfor--),0),0,-1,-1); } 
+
+            |for_ ID in {gencode(AFF,findtable(createbuf("_for%i",++nbfor),1),quad.next+1,-1,-1);} M LISTE_OPERANDES do_ M {char *buf = createbuf("_for%i",nbfor); gencode(GOTO,-1,-1,-1,-1);  complete($6.value, findtable($2,1)); complete($6.start,quad.next); gencode(AFF,findtable(buf,0),findtable(buf,0),1,2);} LISTE_INTRSUCTIONS done {printf(">for in (%i)\n",findtable($2,1)); $$ =crelist($8); gencode(GOTO,findtable(createbuf("_for%i",nbfor--),0),0,-1,-1); } 
             |while_ M TEST_BLOC do_ {complete($3.true,quad.next);} LISTE_INTRSUCTIONS done {printf(">while \n"); $$ = $3.false; complete($6, $2), gencode(GOTO,$2,-1,-1,-1);  }
             |until M TEST_BLOC do_ {complete($3.false, quad.next);} LISTE_INTRSUCTIONS done {printf(">until \n"); $$ = $3.true; complete($6, $2), gencode(GOTO,$2,-1,-1,-1);}
             |case_  OPERANDE {casepush($2);} in LISTE_CAS esac {printf(">case \n");  $$ = concat($5.follow,$5.next) ;casepop();}
@@ -91,7 +92,7 @@ INSTRUCTION : ID '=' CONCATENATION  { $$= NULL; gencode(AFF, findtable($1,1),-1,
 
 ELSE_PART: elif TEST_BLOC {complete($2.true, quad.next);} then LISTE_INTRSUCTIONS M {gencode(GOTO,-1,-1,-1,-1);complete($2.false, quad.next); } ELSE_PART { $$ = concat(crelist($6),$5); $$ = concat($$,crelist(quad.next)); gencode(GOTO,-1,-1,-1,-1);}
             |else_ LISTE_INTRSUCTIONS {$$ = $2; $$ = concat($$,crelist(quad.next)); gencode(GOTO,-1,-1,-1,-1);}
-            |%empty 
+            |%empty {$$= NULL;}
             ;
 
 LISTE_CAS: LISTE_CAS M FILTRE ')' M { gencode(IF,-1,casetop(),2,findtable($3.last,1)); complete($3.entrer,quad.next);} LISTE_INTRSUCTIONS ';'';' {$$.next = concat($7,crelist(quad.next)); gencode(GOTO,-1,-1,-1,-1); $$.next = concat($$.next,$1.next); complete($1.follow,$2); $$.follow = crelist($5) ;  } 
@@ -100,7 +101,6 @@ LISTE_CAS: LISTE_CAS M FILTRE ')' M { gencode(IF,-1,casetop(),2,findtable($3.las
 
 FILTRE: ID {$$.last=$1; $$.entrer = NULL;}                      
            |chaine {$$.last=$1;$$.entrer = NULL;}           
-           |chaine {$$.last=$1;$$.entrer = NULL;}           
            |FILTRE '|' mot  {$$.last=$3; $$.entrer = concat($1.entrer, crelist(quad.next)) ; gencode(IF,-1,casetop(),1,findtable($1.last,1)) ;  }           
            |FILTRE '|'chaine {$$.last=$3; $$.entrer = concat($1.entrer, crelist(quad.next)) ; gencode(IF,-1,casetop(),1,findtable($1.last,1)) ;}           
            | '*' {$$.entrer = crelist(quad.next) ; gencode(GOTO,-1,-1,-1,-1); $$.last = "Bidon"; }
@@ -108,7 +108,7 @@ FILTRE: ID {$$.last=$1; $$.entrer = NULL;}
 
 LISTE_OPERANDES:LISTE_OPERANDES OPERANDE {$$.start = concat($1.start,crelist(quad.next+1)); $$.value = concat($1.value, crelist(quad.next)); gencode(AFF,-1,$2,-1,-1); gencode(GOTO,-1,-1,-1,-1);} 
             |OPERANDE {$$.start = crelist(quad.next+1) ; $$.value = crelist(quad.next); gencode(AFF,-1,$1,-1,-1); gencode(GOTO,-1,-1,-1,-1);}
-            |'$''{'ID'[''*'']''}' 
+            |'$''{'ID'[''*'']''}' {$$.start =NULL; $$.value= NULL;}
             ;
 
 CONCATENATION: CONCATENATION OPERANDE

@@ -62,5 +62,7 @@ int casepop(void);
 
 int casetop(void);
 
+lpos *arggencode(lpos **);
+
 
 #endif
