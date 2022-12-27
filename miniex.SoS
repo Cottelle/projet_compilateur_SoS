@@ -1,10 +1,12 @@
-for i in er df cv do
-a=$1;
-b=$1;
-for s in zer zs do
-a=$1;
-for y in mok nho do
-o=$1
-done
-done
-done
+fun(3){
+    for i do 
+    a=$1
+    done
+};
+
+for q do
+    b=$1
+    done;
+
+f=$1
+

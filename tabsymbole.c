@@ -22,6 +22,7 @@ symbole *findtable(char *id, int create)
             tabsymbole.tab[i].used = 1;
             tabsymbole.tab[i].memory_place = writememory((char *)&bidon, CELLSIZE); // reserved the place
             tabsymbole.tab[i].nb = 1;
+            tabsymbole.tab[i].fun = -1;
             return &tabsymbole.tab[i];
         }
     }
@@ -39,6 +40,7 @@ symbole *findtable(char *id, int create)
         tabsymbole.tab[place].name = id;
         tabsymbole.tab[place].used = 1;
         tabsymbole.tab[place].nb = 1;
+        tabsymbole.tab[place].fun = -1;
         tabsymbole.tab[place].memory_place = writememory((char *)&bidon, CELLSIZE); // reserved the place
 
         return &tabsymbole.tab[place];
@@ -46,20 +48,32 @@ symbole *findtable(char *id, int create)
     return NULL;
 }
 
-
 symbole *createsymbole(symbole *s)
 {
     int bidon = 789;
-    symbole *sprime = findtable(s->name,1);
-    sprime->used=1;
-    sprime->IsInt = s->IsInt;
+    symbole *sprime = findtable(s->name, 1);
+    sprime->used = 1;
+    sprime->isint = s->isint;
     sprime->nb = s->nb;
-    sprime->memory_place = writememory((char *)&bidon,CELLSIZE);
-    cur_memory += (s->nb-1)*CELLSIZE;
+    sprime->fun = s->fun;
+    sprime->memory_place = writememory((char *)&bidon, CELLSIZE);
+    printf("Cur = %i\n",cur_memory);
+    cur_memory += (s->nb - 1) * CELLSIZE;
+    printf("Cur = %i\n",cur_memory);
+
 
     return sprime;
 }
 
+symbole simples(void)
+{
+    symbole s;
+    s.fun=-1;
+    s.name = NULL;
+    s.nb =1;
+    s.isint = 0;
+    return s;
+}
 
 unsigned int writememory(char *buf, int sizebuf)
 {
@@ -79,6 +93,13 @@ unsigned int writestringmemory(char *buf)
     memory[cur_memory++] = '\0';
 
     return ret;
+}
+
+void inmemory(unsigned int place,char *buf,int sizebuf)
+{
+    printf("%i<<\n",*(int *)buf);
+    for (int i=0;i<sizebuf;i++)
+        memory[i+place] = buf[i]; 
 }
 
 void printtabsymbole(void)

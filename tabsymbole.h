@@ -11,7 +11,8 @@
 
 typedef struct symbole{
         char *name;
-        char IsInt;             //if the IsInt the memory_place direct contained the value else contained the addr to the string
+        char isint;             //if the isint the memory_place direct contained the value else contained the addr to the string
+        int fun;               // -1 if not function else the number of argument
         char used; 
         unsigned int memory_place;
         unsigned int nb; 
@@ -31,9 +32,14 @@ struct symbole *findtable(char *id,int create);
 
 
 /**
- * create an entry in tabsymbole with s atribute (name, nb, IsInt)
+ * create an entry in tabsymbole with s atribute (name, nb, isint) following
 */
 symbole *createsymbole(symbole *s);
+
+/**
+ * return a classique symbole isint =0, fun =-1, name = NULL, nb=1, 
+*/
+symbole simples(void);
 
 
 /**
@@ -43,9 +49,14 @@ unsigned int writememory(char *buf, int sizebuf);
 
 
 /**
- * Write string in memory until '\0' (include)
+ * Write string in memory until '\0' (include) following
  */
 unsigned int writestringmemory(char *buf);
+
+/**
+ * Write in memory at the place the buf
+*/
+void inmemory(unsigned int place,char *buf,int sizebuf);
 
 
 

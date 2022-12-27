@@ -17,6 +17,12 @@ enum instruction
     SYS
 };
 
+struct stack
+{
+    unsigned int value;
+    struct stack *next;
+};
+
 typedef struct quadrup
 {
     enum instruction instruction;

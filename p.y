@@ -8,6 +8,7 @@
 
 extern int yylex(void);
 extern struct quad quad;
+extern unsigned int nbarg;
 void yyerror(const char *msg);
 
 unsigned int nbfor;
@@ -84,7 +85,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                             } 
             |declare ID'['entier']'                                                                                                                     {
                                                                                                                                                 $$= NULL;
-                                                                                                                                                symbole s;
+                                                                                                                                                symbole s = simples();
                                                                                                                                                 s.nb = $4; //test si $4>0?
                                                                                                                                                 s.name = $2;
                                                                                                                                                 int a = createsymbole(&s)->memory_place;
@@ -106,6 +107,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                 gencode(GOTO,-1,-1,-1,-1);
                                                                                                                                                 complete(value, findtable($2,1)->memory_place);
                                                                                                                                                 complete(start,quad.next);
+                                                                                                                                                printf("ICI\n");
                                                                                                                                                 gencode(AFF,findtable(buf,0)->memory_place,findtable(buf,0)->memory_place,1,2);
                                                                                                                                             } 
                 LISTE_INTRSUCTIONS done                                                                                                         {
@@ -151,6 +153,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                             }
             |DECLARATION_FONTION                                                                                                            {
                                                                                                                                                 printf(">declaration fonction \n");
+                                                                                                                                                $$ = NULL;
                                                                                                                                             }
             |return_                                                                                                                        {
                                                                                                                                                 printf(">return \n");
@@ -160,6 +163,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                             }
             |APPEL_FONCTION                                                                                                                 {
                                                                                                                                                 printf(">appel fonction \n");
+                                                                                                                                                $$=NULL;
                                                                                                                                             }
             |exit_                                                                                                                          {
                                                                                                                                                 printf(">exit \n");
@@ -254,7 +258,7 @@ LISTE_OPERANDES:LISTE_OPERANDES OPERANDE {
                                             {
                                                 $$.start = concat($$.start,crelist(quad.next+1));
                                                 $$.value = concat($$.value, crelist(quad.next));
-                                                gencode(AFF,-1,id->memory_place+i*4,-1,-1);
+                                                gencode(AFF,-1,id->memory_place+i*CELLSIZE,-1,-1);
                                                 gencode(GOTO,-1,-1,-1,-1);
                                             }
                                         } 
@@ -401,7 +405,17 @@ FOIS_DIV_MOD: '*'
             ;
 
 
-DECLARATION_FONTION: ID '(' entier ')''{'DECL_LOC LISTE_INTRSUCTIONS '}' 
+DECLARATION_FONTION: ID '(' entier ')'                                              <entier>{       //chagement de la grammaire (ajout entier) car sinon valeur inconue à la compilation (nb d'argument) ce qui pose nottament probleme sur for i do ...
+                                                                                        symbole s = simples();
+                                                                                        s.fun = $3; 
+                                                                                        s.name = $1;
+                                                                                        inmemory(createsymbole(&s)->memory_place,(char *)&quad.next,CELLSIZE);
+                                                                                        $$ = nbarg;
+                                                                                        nbarg = $3;
+                                                                                    }
+                '{'DECL_LOC LISTE_INTRSUCTIONS '}'                                  {
+                                                                                        nbarg = $5;
+                                                                                    }
             ;
 
 

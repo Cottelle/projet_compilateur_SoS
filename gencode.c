@@ -157,16 +157,15 @@ int casetop(void)
 
 lpos *arggencode(lpos **start)
 {
-    struct lpos *value=NULL;
-    nbarg =3;               //pour tester
-    
+    struct lpos *value = NULL;
+    *start = NULL;
 
     for (int i = 0; i < nbarg; i++)
     {
         value = concat(value, crelist(quad.next));
-        gencode(AFF,-1,'s'+'p'-i,-1,-1);            //les argument sont quelque part je sais pas où 's' 'p' à la place
-        *start = concat(*start,crelist(quad.next)); 
-        gencode(GOTO,-1,-1,-1,-1);
+        gencode(AFF, -1, 's' + 'p' - i*4, -1, -1); // les argument sont quelque part je sais pas où 's' 'p' à la place
+        *start = concat(*start, crelist(quad.next));
+        gencode(GOTO, -1, -1, -1, -1);
     }
 
     return value;
