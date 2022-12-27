@@ -89,6 +89,7 @@ struct addval addvalcreate(struct symbole *s,int value)
 
 void printquad()
 {
+    printf("\n\n");
     for (int i = 0; i < quad.next; i++)
     {
         printf("%i ", i);

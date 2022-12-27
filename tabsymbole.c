@@ -57,9 +57,7 @@ symbole *createsymbole(symbole *s)
     sprime->nb = s->nb;
     sprime->fun = s->fun;
     sprime->memory_place = writememory((char *)&bidon, CELLSIZE);
-    printf("Cur = %i\n",cur_memory);
     cur_memory += (s->nb - 1) * CELLSIZE;
-    printf("Cur = %i\n",cur_memory);
 
 
     return sprime;
@@ -97,7 +95,6 @@ unsigned int writestringmemory(char *buf)
 
 void inmemory(unsigned int place,char *buf,int sizebuf)
 {
-    printf("%i<<\n",*(int *)buf);
     for (int i=0;i<sizebuf;i++)
         memory[i+place] = buf[i]; 
 }

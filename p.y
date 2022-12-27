@@ -481,8 +481,8 @@ LISTE_ARG:LISTE_ARG OPERANDE            {
             ;
 
 
-ID : id {printf("C'est bien un id %s\n",$1);$$=$1;}
-    |mot    {printf("C'est prit pour mot mais peut être que c'est un id?? %s\n",$1);$$=$1;}
+ID : id //C'est bien un id
+    |mot    //C'est prit pour mot mais peut être que c'est un id
     ;
 
 
