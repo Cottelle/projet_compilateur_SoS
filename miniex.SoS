@@ -1,3 +1,6 @@
+n=$1;
+g=$2;
+
 fun(3){
     for i do 
     a=$1
@@ -7,6 +10,8 @@ fun(3){
 for q do
     b=$1
     done;
+
+fun;
 
 f=$1
 

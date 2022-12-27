@@ -67,9 +67,11 @@ PROGRAMME : LISTE_INTRSUCTIONS
             ;
 
 LISTE_INTRSUCTIONS: LISTE_INTRSUCTIONS ';'INSTRUCTION   {
+                                                            $$ = $1;
                                                             complete($3,quad.next);
                                                         } 
                 | INSTRUCTION                           {
+                                                            $$ = $1;                    //le remplace si il en est capable
                                                             complete($1,quad.next);
                                                         }       
                 ;
@@ -100,10 +102,11 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                 printf(">if \n"); 
                                                                                                                                                 $$ = concat($5, crelist($6) ); 
                                                                                                                                             }
-            |for_ ID  {gencode(AFF,findtable(createbuf("_for%i",++nbfor),1)->memory_place,quad.next+1,-1,-1);}  do_ M                       {
+            |for_ ID  {gencode(AFF,findtable(createbuf("_for%i",++nbfor),1)->memory_place,quad.next+1,-1,-1);}  do_ M                       <next>{
                                                                                                                                                 lpos *start;
                                                                                                                                                 lpos *value =arggencode(&start);
                                                                                                                                                 char *buf = createbuf("_for%i",nbfor);
+                                                                                                                                                $$ = crelist(quad.next);
                                                                                                                                                 gencode(GOTO,-1,-1,-1,-1);
                                                                                                                                                 complete(value, findtable($2,1)->memory_place);
                                                                                                                                                 complete(start,quad.next);
@@ -112,7 +115,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                             } 
                 LISTE_INTRSUCTIONS done                                                                                                         {
                                                                                                                                                         printf(">for in (%i)\n",findtable($2,1)->memory_place); 
-                                                                                                                                                        $$ =crelist($5); 
+                                                                                                                                                        $$ =$6; 
                                                                                                                                                         gencode(GOTO,findtable(createbuf("_for%i",nbfor--),0)->memory_place,0,-1,-1); 
                                                                                                                                                 }
             |for_ ID in {gencode(AFF,findtable(createbuf("_for%i",++nbfor),1)->memory_place,quad.next+1,-1,-1);} M LISTE_OPERANDES do_ M    {
@@ -415,6 +418,7 @@ DECLARATION_FONTION: ID '(' entier ')'                                          
                                                                                     }
                 '{'DECL_LOC LISTE_INTRSUCTIONS '}'                                  {
                                                                                         nbarg = $5;
+                                                                                        complete($8,-3);  // -3 --> valeur de retour de la fonction (:pas encore implementé)
                                                                                     }
             ;
 
@@ -425,8 +429,36 @@ DECL_LOC: DECL_LOC  local ID '=' CONCATENATION ';' {printf(">Local\n");}
             ;
 
 
-APPEL_FONCTION: ID LISTE_OPERANDES 
-            |ID 
+APPEL_FONCTION: ID LISTE_ARG                                                       {
+                                                                                        symbole *s;
+                                                                                        if (!(s=findtable($1,0)))
+                                                                                        {
+                                                                                            fprintf(stderr,"Error %s not declared\n",$1);
+                                                                                            exit(3);
+                                                                                        }
+                                                                                        gencode(GOTO,s->memory_place,0,-1,-1);
+                                                                                    }
+            |ID                                                                     {
+                                                                                        symbole *s;
+                                                                                        if (!(s=findtable($1,0)))
+                                                                                        {
+                                                                                            fprintf(stderr,"Error %s not declared\n",$1);
+                                                                                            exit(3);
+                                                                                        }
+                                                                                        gencode(GOTO,s->memory_place,0,-1,-1);
+                                                                                    }
+            ;
+
+LISTE_ARG:LISTE_ARG OPERANDE            {
+                                          
+                                        } 
+            |OPERANDE                   {
+                                            
+                                        }
+            |'$''{'ID'[''*'']''}'       { 
+                                            
+                                        }
+                                        
             ;
 
 
