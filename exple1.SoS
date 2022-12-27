@@ -3,10 +3,8 @@ echo "Nombre de valeurs : " ;
 read nombre ;
 lecture_valeurs ${nombre} ;
 if test $?=$1 then
-echo "Moyenne = " $(moyenne ${nombre} ) "\n"
 else
 echo "Erreur\n"
 fi;
-exit
 
 #Ceci est un commentaire

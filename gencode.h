@@ -6,7 +6,18 @@
 #include <string.h>
 #include <stdarg.h>
 
+#include "tabsymbole.h"
+
 #define SIZECODE 32
+#define SIZEPRINT 10      //evite les malloc dans printquad
+
+struct stack
+{
+    unsigned int value;
+    struct stack *next;
+};
+
+
 
 enum instruction
 {
@@ -17,19 +28,19 @@ enum instruction
     SYS
 };
 
-struct stack
-{
-    unsigned int value;
-    struct stack *next;
+struct addval{
+    struct symbole *s;      //if NULL it is immediate: is the value
+    int value;
 };
+
 
 typedef struct quadrup
 {
     enum instruction instruction;
-    int zero;
-    int one;
-    int two;
-    int three;
+    struct addval zero;
+    struct addval one;
+    struct addval two;
+    int type;
 
 } quadrup;
 
@@ -56,9 +67,11 @@ lpos *crelist(int position);
 
 lpos *concat(lpos *l1, lpos *l2);
 
-void complete(lpos *liste, int cible);
+void complete(lpos *liste, struct addval value);
 
-void gencode(enum instruction, int z, int o, int t, int th);
+void gencode(enum instruction, struct addval z, struct addval o, struct addval t, int type);
+
+struct addval addvalcreate(struct symbole *s,int value);
 
 void printquad(void);
 
