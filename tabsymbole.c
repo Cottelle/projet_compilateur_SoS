@@ -7,21 +7,22 @@ struct tabsymbole tabsymbole;
 char memory[MEMORYSIZE];
 unsigned int cur_memory;
 
-unsigned int findtable(char *id, int create)
+struct symbole *findtable(char *id, int create)
 {
     u_int32_t place = 798; // valeur au pif (juste pas nul car plus simple pour reperer)
     for (int i = 0; i < tabsymbole.size; i++)
     {
         if (tabsymbole.tab[i].used && strcmp(id, tabsymbole.tab[i].name) == 0)
-            return tabsymbole.tab[i].memory_place;
+            return &tabsymbole.tab[i];
         if (!(tabsymbole.tab[i].used))
         {
             if (!create)
-                return -1;
+                return NULL;
             tabsymbole.tab[i].name = id;
             tabsymbole.tab[i].used = 1;
             tabsymbole.tab[i].memory_place = writememory((char *)&place, 4); // reserved the place
-            return tabsymbole.tab[i].memory_place;
+            tabsymbole.tab[i].size = 1;
+            return &tabsymbole.tab[i];
         }
     }
     if (create)
@@ -37,11 +38,12 @@ unsigned int findtable(char *id, int create)
         tabsymbole.size = (tabsymbole.size + 1) * 2;
         tabsymbole.tab[place].name = id;
         tabsymbole.tab[place].used = 1;
+        tabsymbole.tab[place].size = 1;
         tabsymbole.tab[place].memory_place = writememory((char *)&place, 4); // reserved the place
 
-        return tabsymbole.tab[place].memory_place;
+        return &tabsymbole.tab[place];
     }
-    return -1;
+    return NULL;
 }
 
 unsigned int writememory(char *buf, int sizebuf)
@@ -76,9 +78,9 @@ void printtabsymbole(void)
     while (i < cur_memory && i < MEMORYSIZE && nb0 < 10)
     {
         printf("%3x ", memory[i]);
-        if (!((i+1)%8))
+        if (!((i + 1) % 8))
             printf("\n");
-        
+
         if (memory[i] == '\0')
             nb0++;
         else

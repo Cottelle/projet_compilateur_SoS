@@ -8,22 +8,24 @@
 #define INITSIZETAB 0
 #define MEMORYSIZE 1024
 
-
-struct tabsymbole{
-    int size;
-    struct symbole{
+struct symbole{
         char *name;
         char IsInt;             //if the IsInt the memory_place direct contained the value else contained the addr to the string
         char used; 
         unsigned int memory_place;
-    } *tab;
+        unsigned int size; 
+};
+
+struct tabsymbole{
+    int size;
+    struct symbole* tab;
 };
 
 
 /**
  * *  return the index in the tabsymbole -1 if issn't present and create = 0, else create 
  */
-unsigned int findtable(char *id,int create);
+struct symbole *findtable(char *id,int create);
 
 
 /**

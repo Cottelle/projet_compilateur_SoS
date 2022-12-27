@@ -65,50 +65,186 @@ unsigned int nbfor;
 PROGRAMME : LISTE_INTRSUCTIONS      
             ;
 
-LISTE_INTRSUCTIONS: LISTE_INTRSUCTIONS ';'INSTRUCTION  {complete($3,quad.next);} 
-                | INSTRUCTION {complete($1,quad.next);}       
+LISTE_INTRSUCTIONS: LISTE_INTRSUCTIONS ';'INSTRUCTION   {
+                                                            complete($3,quad.next);
+                                                        } 
+                | INSTRUCTION                           {
+                                                            complete($1,quad.next);
+                                                        }       
                 ;
 
-INSTRUCTION : ID '=' CONCATENATION  { $$= NULL; gencode(AFF, findtable($1,1),-1,-1,-1);} 
-            |ID'['OPERANDE_ENTIER']' '=' CONCATENATION {$$= NULL;printf(">ID[]= %s(%i)\n",$1,findtable($1,1));} 
-            |declare ID'['entier']' {$$= NULL;printf(">declare %s[%i]\n",$2,$4);}
-            |if_ TEST_BLOC then {complete($2.true, quad.next);} LISTE_INTRSUCTIONS M {gencode(GOTO,-1,-1,-1,-1); complete($2.false, quad.next);}  ELSE_PART fi {printf(">if \n"); $$ = concat($5, crelist($6) ); }
-            |for_ ID  {gencode(AFF,findtable(createbuf("_for%i",++nbfor),1),quad.next+1,-1,-1);}  do_ M {lpos *start; lpos *value =arggencode(&start); ; char *buf = createbuf("_for%i",nbfor); gencode(GOTO,-1,-1,-1,-1);  complete(value, findtable($2,1)); complete(start,quad.next); gencode(AFF,findtable(buf,0),findtable(buf,0),1,2);} LISTE_INTRSUCTIONS done {printf(">for in (%i)\n",findtable($2,1)); $$ =crelist($5); gencode(GOTO,findtable(createbuf("_for%i",nbfor--),0),0,-1,-1); } 
+INSTRUCTION : ID '=' CONCATENATION                                                                                                                          { 
+                                                                                                                                                                $$= NULL;
+                                                                                                                                                                gencode(AFF, findtable($1,1)->memory_place,-1,-1,-1);
+                                                                                                                                                            } 
+            |ID'['OPERANDE_ENTIER']' '=' CONCATENATION                                                                                                      {
+                                                                                                                                                                $$= NULL;
+                                                                                                                                                                printf(">ID[]= %s(%i)\n",$1,findtable($1,1)->memory_place);
+                                                                                                                                                            } 
+            |declare ID'['entier']'                                                                                                                         {
+                                                                                                                                                                $$= NULL;
+                                                                                                                                                                printf(">declare %s[%i]\n",$2,$4);
+                                                                                                                                                                findtable($2,1)->memory_place;
+                                                                                                                                                            }
+            |if_ TEST_BLOC then {complete($2.true, quad.next);} LISTE_INTRSUCTIONS M {gencode(GOTO,-1,-1,-1,-1); complete($2.false, quad.next);}  ELSE_PART fi {
+                                                                                                                                                                    printf(">if \n"); 
+                                                                                                                                                                    $$ = concat($5, crelist($6) ); 
+                                                                                                                                                                }
+            |for_ ID  {gencode(AFF,findtable(createbuf("_for%i",++nbfor),1)->memory_place,quad.next+1,-1,-1);}  do_ M                                           {
+                                                                                                                                                                    lpos *start;
+                                                                                                                                                                    lpos *value =arggencode(&start);
+                                                                                                                                                                    char *buf = createbuf("_for%i",nbfor);
+                                                                                                                                                                    gencode(GOTO,-1,-1,-1,-1);
+                                                                                                                                                                    complete(value, findtable($2,1)->memory_place);
+                                                                                                                                                                    complete(start,quad.next);
+                                                                                                                                                                    gencode(AFF,findtable(buf,0)->memory_place,findtable(buf,0)->memory_place,1,2);
+                                                                                                                                                                } 
+                LISTE_INTRSUCTIONS done                                                                                                                             {
+                                                                                                                                                                        printf(">for in (%i)\n",findtable($2,1)->memory_place); 
+                                                                                                                                                                        $$ =crelist($5); 
+                                                                                                                                                                        gencode(GOTO,findtable(createbuf("_for%i",nbfor--),0)->memory_place,0,-1,-1); 
+                                                                                                                                                                    } 
 
-            |for_ ID in {gencode(AFF,findtable(createbuf("_for%i",++nbfor),1),quad.next+1,-1,-1);} M LISTE_OPERANDES do_ M {char *buf = createbuf("_for%i",nbfor); gencode(GOTO,-1,-1,-1,-1);  complete($6.value, findtable($2,1)); complete($6.start,quad.next); gencode(AFF,findtable(buf,0),findtable(buf,0),1,2);} LISTE_INTRSUCTIONS done {printf(">for in (%i)\n",findtable($2,1)); $$ =crelist($8); gencode(GOTO,findtable(createbuf("_for%i",nbfor--),0),0,-1,-1); } 
-            |while_ M TEST_BLOC do_ {complete($3.true,quad.next);} LISTE_INTRSUCTIONS done {printf(">while \n"); $$ = $3.false; complete($6, $2), gencode(GOTO,$2,-1,-1,-1);  }
-            |until M TEST_BLOC do_ {complete($3.false, quad.next);} LISTE_INTRSUCTIONS done {printf(">until \n"); $$ = $3.true; complete($6, $2), gencode(GOTO,$2,-1,-1,-1);}
-            |case_  OPERANDE {casepush($2);} in LISTE_CAS esac {printf(">case \n");  $$ = concat($5.follow,$5.next) ;casepop();}
-            |echo LISTE_OPERANDES {printf(">echo \n");}
-            |read_ ID   {printf(">Read %s(%i)\n",$2,findtable($2,1));}
-            |read_ ID'['OPERANDE_ENTIER']' {printf(">Read %s[ent](%i)\n",$2,findtable($2,1));}
-            |DECLARATION_FONTION {printf(">declaration fonction \n");}
-            |return_ {printf(">return \n");}
-            |return_ OPERANDE_ENTIER {printf(">return entier \n");}
-            |APPEL_FONCTION {printf(">appel fonction \n");}
-            |exit_ {printf(">exit \n");}
-            |exit_ OPERANDE_ENTIER {printf(">exit entier \n");}
+            |for_ ID in {gencode(AFF,findtable(createbuf("_for%i",++nbfor),1)->memory_place,quad.next+1,-1,-1);} M LISTE_OPERANDES do_ M                        {
+                                                                                                                                                                    char *buf = createbuf("_for%i",nbfor);
+                                                                                                                                                                    gencode(GOTO,-1,-1,-1,-1);
+                                                                                                                                                                    complete($6.value, findtable($2,1)->memory_place);
+                                                                                                                                                                    complete($6.start,quad.next);
+                                                                                                                                                                    gencode(AFF,findtable(buf,0)->memory_place,findtable(buf,0)->memory_place,1,2);
+                                                                                                                                                                } 
+                LISTE_INTRSUCTIONS done                                                                                                                             {
+                                                                                                                                                                        printf(">for in (%i)\n",findtable($2,1)->memory_place);
+                                                                                                                                                                        $$ =crelist($8);
+                                                                                                                                                                        gencode(GOTO,findtable(createbuf("_for%i",nbfor--),0)->memory_place,0,-1,-1);
+                                                                                                                                                                    } 
+            |while_ M TEST_BLOC do_ {complete($3.true,quad.next);} LISTE_INTRSUCTIONS done          {
+                                                                                                        printf(">while \n");
+                                                                                                        $$ = $3.false;
+                                                                                                        complete($6, $2), gencode(GOTO,$2,-1,-1,-1);
+                                                                                                    }
+            |until M TEST_BLOC do_ {complete($3.false, quad.next);} LISTE_INTRSUCTIONS done         {
+                                                                                                        printf(">until \n");
+                                                                                                        $$ = $3.true;
+                                                                                                        complete($6, $2), gencode(GOTO,$2,-1,-1,-1);
+                                                                                                    }
+            |case_  OPERANDE {casepush($2);} in LISTE_CAS esac                                      {
+                                                                                                        printf(">case \n");
+                                                                                                        $$ = concat($5.follow,$5.next) ;
+                                                                                                        casepop();
+                                                                                                        }
+            |echo LISTE_OPERANDES                                                                   {
+                                                                                                        printf(">echo \n");
+                                                                                                    }
+            |read_ ID                                                                               {
+                                                                                                        printf(">Read %s(%i)\n",$2,findtable($2,1)->memory_place);
+                                                                                                    }
+            |read_ ID'['OPERANDE_ENTIER']'                                                          {
+                                                                                                        printf(">Read %s[ent](%i)\n",$2,findtable($2,1)->memory_place);
+                                                                                                    }
+            |DECLARATION_FONTION                                                                    {
+                                                                                                        printf(">declaration fonction \n");
+                                                                                                    }
+            |return_                                                                                {
+                                                                                                        printf(">return \n");
+                                                                                                    }
+            |return_ OPERANDE_ENTIER                                                                {
+                                                                                                        printf(">return entier \n");
+                                                                                                    }
+            |APPEL_FONCTION                                                                         {
+                                                                                                        printf(">appel fonction \n");
+                                                                                                    }
+            |exit_                                                                                  {
+                                                                                                        printf(">exit \n");
+                                                                                                    }
+            |exit_ OPERANDE_ENTIER                                                                  {
+                                                                                                        printf(">exit entier \n");
+                                                                                                    }
             ;
 
-ELSE_PART: elif TEST_BLOC {complete($2.true, quad.next);} then LISTE_INTRSUCTIONS M {gencode(GOTO,-1,-1,-1,-1);complete($2.false, quad.next); } ELSE_PART { $$ = concat(crelist($6),$5); $$ = concat($$,crelist(quad.next)); gencode(GOTO,-1,-1,-1,-1);}
-            |else_ LISTE_INTRSUCTIONS {$$ = $2; $$ = concat($$,crelist(quad.next)); gencode(GOTO,-1,-1,-1,-1);}
-            |%empty {$$= NULL;}
+ELSE_PART: elif TEST_BLOC {complete($2.true, quad.next);} then LISTE_INTRSUCTIONS M {gencode(GOTO,-1,-1,-1,-1);complete($2.false, quad.next); } ELSE_PART { 
+                                                                                                                                                                $$ = concat(crelist($6),$5);
+                                                                                                                                                                $$ = concat($$,crelist(quad.next));
+                                                                                                                                                                gencode(GOTO,-1,-1,-1,-1);
+                                                                                                                                                           }
+            |else_ LISTE_INTRSUCTIONS                                                                                                                      {
+                                                                                                                                                                $$ = $2;
+                                                                                                                                                                $$ = concat($$,crelist(quad.next));
+                                                                                                                                                                gencode(GOTO,-1,-1,-1,-1);
+                                                                                                                                                            }
+            |%empty                                                                                                                                         {
+                                                                                                                                                                $$= NULL;
+                                                                                                                                                            }
             ;
 
-LISTE_CAS: LISTE_CAS M FILTRE ')' M { gencode(IF,-1,casetop(),2,findtable($3.last,1)); complete($3.entrer,quad.next);} LISTE_INTRSUCTIONS ';'';' {$$.next = concat($7,crelist(quad.next)); gencode(GOTO,-1,-1,-1,-1); $$.next = concat($$.next,$1.next); complete($1.follow,$2); $$.follow = crelist($5) ;  } 
-            |M FILTRE ')'M { gencode(IF,-1,casetop(),2,findtable($2.last,1)); complete($2.entrer,quad.next);} LISTE_INTRSUCTIONS ';'';' {$$.next = concat($6,crelist(quad.next)); gencode(GOTO,-1,-1,-1,-1); $$.follow = crelist($4) ;}
+LISTE_CAS: LISTE_CAS M FILTRE ')' M { gencode(IF,-1,casetop(),2,findtable($3.last,1)->memory_place); complete($3.entrer,quad.next);} LISTE_INTRSUCTIONS ';'';' {
+                                                                                                                                                                    $$.next = concat($7,crelist(quad.next)); 
+                                                                                                                                                                    gencode(GOTO,-1,-1,-1,-1); 
+                                                                                                                                                                    $$.next = concat($$.next,$1.next); 
+                                                                                                                                                                    complete($1.follow,$2); 
+                                                                                                                                                                    $$.follow = crelist($5) ; 
+                                                                                                                                                                } 
+            |M FILTRE ')'M { gencode(IF,-1,casetop(),2,findtable($2.last,1)->memory_place); complete($2.entrer,quad.next);} LISTE_INTRSUCTIONS ';'';'          {
+                                                                                                                                                                    $$.next = concat($6,crelist(quad.next));
+                                                                                                                                                                    gencode(GOTO,-1,-1,-1,-1);
+                                                                                                                                                                    $$.follow = crelist($4) ;
+                                                                                                                                                                }
             ; 
 
-FILTRE: ID {$$.last=$1; $$.entrer = NULL;}                      
-           |chaine {$$.last=$1;$$.entrer = NULL;}           
-           |FILTRE '|' mot  {$$.last=$3; $$.entrer = concat($1.entrer, crelist(quad.next)) ; gencode(IF,-1,casetop(),1,findtable($1.last,1)) ;  }           
-           |FILTRE '|'chaine {$$.last=$3; $$.entrer = concat($1.entrer, crelist(quad.next)) ; gencode(IF,-1,casetop(),1,findtable($1.last,1)) ;}           
-           | '*' {$$.entrer = crelist(quad.next) ; gencode(GOTO,-1,-1,-1,-1); $$.last = "Bidon"; }
+FILTRE: ID                          {
+                                     $$.last=$1;
+                                     $$.entrer = NULL;
+                                    }                      
+           |chaine                  {
+                                        $$.last=$1;
+                                        $$.entrer = NULL;
+                                    }           
+           |FILTRE '|' mot          
+                                    {
+                                        $$.last=$3;
+                                        $$.entrer = concat($1.entrer, crelist(quad.next)) ;
+                                        gencode(IF,-1,casetop(),1,findtable($1.last,1)->memory_place) ;
+                                    }           
+           |FILTRE '|'chaine        {
+                                        $$.last=$3;
+                                        $$.entrer = concat($1.entrer, crelist(quad.next)) ;
+                                        gencode(IF,-1,casetop(),1,findtable($1.last,1)->memory_place) ;
+                                    }              
+           | '*'                    {
+                                        $$.entrer = crelist(quad.next) ;
+                                        gencode(GOTO,-1,-1,-1,-1);
+                                        $$.last = "Bidon"; 
+                                    }
            ;
 
-LISTE_OPERANDES:LISTE_OPERANDES OPERANDE {$$.start = concat($1.start,crelist(quad.next+1)); $$.value = concat($1.value, crelist(quad.next)); gencode(AFF,-1,$2,-1,-1); gencode(GOTO,-1,-1,-1,-1);} 
-            |OPERANDE {$$.start = crelist(quad.next+1) ; $$.value = crelist(quad.next); gencode(AFF,-1,$1,-1,-1); gencode(GOTO,-1,-1,-1,-1);}
-            |'$''{'ID'[''*'']''}' {$$.start =NULL; $$.value= NULL;}
+LISTE_OPERANDES:LISTE_OPERANDES OPERANDE {
+                                            $$.start = concat($1.start,crelist(quad.next+1)); 
+                                            $$.value = concat($1.value, crelist(quad.next));
+                                             gencode(AFF,-1,$2,-1,-1); 
+                                             gencode(GOTO,-1,-1,-1,-1);
+                                        } 
+            |OPERANDE                   {
+                                            $$.start = crelist(quad.next+1) ;
+                                            $$.value = crelist(quad.next);
+                                            gencode(AFF,-1,$1,-1,-1);
+                                            gencode(GOTO,-1,-1,-1,-1);
+                                        }
+            |'$''{'ID'[''*'']''}'        { 
+                                            struct symbole *id= findtable($3,0); 
+                                            if(!id) 
+                                            {
+                                                fprintf(stderr,"Error %s is Unknow \n",$3); 
+                                                exit(2); 
+                                            } 
+                                            $$.start=NULL;
+                                            $$.value= NULL;
+                                            for(int i=0 ;i<id->size ; i++)
+                                            {
+                                                $$.start = concat($$.start,crelist(quad.next+1));
+                                                $$.value = concat($$.value, crelist(quad.next));
+                                                gencode(AFF,-1,id->memory_place+i*4,-1,-1);
+                                                gencode(GOTO,-1,-1,-1,-1);
+                                            }
+                                        } 
             ;
 
 CONCATENATION: CONCATENATION OPERANDE
@@ -118,26 +254,38 @@ CONCATENATION: CONCATENATION OPERANDE
 TEST_BLOC: test TEST_EXPR   {$$=$2;}
             ;
         
-TEST_EXPR: TEST_EXPR to {complete($1.false, quad.next); } TEST_EXPR2  
-{
-    $$.true = concat($1.true,$4.true);
-    $$.false = $4.false;
-}
-            |TEST_EXPR2 {$$= $1;}
+TEST_EXPR: TEST_EXPR to {complete($1.false, quad.next); } TEST_EXPR2    {
+                                                                            $$.true = concat($1.true,$4.true);
+                                                                            $$.false = $4.false;
+                                                                        }
+            |TEST_EXPR2                                                 {
+                                                                            $$= $1;
+                                                                        }
             ;
 
-TEST_EXPR2: TEST_EXPR2 ta {complete($1.true,quad.next); } TEST_EXPR3 
-{
-    $$.false = concat($1.false, $4.false);
-    $$.true  = $4.true;
-}
-            |TEST_EXPR3 {$$= $1;}
+TEST_EXPR2: TEST_EXPR2 ta {complete($1.true,quad.next); } TEST_EXPR3    {
+                                                                            $$.false = concat($1.false, $4.false);
+                                                                            $$.true  = $4.true;
+                                                                        }
+            |TEST_EXPR3                                                 {
+                                                                            $$= $1;
+                                                                        }
             ;
     
-TEST_EXPR3: '(' TEST_EXPR ')' {$$=$2;} 
-            |'!''(' TEST_EXPR ')' { $$.true = $3.false; $$.false = $3.true;}
-            |TEST_INSTRUCTION {$$=$1;}
-            |'!' TEST_INSTRUCTION { $$.true = $2.false; $$.false = $2.true;}
+TEST_EXPR3: '(' TEST_EXPR ')'                                           {
+                                                                            $$=$2;
+                                                                        } 
+            |'!''(' TEST_EXPR ')'                                       {
+                                                                            $$.true = $3.false;
+                                                                            $$.false = $3.true;
+                                                                        }
+            |TEST_INSTRUCTION                                           {
+                                                                            $$=$1;
+                                                                        }
+            |'!' TEST_INSTRUCTION                                       {
+                                                                            $$.true = $2.false;
+                                                                            $$.false = $2.true;
+                                                                        }
             ;
 
 TEST_INSTRUCTION :CONCATENATION '=' CONCATENATION 
@@ -147,17 +295,38 @@ TEST_INSTRUCTION :CONCATENATION '=' CONCATENATION
             |magic {
                 $$.true = crelist(quad.next);
                 gencode(GOTO,-1,-1,-1,-1);
-                $$.false = NULL;}
+                $$.false = NULL;
+                    }
             ;
 
 
 
-OPERANDE:'$''{'ID'}' {$$ = findtable($3,0);}
-            |'$''{'ID'['OPERANDE_ENTIER']''}' {$$= findtable($3,0); }
-            |mot   {$$=writestringmemory($1);}
-            |entier  { char *mal = malloc(32); if (!mal){fprintf(stderr,"Error malloc qs"); exit(1); } snprintf(mal,32,"%i",$1); $$ = writestringmemory(mal);}               //Rajouter a la grammaire        
-            |id {printf("id mais mot enfait %s\n",$1); $$ =writestringmemory($1);}     //Rajouter a la grammaire
-            |chaine {$$ =writestringmemory($1);}
+OPERANDE:'$''{'ID'}'                          {
+                                                $$ = findtable($3,0)->memory_place;
+                                                }
+            |'$''{'ID'['OPERANDE_ENTIER']''}' {
+                                                $$= findtable($3,0)->memory_place;
+                                                }
+            |mot                              {
+                                                $$=writestringmemory($1);
+                                                }
+            |entier                           {                      //Rajouter a la grammaire 
+                                                char *mal = malloc(32);
+                                                 if (!mal)
+                                                 {
+                                                    fprintf(stderr,"Error malloc qs");
+                                                    exit(1);
+                                                 } 
+                                                 snprintf(mal,32,"%i",$1);
+                                                 $$ = writestringmemory(mal);
+                                                }                     
+            |id                               {
+                                                printf("id mais mot enfait %s\n",$1);
+                                                $$ =writestringmemory($1);
+                                                }     //Rajouter a la grammaire
+            |chaine                           {
+                                                $$ =writestringmemory($1);
+                                                }
             |'$'entier      
             |'$''*' 
             |'$''?' 
