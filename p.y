@@ -401,7 +401,7 @@ FOIS_DIV_MOD: '*'
             ;
 
 
-DECLARATION_FONTION: ID '(' ')''{'DECL_LOC LISTE_INTRSUCTIONS '}' 
+DECLARATION_FONTION: ID '(' entier ')''{'DECL_LOC LISTE_INTRSUCTIONS '}' 
             ;
 
 
