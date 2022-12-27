@@ -84,8 +84,12 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                             } 
             |declare ID'['entier']'                                                                                                                     {
                                                                                                                                                 $$= NULL;
-                                                                                                                                                printf(">declare %s[%i]\n",$2,$4);
-                                                                                                                                                findtable($2,1)->memory_place;
+                                                                                                                                                symbole s;
+                                                                                                                                                s.nb = $4; //test si $4>0?
+                                                                                                                                                s.name = $2;
+                                                                                                                                                int a = createsymbole(&s)->memory_place;
+                                                                                                                                                printf(">declare %s[%i] : %i\n",$2,$4,a);
+                                                                                                                                                 
                                                                                                                                             }
             |if_ TEST_BLOC then {complete($2.true, quad.next);} LISTE_INTRSUCTIONS M {
                                                                                         gencode(GOTO,-1,-1,-1,-1); 
@@ -238,7 +242,7 @@ LISTE_OPERANDES:LISTE_OPERANDES OPERANDE {
                                             gencode(GOTO,-1,-1,-1,-1);
                                         }
             |'$''{'ID'[''*'']''}'        { 
-                                            struct symbole *id= findtable($3,0); 
+                                            symbole *id= findtable($3,0); 
                                             if(!id) 
                                             {
                                                 fprintf(stderr,"Error %s is Unknow \n",$3); 
@@ -246,7 +250,7 @@ LISTE_OPERANDES:LISTE_OPERANDES OPERANDE {
                                             } 
                                             $$.start=NULL;
                                             $$.value= NULL;
-                                            for(int i=0 ;i<id->size ; i++)
+                                            for(int i=0 ;i<id->nb ; i++)
                                             {
                                                 $$.start = concat($$.start,crelist(quad.next+1));
                                                 $$.value = concat($$.value, crelist(quad.next));
@@ -397,7 +401,7 @@ FOIS_DIV_MOD: '*'
             ;
 
 
-DECLARATION_FONTION: ID '('')''{'DECL_LOC LISTE_INTRSUCTIONS '}' 
+DECLARATION_FONTION: ID '(' ')''{'DECL_LOC LISTE_INTRSUCTIONS '}' 
             ;
 
 

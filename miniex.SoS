@@ -7,5 +7,4 @@ for y in mok nho do
 o=$1
 done
 done
-done;
-s=$1
+done

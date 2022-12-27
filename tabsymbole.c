@@ -7,9 +7,9 @@ struct tabsymbole tabsymbole;
 char memory[MEMORYSIZE];
 unsigned int cur_memory;
 
-struct symbole *findtable(char *id, int create)
+symbole *findtable(char *id, int create)
 {
-    u_int32_t place = 798; // valeur au pif (juste pas nul car plus simple pour reperer)
+    u_int32_t bidon = 798; // valeur au pif (juste pas nul car plus simple pour reperer)
     for (int i = 0; i < tabsymbole.size; i++)
     {
         if (tabsymbole.tab[i].used && strcmp(id, tabsymbole.tab[i].name) == 0)
@@ -20,8 +20,8 @@ struct symbole *findtable(char *id, int create)
                 return NULL;
             tabsymbole.tab[i].name = id;
             tabsymbole.tab[i].used = 1;
-            tabsymbole.tab[i].memory_place = writememory((char *)&place, 4); // reserved the place
-            tabsymbole.tab[i].size = 1;
+            tabsymbole.tab[i].memory_place = writememory((char *)&bidon, CELLSIZE); // reserved the place
+            tabsymbole.tab[i].nb = 1;
             return &tabsymbole.tab[i];
         }
     }
@@ -38,13 +38,28 @@ struct symbole *findtable(char *id, int create)
         tabsymbole.size = (tabsymbole.size + 1) * 2;
         tabsymbole.tab[place].name = id;
         tabsymbole.tab[place].used = 1;
-        tabsymbole.tab[place].size = 1;
-        tabsymbole.tab[place].memory_place = writememory((char *)&place, 4); // reserved the place
+        tabsymbole.tab[place].nb = 1;
+        tabsymbole.tab[place].memory_place = writememory((char *)&bidon, CELLSIZE); // reserved the place
 
         return &tabsymbole.tab[place];
     }
     return NULL;
 }
+
+
+symbole *createsymbole(symbole *s)
+{
+    int bidon = 789;
+    symbole *sprime = findtable(s->name,1);
+    sprime->used=1;
+    sprime->IsInt = s->IsInt;
+    sprime->nb = s->nb;
+    sprime->memory_place = writememory((char *)&bidon,CELLSIZE);
+    cur_memory += (s->nb-1)*CELLSIZE;
+
+    return sprime;
+}
+
 
 unsigned int writememory(char *buf, int sizebuf)
 {
