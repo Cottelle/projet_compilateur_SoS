@@ -4,5 +4,6 @@
         "gencode.h": "c",
         "stdlib.h": "c"
     },
-    "nrf-connect.toolchain.path": "${nrf-connect.toolchain:2.0.2}"
+    "nrf-connect.toolchain.path": "${nrf-connect.toolchain:2.0.2}",
+    "nrf-connect.topdir": "${nrf-connect.sdk:2.0.2}"
 }

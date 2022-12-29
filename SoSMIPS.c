@@ -1,0 +1,414 @@
+#include <stdio.h>
+#include "gencode.h"
+#include "tabsymbole.h"
+
+
+/*
+Declaration of fonctions used to 
+Fill different type of instructions
+@param instructions: int to fill
+@param place: where to fill the number (if present)
+@param number: number to add to the instruction
+*/
+
+//function to fill opcode of instructions
+
+void fillopcode(int instructions, int number)
+{
+    int i;
+    int k;
+    for (i = 5; i>=0; i--)
+    {
+        k=number>>i;
+        if (k & 1)
+            instructions |= (1<<(26+i));
+        else
+            instructions &= ~(1<<(26+i));
+    }
+}
+
+//function to fill R instructions
+
+void fillRinst(int instructions, int place,int number)
+{
+    int i=0;
+    int k=0;
+    int begin = 0;
+
+    switch(place)
+    {
+        case 1:
+            //rs
+            begin = 21 ;
+            break;
+        case 2:
+            //rt
+            begin = 16 ;
+            break;
+        case 3:
+            //rd
+            begin = 11 ;
+            break;
+        case 4:
+            //shamt
+            begin = 6 ;
+            break;
+        case 5:
+            //funct
+            begin = 0 ;
+            break;
+    }
+
+    if(place!=5)
+    {
+        for (i = 4; i>=0; i--)
+        {
+            k=number>>i;
+
+            if (k & 1)
+                instructions |= (1<<(begin+i));
+            else
+                instructions &= ~ (1<<(begin+i));
+        }
+    }
+    else
+    {
+        for (i = 5; i>=0; i--)
+        {
+            k=number>>i;
+
+            if (k & 1)
+                instructions |= (1<<(begin+i));
+            else
+                instructions &= ~(1<<(begin+i));
+        }
+    }
+}
+
+//function to fill I instructions
+
+void fillIinst(int instructions, int place,int number)
+{
+    int i=0;
+    int k=0;
+    int begin = 0;
+
+    switch(place)
+    {
+        case 1:
+            //rs
+            begin = 21 ;
+            break;
+        case 2:
+            //rt
+            begin = 16 ;
+            break;
+        case 3:
+            //immediate
+            begin = 0 ;
+            break;
+    }
+
+    if(place!=3)
+    {
+        for (i = 4; i>=0; i--)
+        {
+            k=number>>i;
+
+            if (k & 1)
+                instructions |= (1<<(begin+i));
+            else
+                instructions &= ~(1<<(begin+i));
+        }
+    }
+    else
+    {
+        for (i = 15; i>=0; i--)
+        {
+            k=number>>i;
+
+            if (k & 1)
+                instructions |= (1<<(begin+i));
+            else
+                instructions &= ~(1<<(begin+i));
+        }
+    }
+}
+
+//function to fill J instructions
+
+void fillJinst(int instructions,int number)
+{
+    int i=0;
+    int k=0;
+    int begin = 0;
+
+    for (i = 25; i>=0; i--)
+    {
+        k=number>>i;
+
+        if (k & 1)
+            instructions |= (1<<(begin+i));
+        else
+            instructions &= ~(1<<(begin+i));
+    }
+}
+
+//function to fill FR instructions
+
+void fillFRinst(int instructions, int place,int number)
+{
+    int i=0;
+    int k=0;
+    int begin = 0;
+
+    switch(place)
+    {
+        case 1:
+            //fmt
+            begin = 21 ;
+            break;
+        case 2:
+            //ft
+            begin = 16 ;
+            break;
+        case 3:
+            //fs
+            begin = 11 ;
+            break;
+        case 4:
+            //fd
+            begin = 6 ;
+            break;
+        case 5:
+            //funct
+            begin = 0 ;
+            break;
+    }
+
+    if(place!=5)
+    {
+        for (i = 4; i>=0; i--)
+        {
+            k=number>>i;
+
+            if (k & 1)
+                instructions |= (1<<(begin+i));
+            else
+                instructions &= ~(1<<(begin+i));
+        }
+    }
+    else
+    {
+        for (i = 5; i>=0; i--)
+        {
+            k=number>>i;
+
+            if (k & 1)
+                instructions |= (1<<(begin+i));
+            else
+                instructions &= ~(1<<(begin+i));
+        }
+    }
+}
+
+//function to fill FI instructions
+
+void fillFIinst(int instructions, int place,int number)
+{
+    int i=0;
+    int k=0;
+    int begin = 0;
+
+    switch(place)
+    {
+        case 1:
+            //fmt
+            begin = 21 ;
+            break;
+        case 2:
+            //rt
+            begin = 16 ;
+            break;
+        case 3:
+            //immediate
+            begin = 0 ;
+            break;
+    }
+
+    if(place!=3)
+    {
+        for (i = 4; i>=0; i--)
+        {
+            k=number>>i;
+
+            if (k & 1)
+                instructions |= (1<<(begin+i));
+            else
+                instructions &= ~(1<<(begin+i));
+        }
+    }
+    else
+    {
+        for (i = 15; i>=0; i--)
+        {
+            k=number>>i;
+
+            if (k & 1)
+                instructions |= (1<<(begin+i));
+            else
+                instructions &= ~(1<<(begin+i));
+        }
+    }
+}
+
+
+//function to write the binary code in the file
+void iltoMIPS(struct quad quad)
+{
+    //creation of the int for the different instructions
+    int instructions=0;
+
+    //creation of the file that will contain the binary code
+    FILE *f = fopen("codeMIPS.s", "wb");
+    if (f == NULL)
+    {
+        printf("Error opening file!\n");
+        exit(1);
+    }
+
+    int i;
+    for (i = 0; i < quad.next; i++)
+    {
+        //set (or reset) the int to 0 (to avoid problems)
+        instructions = 0;
+
+        switch (quad.quadrup[i].instruction)
+        {
+            case GOTO:
+                fillopcode(instructions, 2);
+
+                //if it is a direct jump
+                if(quad.quadrup[i].zero.s == NULL)
+                {
+                    fillJinst(instructions, quad.quadrup[i].zero.value);
+                }
+                //if it is an indirect jump
+                else
+                {
+                    fillJinst(instructions, quad.quadrup[i].zero.s->memory_place);
+                }
+                break;
+            case AFF:
+                if(quad.quadrup[i].zero.s == NULL)
+                {
+                    printf("Erreur: la variable n'existe pas\n");
+                    exit(1);
+                }
+
+                //utilisation de add donc op code = 0
+                fillopcode(instructions, 0);
+
+                switch (quad.quadrup[i].type)
+                {
+                    case 0: //affectation simple
+                        if(quad.quadrup[i].one.s != NULL)
+                        {
+                            //add $add1 $zero $add2
+                            fillRinst(instructions,1,0);
+
+                            fillRinst(instructions,2,quad.quadrup[i].one.s->memory_place);
+
+                            fillRinst(instructions,3,quad.quadrup[i].zero.s->memory_place);
+
+                            fillRinst(instructions,4,0);
+
+                            fillRinst(instructions,5,0x20);
+
+                            //fprintf(f,"move $%i, $%i\n", quad.quadrup[i].zero.s->memory_place, quad.quadrup[i].one.s->memory_place);
+                        }
+                        else
+                        {
+                            //addi $add1 $zero add2
+                            fillopcode(instructions, 8);
+
+                            fillIinst(instructions,1,0);
+
+                            fillIinst(instructions,2,quad.quadrup[i].zero.s->memory_place);
+
+                            fillIinst(instructions,3,quad.quadrup[i].one.value);
+
+                            //fprintf(f,"li $%i, %i\n", quad.quadrup[i].zero.s->memory_place, quad.quadrup[i].one.value);
+                        }
+                    break;
+
+                    case 1: //addition
+                        if(quad.quadrup[i].two.s != NULL)
+                            {
+                                //add $add1 $add2 $add3
+                                fillRinst(instructions,1,quad.quadrup[i].one.s->memory_place);
+
+                                fillRinst(instructions,2,quad.quadrup[i].two.s->memory_place);
+
+                                fillRinst(instructions,3,quad.quadrup[i].zero.s->memory_place);
+
+                                fillRinst(instructions,4,0);
+
+                                fillRinst(instructions,5,0x20);
+
+                                //fprintf(f,"add $%i, $%i, $%i\n", quad.quadrup[i].zero.s->memory_place, quad.quadrup[i].one.s->memory_place, quad.quadrup[i].two.s->memory_place);
+                            }
+                        else
+                        {
+                            //addi $add1 $add2 value
+                            fillopcode(instructions, 8);
+
+                            fillIinst(instructions,1,quad.quadrup[i].one.s->memory_place);
+
+                            fillIinst(instructions,2,quad.quadrup[i].zero.s->memory_place);
+
+                            fillIinst(instructions,3,quad.quadrup[i].two.value);
+
+                            //fprintf(f,"addi $%i, $%i, %i\n", quad.quadrup[i].zero.s->memory_place, quad.quadrup[i].one.s->memory_place, quad.quadrup[i].two.value);
+                        }
+                    break;
+
+                    case 2: //soustraction
+                        if(quad.quadrup[i].two.s != NULL)
+                        {
+                            //sub $add1 $add2 $add3
+                            fillRinst(instructions,1,quad.quadrup[i].one.s->memory_place);
+
+                            fillRinst(instructions,2,quad.quadrup[i].two.s->memory_place);
+
+                            fillRinst(instructions,3,quad.quadrup[i].zero.s->memory_place);
+
+                            fillRinst(instructions,4,0);
+
+                            fillRinst(instructions,5,0x22);
+                            //fprintf(f,"sub $%i, $%i, $%i\n", quad.quadrup[i].zero.s->memory_place, quad.quadrup[i].one.s->memory_place, quad.quadrup[i].two.s->memory_place);
+                        }
+                        else
+                        {
+                            //subi $add1 $add2 value
+                            fillopcode(instructions, 8);
+
+                            fillIinst(instructions,1,quad.quadrup[i].one.s->memory_place);
+
+                            fillIinst(instructions,2,quad.quadrup[i].zero.s->memory_place);
+
+                            fillIinst(instructions,3,quad.quadrup[i].two.value);
+
+                            //fprintf(f,"subi $%i, $%i, %i\n", quad.quadrup[i].zero.s->memory_place, quad.quadrup[i].one.s->memory_place, quad.quadrup[i].two.value);
+                        }
+                    break;
+
+                    case 3:
+                    break;
+                }
+                break;
+        } //end switch
+    
+    fwrite(&instructions, sizeof(int), 1, f);
+    } //end for
+} //end function
