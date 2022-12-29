@@ -9,6 +9,8 @@
 extern int yylex(void);
 extern struct quad quad;
 extern unsigned int nbarg;
+
+extern unsigned int cur_sp, cur_memory;             //cur_sp utilisé dans appel fonction
 void yyerror(const char *msg);
 
 unsigned int nbfor;
@@ -79,7 +81,11 @@ LISTE_INTRSUCTIONS: LISTE_INTRSUCTIONS ';'INSTRUCTION   {
 
 INSTRUCTION : ID '=' CONCATENATION                                                                                                          { 
                                                                                                                                                 $$= NULL;
-                                                                                                                                                gencode(AFF, addvalcreate(findtable($1,1),-1),addvalcreate(NULL,-1),addvalcreate(NULL,-1),0);
+                                                                                                                                                symbole *s =findtable($1,1);
+                                                                                                                                                s->fun=-1;                  //ne peut plus être une foncion (si réalloué)
+                                                                                                                                                s->nb= 1;                   //idem tableau 
+                                                                                                                                                //s->isint ???
+                                                                                                                                                gencode(AFF, addvalcreate(s,-1),addvalcreate(NULL,-1),addvalcreate(NULL,-1),0);
                                                                                                                                             } 
             |ID'['OPERANDE_ENTIER']' '=' CONCATENATION                                                                                      {
                                                                                                                                                 $$= NULL;
@@ -434,16 +440,48 @@ DECLARATION_FONTION: ID '(' entier ')'                                          
                                                                                         inmemory(createsymbole(&s)->memory_place,(char *)&quad.next,CELLSIZE);
                                                                                         $$ = nbarg;
                                                                                         nbarg = $3;
+
+                                                                                        nextstackcreate();              //the local variable space is create
+
+                                                                                        char *buf;
+                                                                                        
+                                                                                        for(int i=0;i<$3;i++)
+                                                                                        {
+                                                                                            if ((buf=malloc(4))<0)
+                                                                                            { 
+                                                                                                fprintf(stderr,"Error malloc\n");
+                                                                                            exit(1);
+                                                                                            }
+                                                                                          if (snprintf(buf,4,"$%i",i)<0)
+                                                                                          {
+                                                                                            fprintf(stderr,"Error snprintf\n");
+                                                                                            exit(1);
+                                                                                          }
+                                                                                          symbole *s=spfindtable(buf,1);            //create the entry on sp for the arg
+                                                                                        }   
+
+
                                                                                     }
                 '{'DECL_LOC LISTE_INTRSUCTIONS '}'                                  {
                                                                                         nbarg = $5;
                                                                                         complete($8,addvalcreate(NULL,-3));  // -3 --> valeur de retour de la fonction (:pas encore implementé)
+
+
+                                                                                        popstacknext();                  //the local variable space is delete
                                                                                     }
             ;
 
 
 
-DECL_LOC: DECL_LOC  local ID '=' CONCATENATION ';' {printf(">Local\n");}
+DECL_LOC: DECL_LOC  local ID '=' CONCATENATION ';'                                      {
+                                                                                            printf(">Local\n");
+                                                                                            symbole s;
+                                                                                            s.name = $3;
+                                                                                            s.isint =0;
+                                                                                            struct symbole *id =spcreatesymbole(&s);
+                                                                                            gencode(AFF,addvalcreate(id,-1),addvalcreate(NULL,-1),addvalcreate(NULL,-1),0);
+
+                                                                                        }
             |%empty 
             ;
 
@@ -453,6 +491,11 @@ APPEL_FONCTION: ID LISTE_ARG                                                    
                                                                                         if (!(s=findtable($1,0)))
                                                                                         {
                                                                                             fprintf(stderr,"Error %s not declared\n",$1);
+                                                                                            exit(3);
+                                                                                        }
+                                                                                        if (s->fun==-1)
+                                                                                        {
+                                                                                            fprintf(stderr,"Error %s is not a function\n",s->name);
                                                                                             exit(3);
                                                                                         }
                                                                                         gencode(GOTO,addvalcreate(s,-1),addvalcreate(NULL,-1),addvalcreate(NULL,-1),0);
@@ -468,13 +511,27 @@ APPEL_FONCTION: ID LISTE_ARG                                                    
                                                                                     }
             ;
 
-LISTE_ARG:LISTE_ARG OPERANDE            {
-                                          
+LISTE_ARG: OPERANDE LISTE_ARG             {
+                                            gencode(AFF,addvalcreate(NULL,cur_sp),addvalcreate(NULL,$1),addvalcreate(NULL,-1),0);     //même pb que pour for ${id[*]}, cela revient a push sur la pile 
+                                            cur_sp+=CELLSIZE;
                                         } 
             |OPERANDE                   {
+                                            gencode(AFF,addvalcreate(NULL,cur_sp),addvalcreate(NULL,$1),addvalcreate(NULL,-1),0);
+                                            cur_sp+=CELLSIZE;
                                             
                                         }
             |'$''{'ID'[''*'']''}'       { 
+                                           symbole *id= findtable($3,0); 
+                                            if(!id) 
+                                            {
+                                                fprintf(stderr,"Error %s is Unknow \n",$3); 
+                                                exit(2); 
+                                            } 
+                                            for(int i=0 ;i<id->nb ; i++)
+                                            {
+                                                gencode(AFF,addvalcreate(NULL,-1),addvalcreate(NULL,id->memory_place+i*CELLSIZE),addvalcreate(NULL,-1),0);      //pb car c'est une addr et pas direct ... a mediter quand les tab seront elusider
+                                                cur_sp+=CELLSIZE;
+                                            }
                                             
                                         }
                                         

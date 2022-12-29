@@ -76,7 +76,7 @@ ALLE [^\"\'" "";""=""\n""\t""\]""\)""\[""\(""$""{""}" "\|"]
 "exit" {return exit_;}
 "test" {return test;}
 "expr" {return expr;}
-"local" {printf("lexlocal\n");return local;}; 
+"local" {return local;}; 
 
 {NUMBER} { yylval = (YYSTYPE)atoi(yytext) ;return entier;}
 {ID} {char *value; value =malloc(strlen(yytext));strcpy(value,yytext);yylval =(YYSTYPE)value;return id;}
