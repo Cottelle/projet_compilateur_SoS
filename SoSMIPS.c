@@ -405,29 +405,96 @@ void iltoMIPS(struct quad quad)
                     case 1: //addition
                         if(quad.quadrup[i].two.s != NULL)
                             {
-                                //add $add1 $add2 $add3
-                                fillRinst(instructions,1,quad.quadrup[i].one.s->memory_place);
+                                //lw $t1 add2
+                                fillopcode(instructions, 0x23);
 
-                                fillRinst(instructions,2,quad.quadrup[i].two.s->memory_place);
+                                fillIinst(instructions, 1, 17);
 
-                                fillRinst(instructions,3,quad.quadrup[i].zero.s->memory_place);
+                                fillIinst(instructions, 2, quad.quadrup[i].one.s->memory_place);
+
+                                fillIinst(instructions, 3, 0);
+
+                                fwrite(&instructions, sizeof(int), 1, f);
+
+                                //lw $t2 add3
+                                fillopcode(instructions, 0x23);
+
+                                fillIinst(instructions, 1, 18);
+
+                                fillIinst(instructions, 2, quad.quadrup[i].two.s->memory_place);
+
+                                fillIinst(instructions, 3, 0);
+
+                                fwrite(&instructions, sizeof(int), 1, f);
+
+                                //add $t0 $t1 $t2
+                                fillopcode(instructions, 0);
+                                
+                                fillRinst(instructions,1,17);
+
+                                fillRinst(instructions,2,18);
+
+                                fillRinst(instructions,3,16);
 
                                 fillRinst(instructions,4,0);
 
                                 fillRinst(instructions,5,0x20);
 
+                                fwrite(&instructions, sizeof(int), 1, f);
+
+                                //sw $t0 add1
+
+                                fillopcode(instructions, 0x2b);
+
+                                //rs
+                                fillIinst(instructions, 1, quad.quadrup[i].zero.s->memory_place);
+
+                                //rt
+                                fillIinst(instructions, 2, 16);
+
+                                //immediate
+                                fillIinst(instructions, 3, 0);
+
+                                fwrite(&instructions, sizeof(int), 1, f);
+
                                 //fprintf(f,"add $%i, $%i, $%i\n", quad.quadrup[i].zero.s->memory_place, quad.quadrup[i].one.s->memory_place, quad.quadrup[i].two.s->memory_place);
                             }
                         else
                         {
-                            //addi $add1 $add2 value
+                            //lw $t1 add2
+                            fillopcode(instructions, 0x23);
+
+                            fillIinst(instructions, 1, 17);
+
+                            fillIinst(instructions, 2, quad.quadrup[i].one.s->memory_place);
+
+                            fillIinst(instructions, 3, 0);
+
+                            fwrite(&instructions, sizeof(int), 1, f);
+                            
+                            //addi $t0 $t1 value
                             fillopcode(instructions, 8);
 
-                            fillIinst(instructions,1,quad.quadrup[i].one.s->memory_place);
+                            fillIinst(instructions,1,17);
 
-                            fillIinst(instructions,2,quad.quadrup[i].zero.s->memory_place);
+                            fillIinst(instructions,2,16);
 
                             fillIinst(instructions,3,quad.quadrup[i].two.value);
+
+                            //sw $t0 add1
+
+                            fillopcode(instructions, 0x2b);
+
+                            //rs
+                            fillIinst(instructions, 1, quad.quadrup[i].zero.s->memory_place);
+
+                            //rt
+                            fillIinst(instructions, 2, 16);
+
+                            //immediate
+                            fillIinst(instructions, 3, 0);
+
+                            fwrite(&instructions, sizeof(int), 1, f);
 
                             //fprintf(f,"addi $%i, $%i, %i\n", quad.quadrup[i].zero.s->memory_place, quad.quadrup[i].one.s->memory_place, quad.quadrup[i].two.value);
                         }
