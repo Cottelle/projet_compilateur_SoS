@@ -286,8 +286,6 @@ void iltoMIPS(struct quad quad)
         switch (quad.quadrup[i].instruction)
         {
             case GOTO:
-                fillopcode(instructions, 2);
-
                 //if it is a direct jump
                 if(quad.quadrup[i].zero.s == NULL)
                 {
@@ -296,7 +294,24 @@ void iltoMIPS(struct quad quad)
                 //if it is an indirect jump
                 else
                 {
+                    //load the number contained in the address
+                    fillopcode(instructions, 0x23);
+                    
+                    //we want to store the value in $t0
+                    fillIinst(instructions, 1, 16);
+
+                    fillIinst(instructions, 2, quad.quadrup[i].zero.s->memory_place);
+
+                    fillIinst(instructions, 3, 0);
+
+                    fwrite(&instructions, sizeof(int), 1, f);
+
+                    //make the jump
+                    fillopcode(instructions, 2);
+
                     fillJinst(instructions, quad.quadrup[i].zero.s->memory_place);
+
+                    fwrite(&instructions, sizeof(int), 1, f);
                 }
                 break;
             case AFF:
