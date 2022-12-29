@@ -321,8 +321,6 @@ void iltoMIPS(struct quad quad)
                     exit(1);
                 }
 
-                //utilisation de add donc op code = 0
-                fillopcode(instructions, 0);
 
                 switch (quad.quadrup[i].type)
                 {
@@ -342,6 +340,8 @@ void iltoMIPS(struct quad quad)
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //add $t0 $zero $t1
+                            fillopcode(instructions, 0);
+                            
                             fillRinst(instructions,1,0);
 
                             fillRinst(instructions,2,17);
