@@ -296,7 +296,7 @@ void iltoMIPS(struct quad quad)
                 {
                     //load the number contained in the address
                     fillopcode(instructions, 0x23);
-                    
+
                     //we want to store the value in $t0
                     fillIinst(instructions, 1, 16);
 
@@ -329,29 +329,74 @@ void iltoMIPS(struct quad quad)
                     case 0: //affectation simple
                         if(quad.quadrup[i].one.s != NULL)
                         {
-                            //add $add1 $zero $add2
+
+                            //lw $t1 add2
+                            fillopcode(instructions, 0x23);
+
+                            fillIinst(instructions, 1, 17);
+
+                            fillIinst(instructions, 2, quad.quadrup[i].one.s->memory_place);
+
+                            fillIinst(instructions, 3, 0);
+
+                            fwrite(&instructions, sizeof(int), 1, f);
+
+                            //add $t0 $zero $t1
                             fillRinst(instructions,1,0);
 
-                            fillRinst(instructions,2,quad.quadrup[i].one.s->memory_place);
+                            fillRinst(instructions,2,17);
 
-                            fillRinst(instructions,3,quad.quadrup[i].zero.s->memory_place);
+                            fillRinst(instructions,3,16);
 
                             fillRinst(instructions,4,0);
 
                             fillRinst(instructions,5,0x20);
+                            fwrite(&instructions, sizeof(int), 1, f);
+
+                            //sw $t0 add1
+
+                            fillopcode(instructions, 0x2b);
+
+                            //rs
+                            fillIinst(instructions, 1, quad.quadrup[i].zero.s->memory_place);
+
+                            //rt
+                            fillIinst(instructions, 2, 16);
+
+                            //immediate
+                            fillIinst(instructions, 3, 0);
+
+                            fwrite(&instructions, sizeof(int), 1, f);
 
                             //fprintf(f,"move $%i, $%i\n", quad.quadrup[i].zero.s->memory_place, quad.quadrup[i].one.s->memory_place);
                         }
                         else
                         {
-                            //addi $add1 $zero add2
+                            //addi $t0 $zero value
                             fillopcode(instructions, 8);
 
                             fillIinst(instructions,1,0);
 
-                            fillIinst(instructions,2,quad.quadrup[i].zero.s->memory_place);
+                            fillIinst(instructions,2,17);
 
                             fillIinst(instructions,3,quad.quadrup[i].one.value);
+
+                            fwrite(&instructions, sizeof(int), 1, f);
+
+                            //sw $t0 add1
+
+                            fillopcode(instructions, 0x2b);
+
+                            //rs
+                            fillIinst(instructions, 1, quad.quadrup[i].zero.s->memory_place);
+
+                            //rt
+                            fillIinst(instructions, 2, 16);
+
+                            //immediate
+                            fillIinst(instructions, 3, 0);
+
+                            fwrite(&instructions, sizeof(int), 1, f);
 
                             //fprintf(f,"li $%i, %i\n", quad.quadrup[i].zero.s->memory_place, quad.quadrup[i].one.value);
                         }
