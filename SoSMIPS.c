@@ -624,28 +624,176 @@ void iltoMIPS(struct quad quad)
                     case 2: //soustraction
                         if(quad.quadrup[i].two.s != NULL)
                         {
-                            //sub $add1 $add2 $add3
-                            fillRinst(instructions,1,quad.quadrup[i].one.s->memory_place);
+                            //we are gonna do lui $1 and the word without the 4 last bits
+                            fillopcode(instructions, 0x0F);
 
-                            fillRinst(instructions,2,quad.quadrup[i].two.s->memory_place);
+                            fillIinst(instructions, 1, 0);
 
-                            fillRinst(instructions,3,quad.quadrup[i].zero.s->memory_place);
+                            fillIinst(instructions, 2, 1);
+
+                            fillIinst(instructions, 3, quad.quadrup[i].one.s->memory_place>>16);
+
+                            fwrite(&instructions, sizeof(int), 1, f);
+
+                            //lw $s1 add2
+                            fillopcode(instructions, 0x23);
+
+                            fillIinst(instructions, 1, 1);
+
+                            fillIinst(instructions, 2, 17);
+
+                            fillIinst(instructions, 3, quad.quadrup[i].one.s->memory_place);
+
+                            fwrite(&instructions, sizeof(int), 1, f);
+
+                            
+                            
+                            //we are gonna do lui $1 and the word without the 4 last bits
+                            fillopcode(instructions, 0x0F);
+
+                            fillIinst(instructions, 1, 0);
+
+                            fillIinst(instructions, 2, 1);
+
+                            fillIinst(instructions, 3, quad.quadrup[i].two.s->memory_place>>16);
+
+                            fwrite(&instructions, sizeof(int), 1, f);
+
+                            //lw $s2 add3
+                            fillopcode(instructions, 0x23);
+
+                            fillIinst(instructions, 1, 1);
+
+                            fillIinst(instructions, 2, 18);
+
+                            fillIinst(instructions, 3, quad.quadrup[i].two.s->memory_place);
+
+                            fwrite(&instructions, sizeof(int), 1, f);
+
+
+
+                            //sub $s0 $s1 $s2
+                            fillopcode(instructions, 0);
+
+                            fillRinst(instructions,1,17);
+
+                            fillRinst(instructions,2,18);
+
+                            fillRinst(instructions,3,16);
 
                             fillRinst(instructions,4,0);
 
                             fillRinst(instructions,5,0x22);
+
+                            fwrite(&instructions, sizeof(int), 1, f);
+
+                            //we are gonna do lui $1 and the word without the 4 last bits
+                            fillopcode(instructions, 0x0F);
+
+                            fillIinst(instructions, 1, 0);
+
+                            fillIinst(instructions, 2, 1);
+
+                            fillIinst(instructions, 3, quad.quadrup[i].zero.s->memory_place>>16);
+
+                            fwrite(&instructions, sizeof(int), 1, f);
+
+                            //sw $t0 add1
+                            fillopcode(instructions, 0x2b);
+
+                            //rs
+                            fillIinst(instructions, 1, 1);
+
+                            //rt
+                            fillIinst(instructions, 2, 16);
+
+                            //immediate
+                            fillIinst(instructions, 3, quad.quadrup[i].zero.s->memory_place);
+
+                            fwrite(&instructions, sizeof(int), 1, f);
+
+
                             //fprintf(f,"sub $%i, $%i, $%i\n", quad.quadrup[i].zero.s->memory_place, quad.quadrup[i].one.s->memory_place, quad.quadrup[i].two.s->memory_place);
                         }
                         else
                         {
-                            //subi $add1 $add2 value
-                            fillopcode(instructions, 8);
+                            //we are gonna do lui $1 and the word without the 4 last bits
+                            fillopcode(instructions, 0x0F);
 
-                            fillIinst(instructions,1,quad.quadrup[i].one.s->memory_place);
+                            fillIinst(instructions, 1, 0);
 
-                            fillIinst(instructions,2,quad.quadrup[i].zero.s->memory_place);
+                            fillIinst(instructions, 2, 1);
 
-                            fillIinst(instructions,3,quad.quadrup[i].two.value);
+                            fillIinst(instructions, 3, quad.quadrup[i].one.s->memory_place>>16);
+
+                            fwrite(&instructions, sizeof(int), 1, f);
+
+                            //lw $s1 add2
+                            fillopcode(instructions, 0x23);
+
+                            fillIinst(instructions, 1, 1);
+
+                            fillIinst(instructions, 2, 17);
+
+                            fillIinst(instructions, 3, quad.quadrup[i].one.s->memory_place);
+
+                            fwrite(&instructions, sizeof(int), 1, f);
+
+
+
+                            //addi $s2 $zero value
+
+                            fillopcode(instructions, 0x08);
+
+                            fillIinst(instructions, 1, 0);
+
+                            fillIinst(instructions, 2, 18);
+
+                            fillIinst(instructions, 3, quad.quadrup[i].two.value);
+
+                            fwrite(&instructions, sizeof(int), 1, f);
+
+
+
+                            //sub $s0 $s1 $s2
+                            fillopcode(instructions, 0);
+
+                            fillRinst(instructions,1,quad.quadrup[i].one.s->memory_place);
+
+                            fillRinst(instructions,2,quad.quadrup[i].zero.s->memory_place);
+
+                            fillRinst(instructions,3,quad.quadrup[i].two.value);
+
+                            fillRinst(instructions,4,0);
+
+                            fillRinst(instructions,5,0x22);
+
+                            fwrite(&instructions, sizeof(int), 1, f);
+
+                            //we are gonna do lui $1 and the word without the 4 last bits
+                            fillopcode(instructions, 0x0F);
+
+                            fillIinst(instructions, 1, 0);
+
+                            fillIinst(instructions, 2, 1);
+
+                            fillIinst(instructions, 3, quad.quadrup[i].zero.s->memory_place>>16);
+
+                            fwrite(&instructions, sizeof(int), 1, f);
+
+                            //sw $t0 add1
+                            fillopcode(instructions, 0x2b);
+
+                            //rs
+                            fillIinst(instructions, 1, 1);
+
+                            //rt
+                            fillIinst(instructions, 2, 16);
+
+                            //immediate
+                            fillIinst(instructions, 3, quad.quadrup[i].zero.s->memory_place);
+
+                            fwrite(&instructions, sizeof(int), 1, f);
 
                             //fprintf(f,"subi $%i, $%i, %i\n", quad.quadrup[i].zero.s->memory_place, quad.quadrup[i].one.s->memory_place, quad.quadrup[i].two.value);
                         }
