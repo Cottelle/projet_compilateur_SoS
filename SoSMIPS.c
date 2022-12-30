@@ -294,22 +294,40 @@ void iltoMIPS(struct quad quad)
                 //if it is an indirect jump
                 else
                 {
-                    //load the number contained in the address
-                    fillopcode(instructions, 0x23);
+                    //we are gonna do lui $1 and the word without the 4 last bits
+                    fillopcode(instructions, 0x0F);
 
-                    //we want to store the value in $t0
-                    fillIinst(instructions, 1, 16);
+                    fillIinst(instructions, 1, 0);
 
-                    fillIinst(instructions, 2, quad.quadrup[i].zero.s->memory_place);
+                    fillIinst(instructions, 2, 1);
 
-                    fillIinst(instructions, 3, 0);
+                    fillIinst(instructions, 3, quad.quadrup[i].zero.s->memory_place>>16);
 
                     fwrite(&instructions, sizeof(int), 1, f);
 
-                    //make the jump
-                    fillopcode(instructions, 2);
+                    //lw $t0 add1($1)
+                    fillopcode(instructions, 0x23);
 
-                    fillJinst(instructions, quad.quadrup[i].zero.s->memory_place);
+                    fillIinst(instructions, 1, 1);
+
+                    fillIinst(instructions, 2, 16);
+
+                    fillIinst(instructions, 3, quad.quadrup[i].zero.s->memory_place);
+
+                    fwrite(&instructions, sizeof(int), 1, f);
+
+                    //make the jump j
+                    fillopcode(instructions, 0);
+
+                    fillRinst(instructions, 1, 16);
+
+                    fillRinst(instructions, 2, 0);
+
+                    fillRinst(instructions, 3, 0);
+
+                    fillRinst(instructions, 4, 0);
+
+                    fillRinst(instructions, 5, 8);
 
                     fwrite(&instructions, sizeof(int), 1, f);
                 }
@@ -327,15 +345,25 @@ void iltoMIPS(struct quad quad)
                     case 0: //affectation simple
                         if(quad.quadrup[i].one.s != NULL)
                         {
+                            //we are gonna do lui $1 and the word without the 4 last bits
+                            fillopcode(instructions, 0x0F);
 
-                            //lw $t1 add2
+                            fillIinst(instructions, 1, 0);
+
+                            fillIinst(instructions, 2, 1);
+
+                            fillIinst(instructions, 3, quad.quadrup[i].one.s->memory_place>>16);
+
+                            fwrite(&instructions, sizeof(int), 1, f);
+
+                            //lw $t1 addr2($1)
                             fillopcode(instructions, 0x23);
 
-                            fillIinst(instructions, 1, 17);
+                            fillIinst(instructions, 1, 1);
 
-                            fillIinst(instructions, 2, quad.quadrup[i].one.s->memory_place);
+                            fillIinst(instructions, 2, 17);
 
-                            fillIinst(instructions, 3, 0);
+                            fillIinst(instructions, 3, quad.quadrup[i].one.s->memory_place);
 
                             fwrite(&instructions, sizeof(int), 1, f);
 
@@ -353,18 +381,28 @@ void iltoMIPS(struct quad quad)
                             fillRinst(instructions,5,0x20);
                             fwrite(&instructions, sizeof(int), 1, f);
 
-                            //sw $t0 add1
+                            //we are gonna do lui $1 and the word without the 4 last bits
+                            fillopcode(instructions, 0x0F);
 
+                            fillIinst(instructions, 1, 0);
+
+                            fillIinst(instructions, 2, 1);
+
+                            fillIinst(instructions, 3, quad.quadrup[i].zero.s->memory_place>>16);
+
+                            fwrite(&instructions, sizeof(int), 1, f);
+
+                            //sw $t0 add1($1)
                             fillopcode(instructions, 0x2b);
 
                             //rs
-                            fillIinst(instructions, 1, quad.quadrup[i].zero.s->memory_place);
+                            fillIinst(instructions, 1, 1);
 
                             //rt
                             fillIinst(instructions, 2, 16);
 
                             //immediate
-                            fillIinst(instructions, 3, 0);
+                            fillIinst(instructions, 3, quad.quadrup[i].zero.s->memory_place);
 
                             fwrite(&instructions, sizeof(int), 1, f);
 
@@ -383,18 +421,29 @@ void iltoMIPS(struct quad quad)
 
                             fwrite(&instructions, sizeof(int), 1, f);
 
+                            //we are gonna do lui $1 and the word without the 4 last bits
+                            fillopcode(instructions, 0x0F);
+
+                            fillIinst(instructions, 1, 0);
+
+                            fillIinst(instructions, 2, 1);
+
+                            fillIinst(instructions, 3, quad.quadrup[i].zero.s->memory_place>>16);
+
+                            fwrite(&instructions, sizeof(int), 1, f);
+
                             //sw $t0 add1
 
                             fillopcode(instructions, 0x2b);
 
                             //rs
-                            fillIinst(instructions, 1, quad.quadrup[i].zero.s->memory_place);
+                            fillIinst(instructions, 1, 1);
 
                             //rt
                             fillIinst(instructions, 2, 16);
 
                             //immediate
-                            fillIinst(instructions, 3, 0);
+                            fillIinst(instructions, 3, quad.quadrup[i].zero.s->memory_place);
 
                             fwrite(&instructions, sizeof(int), 1, f);
 
