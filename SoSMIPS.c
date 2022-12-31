@@ -1006,9 +1006,9 @@ void iltoMIPS(struct quad quad)
                             fillIinst(instructions, 3, quad.quadrup[i].zero.s->memory_place);
 
                             fwrite(&instructions, sizeof(int), 1, f);
-                        }
+                        }//end if address
                     break;
-                    }//end switch type       
+                }//end switch type       
                 break;
         } //end switch op
     } //end for
