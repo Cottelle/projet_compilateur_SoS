@@ -1527,8 +1527,8 @@ void iltoMIPS(struct quad quad)
 
                         fwrite(&instructions, sizeof(int), 1, f);
                         break;
-
                 }
+                break;
         } //end switch op
     } //end for
 } //end function
