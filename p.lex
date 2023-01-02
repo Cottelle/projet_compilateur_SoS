@@ -79,11 +79,11 @@ ALLE [^\"\'" "";""=""\n""\t""\]""\)""\[""\(""$""{""}" "\|"]
 "local" {return local;}; 
 
 {NUMBER} { yylval = (YYSTYPE)atoi(yytext) ;return entier;}
-{ID} {char *value; value =malloc(strlen(yytext));strcpy(value,yytext);yylval =(YYSTYPE)value;return id;}
+{ID} {char *value; value =malloc(strlen(yytext)+1);strcpy(value,yytext);yylval =(YYSTYPE)value;return id;}
 
-{QUOTE}.*{QUOTE} {char *value; value =malloc(strlen(yytext));strcpy(value,yytext);yylval =(YYSTYPE)value;return chaine;}
+{QUOTE}.*{QUOTE} {char *value; value =malloc(strlen(yytext))+1;strcpy(value,yytext);yylval =(YYSTYPE)value;return chaine;}
 
-{ALLE}+     {printf("mot:%s\n",yytext); char *value; value =malloc(strlen(yytext));strcpy(value,yytext);yylval =(YYSTYPE)value;return mot;}
+{ALLE}+     { char *value; value =malloc(strlen(yytext)+1);strcpy(value,yytext);yylval =(YYSTYPE)value;return mot;}
 
 
 

@@ -9,7 +9,7 @@
 #include "tabsymbole.h"
 
 #define SIZECODE 32
-#define SIZEPRINT 10      //evite les malloc dans printquad
+#define SIZEPRINT 32      //evite les malloc dans printquad
 
 struct stack
 {
@@ -24,9 +24,7 @@ enum instruction
     GOTO,
     AFF,
     IF,
-    CALL,
     SYS,
-    PUSH
 };
 
 struct addval{
@@ -37,10 +35,10 @@ struct addval{
 
 typedef struct quadrup
 {
-    enum instruction instruction;
     struct addval zero;
     struct addval one;
     struct addval two;
+    enum instruction instruction;
     int type;
 
 } quadrup;
@@ -60,7 +58,8 @@ typedef struct lpos
 
 struct casestack
 {
-    int head;
+    struct symbole *s;
+    int addr;
     struct casestack *tail;
 };
 
@@ -76,11 +75,11 @@ struct addval addvalcreate(struct symbole *s,int value);
 
 void printquad(void);
 
-void casepush(int);
+void casepush( struct symbole *s,int addr );
 
-int casepop(void);
+struct addval casepop(void);
 
-int casetop(void);
+struct addval casetop(void);
 
 lpos *arggencode(lpos **);
 

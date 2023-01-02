@@ -18,13 +18,13 @@ main: $(prefixe).tab.o lex.yy.o main.o tabsymbole.o gencode.o usefull.o
 	$(CC) $(LDFLAGS) $^ -o $@ $(LDLIBS)
 
 tabsymbole.o : tabsymbole.c
-	gcc -o tabsymbole.o -c tabsymbole.c
+	gcc -o tabsymbole.o -c tabsymbole.c $(LDFLAGS)
 
 gencode.o : gencode.c
-	gcc -o gencode.o -c gencode.c
+	gcc -o gencode.o -c gencode.c $(LDFLAGS)
 
 usefull.o : usefull.c
-	gcc -o usefull.o -c usefull.c
+	gcc -o usefull.o -c usefull.c $(LDFLAGS)
 
 $(prefixe).tab.c: $(prefixe).y
 	bison -t -d $(prefixe).y

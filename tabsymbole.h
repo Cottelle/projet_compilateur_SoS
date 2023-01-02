@@ -5,6 +5,8 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "usefull.h"
+
 #define INITSIZETAB 0
 #define MEMORYSIZE 1024
 #define CELLSIZE 4              //the size of one cell in memory (addr or int) 
@@ -12,26 +14,25 @@
 
 
 
-typedef struct symbole{
+struct symbole{
+        char *name;
         unsigned int nb; 
         unsigned int memory_place;
         int fun;               // -1 if not function else the number of argument
-        char *name;
-        char isint;             //if the isint the memory_place direct contained the value else contained the addr to the string
-        char used; 
-        char onstack ;           //If is int the stack
-}symbole;
+        char isint;             //if the isint the memory_place direct contained the value else contained the addr to the string. Also if the onstack_reg=2 contain the number of register
+        char onstack_reg;           //1 is int the stack 2 if is register (can't be on the stack and a register)
+};
 
 struct tabsymbole{
     int size;
-    symbole* tab;
+    struct symbole** tab;
 };
 
 
 struct tabsymbolesp{
-    int size;
-    struct symbole *tab;                              //The current local variable   
     struct tabsymbolesp *next;                 //The next local variable tab                     
+    int size;
+    struct symbole **tab;                              //The currents locals variables   
 };
 
 /**
@@ -44,12 +45,12 @@ struct symbole *findtable(char *id,int create);
 /**
  * create an entry in tabsymbole with s atribute (name, nb, isint) following
 */
-symbole *createsymbole(symbole *s);
+struct symbole *createsymbole(struct symbole *s);
 
 /**
  * return a classique symbole isint =0, fun =-1, name = NULL, nb=1, 
 */
-symbole simples(void);
+struct symbole simples(void);
 
 
 /**
@@ -77,7 +78,7 @@ void inmemory(unsigned int place,char *buf,int sizebuf);
 struct tabsymbolesp *nextstackcreate(void);
 
 /**
- * pop the last next of tabsymbolesp (and free it)
+ * pop the last next of tabsymbolesp 
 */
 void popstacknext(void);
 
@@ -89,7 +90,7 @@ struct symbole *spfindtable(char *id,int create);
 
 
 /**
- * create an entry in tabsymbole with s atribute (name, nb, isint) following. For local variable (on the stack)
+ * create an entry in tabsymbole with s atribute (name, nb, isint) following. For local variable (on the stack.
 */
 struct symbole *spcreatesymbole(struct symbole *s);
 

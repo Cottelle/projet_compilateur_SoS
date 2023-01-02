@@ -1,18 +1,1 @@
-
-fun(2){
-    local s=$1;
-    local l=$2;
-    for i do 
-    s=$3
-    done
-};
-
-for q do
-    b=$1
-    done;
-
-
-fun $1 $2 $3 ;
-
-f=$1
-
+echo a df kjqsd
