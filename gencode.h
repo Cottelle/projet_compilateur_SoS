@@ -25,7 +25,8 @@ enum instruction
     AFF,
     IF,
     CALL,
-    SYS
+    SYS,
+    PUSH
 };
 
 struct addval{
@@ -82,6 +83,9 @@ int casepop(void);
 int casetop(void);
 
 lpos *arggencode(lpos **);
+
+struct symbole *stackpush(char *name,int value);
+
 
 
 #endif

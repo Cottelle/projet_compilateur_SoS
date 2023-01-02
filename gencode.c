@@ -95,9 +95,9 @@ void printquad()
         printf("%i ", i);
 
         char zero[SIZEPRINT],one[SIZEPRINT],two[SIZEPRINT];
-        snprintf(zero,SIZEPRINT,"%s%i%s",(quad.quadrup[i].zero.s ==NULL)? "":"[", (quad.quadrup[i].zero.s ==NULL)? quad.quadrup[i].zero.value : quad.quadrup[i].zero.s->memory_place, (quad.quadrup[i].zero.s ==NULL)? "":"]" );
-        snprintf(one,SIZEPRINT,"%s%i%s",(quad.quadrup[i].one.s ==NULL)? "":"[", (quad.quadrup[i].one.s ==NULL)? quad.quadrup[i].one.value : quad.quadrup[i].one.s->memory_place, (quad.quadrup[i].one.s ==NULL)? "":"]" );
-        snprintf(two,SIZEPRINT,"%s%i%s",(quad.quadrup[i].two.s ==NULL)? "":"[", (quad.quadrup[i].two.s ==NULL)? quad.quadrup[i].two.value : quad.quadrup[i].two.s->memory_place, (quad.quadrup[i].two.s ==NULL)? "":"]" );
+        snprintf(zero,SIZEPRINT,"%s%s%i%s",(quad.quadrup[i].zero.s ==NULL)? "":"[", (quad.quadrup[i].zero.s !=NULL && quad.quadrup[i].zero.s->onstack)? "<sp>" :"", (quad.quadrup[i].zero.s ==NULL)? quad.quadrup[i].zero.value : quad.quadrup[i].zero.s->memory_place, (quad.quadrup[i].zero.s ==NULL)? "":"]" );
+        snprintf(one,SIZEPRINT,"%s%s%i%s",(quad.quadrup[i].one.s ==NULL)? "":"[", (quad.quadrup[i].one.s !=NULL && quad.quadrup[i].zero.s->onstack)? "<sp>" :"",(quad.quadrup[i].one.s ==NULL)? quad.quadrup[i].one.value : quad.quadrup[i].one.s->memory_place, (quad.quadrup[i].one.s ==NULL)? "":"]" );
+        snprintf(two,SIZEPRINT,"%s%s%i%s",(quad.quadrup[i].two.s ==NULL)? "":"[", (quad.quadrup[i].two.s !=NULL && quad.quadrup[i].zero.s->onstack)? "<sp>" :"",(quad.quadrup[i].two.s ==NULL)? quad.quadrup[i].two.value : quad.quadrup[i].two.s->memory_place, (quad.quadrup[i].two.s ==NULL)? "":"]" );
 
         switch (quad.quadrup[i].instruction)
         {
@@ -164,6 +164,11 @@ void printquad()
 
         case SYS:
             printf("sys %i\n", quad.quadrup[i].zero.value);
+            break;
+        
+        case PUSH:
+            printf("push %s ",zero);
+            break;
 
         default:
             printf("?(%i)\n", quad.quadrup[i].instruction);
@@ -223,3 +228,23 @@ lpos *arggencode(lpos **start)
 
     return value;
 }
+
+/* struct symbole *stackpush(char *name,int value)
+{
+    if(findtable(name,0))      
+    {
+        fprintf(stderr,"Error %s is local and already exit (in local)\n",name);
+        exit(3);
+    }
+    struct symbole *s =findtable(name,1); //pas idéal en complexité
+
+    insp(s->memory_place,(char *)&value,CELLSIZE);
+
+    gencode(AFF,addvalcreate(s,-1),addvalcreate(NULL,value),addvalcreate(NULL,-1),0);
+
+    return s;
+    
+
+    
+}
+ */
