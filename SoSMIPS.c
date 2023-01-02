@@ -1310,6 +1310,225 @@ void iltoMIPS(struct quad quad)
                         break;
                 }//end switch type       
                 break;
+            case IF:
+                if(quad.quadrup[i].zero.s == NULL)
+                {
+                    printf("Must be an adress\n");
+                    exit(1);
+                }
+                if(quad.quadrup[i].one.s != NULL)
+                {
+                    //we are gonna do lui $1 and the word without the 4 last bits
+                    fillopcode(instructions, 0x0F);
+
+                    fillIinst(instructions, 1, 0);
+
+                    fillIinst(instructions, 2, 1);
+
+                    fillIinst(instructions, 3, quad.quadrup[i].one.s->memory_place>>16);
+
+                    fwrite(&instructions, sizeof(int), 1, f);
+
+                    //lw $s1 add2
+                    fillopcode(instructions, 0x23);
+
+                    fillIinst(instructions, 1, 1);
+
+                    fillIinst(instructions, 2, 17);
+
+                    fillIinst(instructions, 3, quad.quadrup[i].one.s->memory_place);
+
+                    fwrite(&instructions, sizeof(int), 1, f);
+                }
+                else
+                {
+                    //addi $s1 $0 add2
+
+                    fillopcode(instructions, 0x08);
+
+                    fillIinst(instructions, 1, 0);
+
+                    fillIinst(instructions, 2, 17);
+
+                    fillIinst(instructions, 3, quad.quadrup[i].one.value);
+
+                    fwrite(&instructions, sizeof(int), 1, f);
+                }
+                if(quad.quadrup[i].two.s != NULL)
+                {
+                    //we are gonna do lui $1 and the word without the 4 last bits
+                    fillopcode(instructions, 0x0F);
+
+                    fillIinst(instructions, 1, 0);
+
+                    fillIinst(instructions, 2, 1);
+
+                    fillIinst(instructions, 3, quad.quadrup[i].two.s->memory_place>>16);
+
+                    fwrite(&instructions, sizeof(int), 1, f);
+
+                    //lw $s2 add3
+                    fillopcode(instructions, 0x23);
+
+                    fillIinst(instructions, 1, 1);
+
+                    fillIinst(instructions, 2, 18);
+
+                    fillIinst(instructions, 3, quad.quadrup[i].two.s->memory_place);
+
+                    fwrite(&instructions, sizeof(int), 1, f);
+                }
+                else
+                {
+                    //addi $s2 $0 add3
+
+                    fillopcode(instructions, 0x08);
+
+                    fillIinst(instructions, 1, 0);
+
+                    fillIinst(instructions, 2, 18);
+
+                    fillIinst(instructions, 3, quad.quadrup[i].two.value);
+
+                    fwrite(&instructions, sizeof(int), 1, f);
+                }
+                switch(quad.quadrup[i].type)
+                {
+                    case 0:
+                        //beq $s1 $s2 add1
+                        fillopcode(instructions, 0x04);
+
+                        fillIinst(instructions, 1, 17);
+
+                        fillIinst(instructions, 2, 18);
+
+                        fillIinst(instructions, 3, quad.quadrup[i].zero.s->memory_place);
+
+                        fwrite(&instructions, sizeof(int), 1, f);
+                        break;
+                    case 1:
+                        //bne $s1 $s2 add1
+                        fillopcode(instructions, 0x05);
+
+                        fillIinst(instructions, 1, 17);
+
+                        fillIinst(instructions, 2, 18);
+
+                        fillIinst(instructions, 3, quad.quadrup[i].zero.s->memory_place);
+
+                        fwrite(&instructions, sizeof(int), 1, f);
+                        break;
+                    case 2:
+                        //slt $1 $s1 $s2
+                        fillopcode(instructions, 0);
+
+                        fillRinst(instructions, 1, 17);
+
+                        fillRinst(instructions, 2, 18);
+
+                        fillRinst(instructions, 3, 1);
+
+                        fillRinst(instructions, 4, 0);
+
+                        fillRinst(instructions, 5, 0x2A);
+
+                        fwrite(&instructions, sizeof(int), 1, f);
+
+                        //bne $1 $0 add1
+                        fillopcode(instructions, 0x05);
+
+                        fillIinst(instructions, 1, 1);
+
+                        fillIinst(instructions, 2, 0);
+
+                        fillIinst(instructions, 3, quad.quadrup[i].zero.s->memory_place);
+
+                        fwrite(&instructions, sizeof(int), 1, f);
+                        break;
+                    case 3:
+                        //slt $1 $s2 $s1
+                        fillopcode(instructions, 0);
+
+                        fillRinst(instructions, 1, 18);
+
+                        fillRinst(instructions, 2, 17);
+
+                        fillRinst(instructions, 3, 1);
+
+                        fillRinst(instructions, 4, 0);
+
+                        fillRinst(instructions, 5, 0x2A);
+
+                        fwrite(&instructions, sizeof(int), 1, f);
+
+                        //bne $1 $0 add1
+                        fillopcode(instructions, 0x05);
+
+                        fillIinst(instructions, 1, 1);
+
+                        fillIinst(instructions, 2, 0);
+
+                        fillIinst(instructions, 3, quad.quadrup[i].zero.s->memory_place);
+
+                        fwrite(&instructions, sizeof(int), 1, f);
+                        break;
+                    case 4:
+                        //slt $1 $s2 $s1
+                        fillopcode(instructions, 0);
+
+                        fillRinst(instructions, 1, 18);
+
+                        fillRinst(instructions, 2, 17);
+
+                        fillRinst(instructions, 3, 1);
+
+                        fillRinst(instructions, 4, 0);
+
+                        fillRinst(instructions, 5, 0x2A);
+
+                        fwrite(&instructions, sizeof(int), 1, f);
+
+                        //beq $1 $0 add1
+
+                        fillopcode(instructions, 0x04);
+
+                        fillIinst(instructions, 1, 1);
+
+                        fillIinst(instructions, 2, 0);
+
+                        fillIinst(instructions, 3, quad.quadrup[i].zero.s->memory_place);
+
+                        fwrite(&instructions, sizeof(int), 1, f);
+                        break;
+                    case 5:
+                        //slt $1 $s1 $s2
+                        fillopcode(instructions, 0);
+
+                        fillRinst(instructions, 1, 17);
+
+                        fillRinst(instructions, 2, 18);
+
+                        fillRinst(instructions, 3, 1);
+
+                        fillRinst(instructions, 4, 0);
+
+                        fillRinst(instructions, 5, 0x2A);
+
+                        fwrite(&instructions, sizeof(int), 1, f);
+
+                        //beq $1 $0 add1
+                        fillopcode(instructions, 0x04);
+
+                        fillIinst(instructions, 1, 1);
+
+                        fillIinst(instructions, 2, 0);
+
+                        fillIinst(instructions, 3, quad.quadrup[i].zero.s->memory_place);
+
+                        fwrite(&instructions, sizeof(int), 1, f);
+                        break;
+
+                }
         } //end switch op
     } //end for
 } //end function
