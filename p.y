@@ -6,10 +6,13 @@
 #include "usefull.h"
 
 #define SIZEREAD 32
+#define CELLSIZE 4
 
 extern int yylex(void);
 extern struct quad quad;
 extern unsigned int nbarg;
+extern unsigned int nligne;
+
 
 
 extern unsigned int cur_sp, cur_memory;             //cur_sp utilisé dans appel fonction
@@ -61,7 +64,7 @@ unsigned int nbfor;
 %token <name> id mot chaine
 %token declare if_ then elif else_ fi for_ do_ done in while_ until case_ esac echo read_ return_ exit_  test expr local to ta teq tne tgt tge tlt tle magic
 %type <name> ID  
-%type <operande> OPERANDE CONCATENATION
+%type <operande> OPERANDE CONCATENATION OPERANDE_ENTIER
 %type <list_ope> LISTE_OPERANDES
 %type <filtre> FILTRE
 %type <cond> TEST_EXPR TEST_EXPR2 TEST_EXPR3 TEST_INSTRUCTION TEST_BLOC
@@ -72,7 +75,8 @@ unsigned int nbfor;
 
 %%
 
-PROGRAMME :  LISTE_INTRSUCTIONS      {gencode(SYS,addvalcreate(NULL,10),addvalcreate(NULL,-1),addvalcreate(NULL,-1),0);inmemory(findtable("_mem",1)->memory_place,(char*)&cur_memory,sizeof(cur_memory)); }     //On ecrit l'endroit de la mémoire ici pour pouvoir dans le code generer acceder a cette memoire ( par ex dans read)
+                                                                                                                                                
+PROGRAMME :  LISTE_INTRSUCTIONS      {gencode(AFF,addvalcreate(reg(31),-1) ,addvalcreate(NULL,0),addvalcreate(NULL,-1),0);gencode(SYS,addvalcreate(NULL,10),addvalcreate(NULL,-1),addvalcreate(NULL,-1),0);inmemory(findtable("_mem",1)->memory_place,(char*)&cur_memory,sizeof(cur_memory)); }     //On ecrit l'endroit de la mémoire ici pour pouvoir dans le code generer acceder a cette memoire ( par ex dans read)
             ;
 
 LISTE_INTRSUCTIONS: LISTE_INTRSUCTIONS ';'INSTRUCTION   {
@@ -177,37 +181,87 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                 struct symbole *id =findtable($2,1), *mem = findtable("-mem",1);
                                                                                                                                                 id->isint =0; // on met un string
                                                                                                                                                 gencode(AFF,addvalcreate(id,-1),addvalcreate(mem,-1),addvalcreate(NULL,-1),0);
-                                                                                                                                                gencode(AFF,addvalcreate(mem,-1),addvalcreate(mem,-1),addvalcreate(NULL,SIZEREAD),1);
-                                                                                                                                                gencode(AFF,addvalcreate(mem,-1),addvalcreate(mem,-1),addvalcreate(NULL,SIZEREAD),1);
 
-                                                                                                                                                gencode(AFF,addvalcreate(reg(5),-1),addvalcreate(NULL,SIZEREAD),addvalcreate(NULL,-1),0);
                                                                                                                                                 gencode(AFF,addvalcreate(reg(4),-1),addvalcreate(mem,-1),addvalcreate(NULL,-1),0);
-                                                                                                                                                gencode(AFF,addvalcreate(NULL,-8),addvalcreate(NULL,-1),addvalcreate(NULL,-1),0);
+                                                                                                                                                gencode(AFF,addvalcreate(reg(5),-1),addvalcreate(NULL,SIZEREAD),addvalcreate(NULL,-1),0);
+                                                                                                                                                gencode(SYS,addvalcreate(NULL,8),addvalcreate(NULL,-1),addvalcreate(NULL,-1),0);
+                                                                                                                                                gencode(AFF,addvalcreate(mem,-1),addvalcreate(mem,-1),addvalcreate(NULL,SIZEREAD),1);
 
 
                                                                                                                                             }
             |read_ ID'['OPERANDE_ENTIER']'                                                                                                  {
-                                                                                                                                                printf(">Read %s[ent](%i)\n",$2,findtable($2,1)->memory_place);
+                                                                                                                                                $$ = NULL;
+                                                                                                                                                printf(">Read \n");
+                                                                                                                                                struct symbole *mem = findtable("-mem",1), *id =findtable($2,0), *stemp =findtable("_read_id_tab",1);
+                                                                                                                                                if (!id)
+                                                                                                                                                {
+                                                                                                                                                    // fprintf(stderr,"Error %s is not declared (declare %s[%i] before) \n",$2,$2,$4);
+                                                                                                                                                    exit(2);
+                                                                                                                                                }
+
+                                                                                                                                                stemp->isint =1;
+                                                                                                                                                stemp->fun=-1;
+                                                                                                                                                stemp->nb =1;
+                                                                                                                                                stemp->onstack_reg =0;
+
+
+
+                                                                                                                                                
+                                                                                                                                                gencode(AFF,addvalcreate(stemp,-1),addvalcreate(NULL,id->memory_place),addvalcreate($4.s,$4.addr),0);           //--> pb de double  indirection
+
+                                                                                                                                                gencode(AFF,addvalcreate(stemp,-1),addvalcreate(mem,-1),addvalcreate(NULL,SIZEREAD),1);
+
+                                                                                                                                                gencode(AFF,addvalcreate(reg(4),-1),addvalcreate(mem,-1),addvalcreate(NULL,-1),0);
+                                                                                                                                                gencode(AFF,addvalcreate(reg(5),-1),addvalcreate(NULL,SIZEREAD),addvalcreate(NULL,-1),0);
+                                                                                                                                                gencode(AFF,addvalcreate(NULL,-8),addvalcreate(NULL,-1),addvalcreate(NULL,-1),0);                                                                                                                                            
+                                                                                                                                                gencode(AFF,addvalcreate(mem,-1),addvalcreate(mem,-1),addvalcreate(NULL,SIZEREAD),1);
                                                                                                                                             }
             |DECLARATION_FONTION                                                                                                            {
                                                                                                                                                 printf(">declaration fonction \n");
                                                                                                                                                 $$ = NULL;
                                                                                                                                             }
             |return_                                                                                                                        {
+                                                                                                                                                $$ =NULL;
                                                                                                                                                 printf(">return \n");
+                                                                                                                                                struct symbole *ret = spfindtable("_ret",0);
+                                                                                                                                                if (!ret)
+                                                                                                                                                {
+                                                                                                                                                    fprintf(stderr,"Error not in function can't return (use exit to exit programm) \n");
+                                                                                                                                                    exit(2);
+                                                                                                                                                }
+
+                                                                                                                                                gencode(AFF,addvalcreate(reg(31),-1) ,addvalcreate(NULL,0),addvalcreate(NULL,-1),0);
+                                                                                                                                                gencode(GOTO,addvalcreate(ret,-1) ,addvalcreate(NULL,-1),addvalcreate(NULL,-1),0);
                                                                                                                                             }
             |return_ OPERANDE_ENTIER                                                                                                        {
+                                                                                                                                                $$ =NULL;
                                                                                                                                                 printf(">return entier \n");
+                                                                                                                                                struct symbole *ret = spfindtable("_ret",0);
+                                                                                                                                                if (!ret)
+                                                                                                                                                {
+                                                                                                                                                    fprintf(stderr,"Error not in function can't return (use exit to exit programm) \n");
+                                                                                                                                                    exit(2);
+                                                                                                                                                }
+
+                                                                                                                                                gencode(AFF,addvalcreate(reg(31),-1) ,addvalcreate($2.s,$2.addr),addvalcreate(NULL,-1),0);
+                                                                                                                                                gencode(GOTO,addvalcreate(ret,-1) ,addvalcreate(NULL,-1),addvalcreate(NULL,-1),0);
                                                                                                                                             }
             |APPEL_FONCTION                                                                                                                 {
                                                                                                                                                 printf(">appel fonction \n");
                                                                                                                                                 $$=NULL;
+                                                                                                                                                
                                                                                                                                             }
             |exit_                                                                                                                          {
+                                                                                                                                                $$ =NULL;
                                                                                                                                                 printf(">exit \n");
+                                                                                                                                                gencode(AFF,addvalcreate(reg(31),-1) ,addvalcreate(NULL,0),addvalcreate(NULL,-1),0);
+                                                                                                                                                gencode(SYS,addvalcreate(NULL,10) ,addvalcreate(NULL,-1),addvalcreate(NULL,-1),0);
                                                                                                                                             }
             |exit_ OPERANDE_ENTIER                                                                                                          {
+                                                                                                                                                $$ =NULL;
                                                                                                                                                 printf(">exit entier \n");
+                                                                                                                                                gencode(AFF,addvalcreate(reg(31),-1) ,addvalcreate($2.s,$2.addr),addvalcreate(NULL,-1),0);
+                                                                                                                                                gencode(SYS,addvalcreate(NULL,10) ,addvalcreate(NULL,-1),addvalcreate(NULL,-1),0);
                                                                                                                                             }
             ;                                       
 
@@ -594,7 +648,7 @@ DECLARATION_FONTION: ID '(' entier ')'                                          
                 '{'DECL_LOC LISTE_INTRSUCTIONS '}'                                  {
                                                                                         nbarg = $5;
                                                                                         complete($8,addvalcreate(findtable("_ret",0),-1));  // -3 --> valeur de retour de la fonction (:pas encore implementé)
-
+                                                                                        gencode(AFF,addvalcreate(reg(31),-1),addvalcreate(NULL,0),addvalcreate(NULL,-1),0);
                                                                                         gencode(GOTO,addvalcreate(findtable("_ret",0),-1),addvalcreate(NULL,-1),addvalcreate(NULL,-1),0);
                                                                                         popstacknext();                  //the local variable space is delete
                                                                                     }
@@ -706,5 +760,5 @@ M: %empty { $$ = quad.next;}
 
 void yyerror(const char *msg)
 {
-    fprintf(stderr,"%s\n",msg);
+    fprintf(stderr,"%s ligne %i\n",msg,nligne);
 }

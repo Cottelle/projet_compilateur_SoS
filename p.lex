@@ -6,6 +6,9 @@
     #include <stdlib.h>
     #include <string.h>
     #include "p.tab.h"
+
+
+    unsigned int nligne;
 %}
 
 
@@ -19,7 +22,7 @@ QUOTE (\"|\')
 ALLE [^\"\'" "";""=""\n""\t""\]""\)""\[""\(""$""{""}" "\|"]       
 %%
 
-
+"\n" nligne++;
 ";" return yytext[0];
 "[" return yytext[0];
 "]" return yytext[0];
@@ -49,7 +52,7 @@ ALLE [^\"\'" "";""=""\n""\t""\]""\)""\[""\(""$""{""}" "\|"]
 
 "mm" return magic;
 
-"#".*"\n" ;
+"#".*"\n" nligne++;
 
 
 [[:space:]] ;

@@ -83,14 +83,14 @@ struct symbole *findtable(char *id, int create)
 
 struct symbole *createsymbole(struct symbole *s)
 {
-    int bidon = 789;
     struct symbole *sprime = findtable(s->name, 1);
     sprime->isint = s->isint;
     sprime->nb = s->nb;
     sprime->onstack_reg = s->onstack_reg;
     sprime->fun = s->fun;
-    sprime->memory_place = writememory((char *)&bidon, CELLSIZE);
-    cur_memory += (s->nb - 1) * CELLSIZE; // alocate the place for the tab
+    for(unsigned int i=1;i<s->nb;i++)
+    sprime->memory_place = writememory((char *)&i, CELLSIZE);
+    // cur_memory += (s->nb - 1) * CELLSIZE; // alocate the place for the tab
 
     return sprime;
 }
