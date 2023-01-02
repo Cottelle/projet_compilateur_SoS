@@ -5,6 +5,7 @@
 #include "gencode.h"
 #include "usefull.h"
 
+#define SIZEREAD 32
 
 extern int yylex(void);
 extern struct quad quad;
@@ -71,7 +72,7 @@ unsigned int nbfor;
 
 %%
 
-PROGRAMME :  LISTE_INTRSUCTIONS      
+PROGRAMME :  LISTE_INTRSUCTIONS      {gencode(SYS,addvalcreate(NULL,10),addvalcreate(NULL,-1),addvalcreate(NULL,-1),0);inmemory(findtable("_mem",1)->memory_place,(char*)&cur_memory,sizeof(cur_memory)); }     //On ecrit l'endroit de la mémoire ici pour pouvoir dans le code generer acceder a cette memoire ( par ex dans read)
             ;
 
 LISTE_INTRSUCTIONS: LISTE_INTRSUCTIONS ';'INSTRUCTION   {
@@ -172,7 +173,18 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                             }
             |read_ ID                                                                                                                       {
                                                                                                                                                 $$ = NULL;
-                                                                                                                                                printf(">Read %s(%i)\n",$2,findtable($2,1)->memory_place);
+                                                                                                                                                printf(">Read \n");
+                                                                                                                                                struct symbole *id =findtable($2,1), *mem = findtable("-mem",1);
+                                                                                                                                                id->isint =0; // on met un string
+                                                                                                                                                gencode(AFF,addvalcreate(id,-1),addvalcreate(mem,-1),addvalcreate(NULL,-1),0);
+                                                                                                                                                gencode(AFF,addvalcreate(mem,-1),addvalcreate(mem,-1),addvalcreate(NULL,SIZEREAD),1);
+                                                                                                                                                gencode(AFF,addvalcreate(mem,-1),addvalcreate(mem,-1),addvalcreate(NULL,SIZEREAD),1);
+
+                                                                                                                                                gencode(AFF,addvalcreate(reg(5),-1),addvalcreate(NULL,SIZEREAD),addvalcreate(NULL,-1),0);
+                                                                                                                                                gencode(AFF,addvalcreate(reg(4),-1),addvalcreate(mem,-1),addvalcreate(NULL,-1),0);
+                                                                                                                                                gencode(AFF,addvalcreate(NULL,-8),addvalcreate(NULL,-1),addvalcreate(NULL,-1),0);
+
+
                                                                                                                                             }
             |read_ ID'['OPERANDE_ENTIER']'                                                                                                  {
                                                                                                                                                 printf(">Read %s[ent](%i)\n",$2,findtable($2,1)->memory_place);
@@ -335,6 +347,9 @@ LISTE_ECHO:LISTE_ECHO OPERANDE {
                                             s->onstack_reg =2;
                                             s->isint =4;
                                              gencode(AFF,addvalcreate(s,-1),addvalcreate($1.s,$1.addr),addvalcreate(NULL,-1),0);
+                                             if ($1.s && $1.s->isint)
+                                                 gencode(SYS,addvalcreate(NULL,1),addvalcreate(NULL,-1),addvalcreate(NULL,-1),0);
+                                            else
                                              gencode(SYS,addvalcreate(NULL,4),addvalcreate(NULL,-1),addvalcreate(NULL,-1),0);
                                         }
             |'$''{'ID'[''*'']''}'        { 

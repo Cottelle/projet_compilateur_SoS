@@ -290,6 +290,26 @@ void insp(unsigned int place, char *buf, int sizebuf)
         sp[i + place] = buf[i];
 }
 
+
+struct symbole *reg(int value)
+{
+    struct symbole *s = malloc(sizeof(struct symbole));
+    if (!s)
+    {
+        fprintf(stderr,"Error malloc\n");
+        exit(1);
+    }
+
+    s->onstack_reg=2;
+    s->isint =value;
+    s->memory_place =value;
+    s->fun = -1;
+    s->name = "Registre";
+    s->nb = 1;
+
+    return s;
+}
+
 void printtabsymbole(void)
 {
     printf("\n Table symbole : \n");

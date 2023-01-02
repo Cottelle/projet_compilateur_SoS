@@ -118,6 +118,11 @@ void insp(unsigned int place,char *buf,int sizebuf);
 
 
 
+/**
+ * return an allocated symbole of registre $value
+*/
+struct symbole *reg(int value);
+
 
 /**
  * Print the tabsymbol
