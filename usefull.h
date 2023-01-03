@@ -14,6 +14,12 @@
 char *createbuf(char *format, ...);
 
 
+/**
+ * My realloc fun
+*/
+char *myrealloc(char *buf, int new_size,int old_size);
+
+
 
 
 
