@@ -174,7 +174,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                 $$ = NULL;
                                                                                                                                                 printf(">echo \n");
                                                                                                                                             }
-            |read_ ID                                                                                                                       {           // achanger en fonction du isint de id
+            |read_ ID                                                                                                                       {           // faudra utiliser le label la-1 de 32
                                                                                                                                                 $$ = NULL;
                                                                                                                                                 printf(">Read \n");
                                                                                                                                                 struct symbole *id = findtable($2,1), *buf_read = findtable("_buf_read",1);

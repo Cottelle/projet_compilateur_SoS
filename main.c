@@ -5,6 +5,10 @@
 extern int yyparse(void);
 extern struct quad quad;
 
+extern struct tabsymbole tabsymbole;
+extern struct labels labels;
+
+
 int main(void)
 {
     quad.quadrup = NULL; // Sinon pb de realloc
@@ -12,5 +16,7 @@ int main(void)
         ;
     printquad();
     printtabsymbole();
+
+
     return 0;
 }
