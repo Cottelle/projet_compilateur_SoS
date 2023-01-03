@@ -268,7 +268,7 @@ void iltoMIPS(struct quad quad)
     int instructions=0;
 
     //creation of the file that will contain the binary code
-    FILE *f = fopen("codeMIPS.s", "wb");
+    FILE * f = fopen("codeMIPS.s", "wb");
     if (f == NULL)
     {
         printf("Error opening file!\n");
@@ -327,7 +327,7 @@ void iltoMIPS(struct quad quad)
 
                     fillRinst(&instructions, 5, 8);
 
-                    fwrite(&instructions, sizeof(int), 1, f);
+                    write(&instructions, sizeof(int), 1, f);
                 }
                 break;
             case AFF:
@@ -343,6 +343,7 @@ void iltoMIPS(struct quad quad)
                     case 0: //affectation simple
                         if(quad.quadrup[i].one.s != NULL)
                         {
+                            printf("je suis dans le cas adresse\n");
                             //we are gonna do lui $1 and the word without the 4 last bits
                             fillopcode(&instructions, 0x0F);
 
@@ -413,14 +414,19 @@ void iltoMIPS(struct quad quad)
                         }
                         else
                         {
+                            printf("je suis dans le cas valeur\n");
+                            printf("valeur: %i\n", quad.quadrup[i].one.value);
+                            printf("adresse: %i\n", quad.quadrup[i].zero.s->memory_place);
                             //addi $s0 $zero value
                             fillopcode(&instructions, 8);
 
                             fillIinst(&instructions,1,0);
 
-                            fillIinst(&instructions,2,17);
+                            fillIinst(&instructions,2,16);
 
                             fillIinst(&instructions,3,quad.quadrup[i].one.value);
+
+                            printf("intstruction: %x\n", instructions);
 
                             fwrite(&instructions, sizeof(int), 1, f);
 
@@ -437,7 +443,7 @@ void iltoMIPS(struct quad quad)
 
                             fwrite(&instructions, sizeof(int), 1, f);
 
-                            //sw $s0 add1
+                            //sw $s0 add1($1)
 
                             fillopcode(&instructions, 0x2b);
 
