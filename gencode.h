@@ -71,7 +71,7 @@ void complete(lpos *liste, struct addval value);
 
 void gencode(enum instruction, struct addval z, struct addval o, struct addval t, int type);
 
-struct addval addvalcreate(struct symbole *s,int value);
+struct addval avc(struct symbole *s,int value);
 
 void printquad(void);
 

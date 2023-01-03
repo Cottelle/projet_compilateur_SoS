@@ -15,9 +15,9 @@ Cela permet de faire des operation direct (avec value) ou indirect (avec s)
 
 
 Exemple :
-gencode(GOTO,addvalcreate(NULL,100),addvalcreate(NULL,-1),addvalcreate(NULL,-1),0)
+gencode(GOTO,avc(NULL,100),avc(NULL,-1),avc(NULL,-1),0)
 
-addvalcreate(struct symbole *s,int value) creer juste la struct addval pour le gencode
+avc(struct symbole *s,int value) creer juste la struct addval pour le gencode
 
 Ici le gencode genere une instruction qui fait un goto (un jump) à la ligne 100
 o et t sont inutilisées
@@ -32,7 +32,7 @@ struct symbole *findtable(char *id ,int create)        --> chercher l'id dans la
 
 Exemple 
 
-gencode(GOTO,addvalcreate(findtable("a",0),-1),addvalcreate(NULL,-1),addvalcreate(NULL,-1),0)
+gencode(GOTO,avc(findtable("a",0),-1),avc(NULL,-1),avc(NULL,-1),0)
 
 goto vers la valeur contenu dans le symboe a (Si il n'existe pas c'est problematique)
 
