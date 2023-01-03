@@ -5,6 +5,10 @@
 struct tabsymbole tabsymbole;
 struct tabsymbolesp tabsymbolesp;
 
+struct functiontable funtab;
+
+struct labels labels;
+
 char memory[MEMORYSIZE];
 unsigned int cur_memory;
 
@@ -38,7 +42,6 @@ struct symbole *findtable(char *id, int create)
             tabsymbole.tab[i]->onstack_reg = 0;
             tabsymbole.tab[i]->memory_place = writememory((char *)&bidon, CELLSIZE); // reserved the place
             tabsymbole.tab[i]->nb = 1;
-            tabsymbole.tab[i]->fun = -1;
             tabsymbole.tab[i]->isint = 0;
             return tabsymbole.tab[i]; // find if it is a local variable
         }
@@ -72,7 +75,6 @@ struct symbole *findtable(char *id, int create)
         tabsymbole.tab[place]->name = id;
         tabsymbole.tab[place]->onstack_reg = 0;
         tabsymbole.tab[place]->nb = 1;
-        tabsymbole.tab[place]->fun = -1;
         tabsymbole.tab[place]->isint = 0;
         tabsymbole.tab[place]->memory_place = writememory((char *)&bidon, CELLSIZE); // reserved the place
 
@@ -87,9 +89,8 @@ struct symbole *createsymbole(struct symbole *s)
     sprime->isint = s->isint;
     sprime->nb = s->nb;
     sprime->onstack_reg = s->onstack_reg;
-    sprime->fun = s->fun;
-    for(unsigned int i=1;i<s->nb;i++)
-    sprime->memory_place = writememory((char *)&i, CELLSIZE);
+    for (unsigned int i = 1; i < s->nb; i++)
+        sprime->memory_place = writememory((char *)&i, CELLSIZE);
     // cur_memory += (s->nb - 1) * CELLSIZE; // alocate the place for the tab
 
     return sprime;
@@ -98,7 +99,6 @@ struct symbole *createsymbole(struct symbole *s)
 struct symbole simples(void)
 {
     struct symbole s;
-    s.fun = -1;
     s.name = NULL;
     s.nb = 1;
     s.onstack_reg = 0;
@@ -130,6 +130,38 @@ void inmemory(unsigned int place, char *buf, int sizebuf)
 {
     for (int i = 0; i < sizebuf; i++)
         memory[i + place] = buf[i];
+}
+
+struct symbole *clabel(char *buf)
+{
+    struct symbole *s = malloc(sizeof(struct symbole));
+    if (!s)
+    {
+        fprintf(stderr, "Error malloc\n");
+        exit(2);
+    }
+    s->onstack_reg = 3;
+
+    if (labels.size <= labels.cur_place)
+    {
+        if (labels.size == 0)
+            labels.size++;
+        else
+            labels.size *= 2;
+        char **temp = realloc(labels.tab, labels.size * sizeof(char *));
+        if (!temp)
+        {
+            fprintf(stderr, "Error malloc\n");
+            exit(2);
+        }
+        labels.tab = temp;
+    }
+    labels.tab[labels.cur_place] = buf;
+    s->isint = labels.cur_place;
+    s->memory_place = labels.cur_place;
+    labels.cur_place++;
+
+    return s;
 }
 
 struct tabsymbolesp *nextstackcreate(void)
@@ -177,14 +209,14 @@ struct symbole *spfindtable(char *id, int create)
     {
         // if (!tabsp->tab[i]->name)
         //     continue;
-        if (tabsp->tab[i] &&  strcmp(id, tabsp->tab[i]->name) == 0)
+        if (tabsp->tab[i] && strcmp(id, tabsp->tab[i]->name) == 0)
             return tabsp->tab[i];
         if (!(tabsp->tab[i]))
         {
             if (!create)
                 return NULL;
 
-            tabsp->tab[i] = calloc(1,sizeof(struct symbole));
+            tabsp->tab[i] = calloc(1, sizeof(struct symbole));
             if (!tabsp->tab[i])
             {
                 fprintf(stderr, "Error malloc \n");
@@ -194,7 +226,6 @@ struct symbole *spfindtable(char *id, int create)
             tabsp->tab[i]->name = id;
             tabsp->tab[i]->onstack_reg = 1;
             tabsp->tab[i]->isint = 0;
-            tabsp->tab[i]->fun = -1; // always -1 (not function)
             tabsp->tab[i]->nb = 1;   // always 1
 
             tabsp->tab[i]->memory_place = writesp((char *)&bidon, CELLSIZE); // reserved the place
@@ -203,11 +234,11 @@ struct symbole *spfindtable(char *id, int create)
     }
     if (create)
     {
-        int new_size =0;
-        if(tabsp->size==0)
-            new_size=1;
+        int new_size = 0;
+        if (tabsp->size == 0)
+            new_size = 1;
         else
-            new_size = tabsp->size*2;
+            new_size = tabsp->size * 2;
 
         struct symbole **temp = realloc(tabsp->tab, new_size * sizeof(struct symbole *));
         if (!temp)
@@ -218,11 +249,10 @@ struct symbole *spfindtable(char *id, int create)
 
         memset(temp + tabsp->size, '\0', (new_size - tabsp->size) * sizeof(struct symbole *));
 
-
         tabsp->tab = temp;
-  
+
         int place = tabsp->size;
-        tabsp->tab[place] = calloc(1,sizeof(struct symbole));
+        tabsp->tab[place] = calloc(1, sizeof(struct symbole));
         if (!tabsp->tab[place])
         {
             fprintf(stderr, "Error malloc \n");
@@ -232,7 +262,6 @@ struct symbole *spfindtable(char *id, int create)
         tabsp->size = new_size;
         tabsp->tab[place]->name = id;
         tabsp->tab[place]->onstack_reg = 1;
-        tabsp->tab[place]->fun = -1; // always -1 (not function)
         tabsp->tab[place]->nb = 1;   // always 1
         tabsp->tab[place]->isint = 0;
         tabsp->tab[place]->memory_place = writesp((char *)&bidon, CELLSIZE); // reserved the place
@@ -248,7 +277,6 @@ struct symbole *spcreatesymbole(struct symbole *s)
     sprime->isint = s->isint;
     sprime->nb = 1;
     sprime->onstack_reg = 1;
-    sprime->fun = -1;
 
     return sprime;
 }
@@ -256,7 +284,6 @@ struct symbole *spcreatesymbole(struct symbole *s)
 struct symbole spsimples(void)
 {
     struct symbole s;
-    s.fun = -1;
     s.name = NULL;
     s.nb = 1;
     s.onstack_reg = 1;
@@ -290,24 +317,56 @@ void insp(unsigned int place, char *buf, int sizebuf)
         sp[i + place] = buf[i];
 }
 
-
 struct symbole *reg(int value)
 {
     struct symbole *s = malloc(sizeof(struct symbole));
     if (!s)
     {
-        fprintf(stderr,"Error malloc\n");
+        fprintf(stderr, "Error malloc\n");
         exit(1);
     }
 
-    s->onstack_reg=2;
-    s->isint =value;
-    s->memory_place =value;
-    s->fun = -1;
+    s->onstack_reg = 2;
+    s->isint = value;
+    s->memory_place = value;
     s->name = "Registre";
     s->nb = 1;
 
     return s;
+}
+
+struct function *findfun(char *name, int create)
+{
+    if (!create)
+    {
+        for (unsigned int i = 0; i < funtab.cur; i++)
+            if (strcmp(funtab.ftab[i]->name, name) == 0)
+                return funtab.ftab[i];
+        return NULL;
+    }
+    if (funtab.size <= funtab.cur)
+    {
+        if (funtab.size == 0)
+            funtab.size++;
+        else
+            funtab.size *= 2;
+        void *temp = realloc(funtab.ftab, funtab.size * sizeof(*funtab.ftab));
+        if (!temp)
+        {
+            fprintf(stderr, "Error malloc\n ");
+            exit(2);
+        }
+        funtab.ftab = temp;
+    }
+    funtab.ftab[funtab.cur] = malloc(sizeof(struct function));
+    if (!funtab.ftab[funtab.cur])
+    {
+        fprintf(stderr, "Error malloc\n ");
+        exit(2);
+    }
+    funtab.cur++;
+    funtab.ftab[funtab.cur-1]->name = name;
+    return funtab.ftab[funtab.cur-1];
 }
 
 void printtabsymbole(void)
@@ -347,6 +406,10 @@ void printtabsymbole(void)
             nb0 = 0;
         i++;
     }
+
+    printf("\nLabel\n");
+    for (unsigned int i = 0; i < labels.cur_place; i++)
+        printf("la%i: %s \n", i, labels.tab[i]);
 
     printf("\n");
 }

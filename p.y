@@ -93,7 +93,6 @@ LISTE_INTRSUCTIONS: LISTE_INTRSUCTIONS ';'INSTRUCTION   {
 INSTRUCTION : ID '=' CONCATENATION                                                                                                          { 
                                                                                                                                                 $$= NULL;
                                                                                                                                                 struct symbole *s =findtable($1,1);
-                                                                                                                                                s->fun=-1;                  //ne peut plus être une foncion (si réalloué)
                                                                                                                                                 s->nb= 1;                   //idem tableau 
                                                                                                                                                 //s->isint ???
                                                                                                                                                 gencode(AFF, avc(s,-1),avc($3.s,$3.addr),avc(NULL,-1),0);
@@ -198,7 +197,6 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                 }
 
                                                                                                                                                 stemp->isint =1;
-                                                                                                                                                stemp->fun=-1;
                                                                                                                                                 stemp->nb =1;
                                                                                                                                                 stemp->onstack_reg =0;
 
@@ -288,7 +286,7 @@ ELSE_PART: elif TEST_BLOC                                                       
     
 
 LISTE_CAS: LISTE_CAS M FILTRE ')' M                                                                                                         { 
-                                                                                                                                                gencode(IF,avc(NULL,-1),avc(casetop().s,casetop().value),avc(NULL,writestringmemory($3.last)),1); 
+                                                                                                                                                gencode(IF,avc(NULL,-1),avc(casetop().s,casetop().value),avc(clabel($3.last),-1),1); 
                                                                                                                                                 complete($3.entrer,avc(NULL,quad.next));
                                                                                                                                             } 
                  LISTE_INTRSUCTIONS ';'';'                                                                                                                      {
@@ -299,7 +297,7 @@ LISTE_CAS: LISTE_CAS M FILTRE ')' M                                             
                                                                                                                                                                     $$.follow = crelist($5) ; 
                                                                                                                                                                 } 
             |M FILTRE ')'M                                                                                                                  {
-                                                                                                                                                 gencode(IF,avc(NULL,-1),avc(casetop().s,casetop().value),avc(NULL,writestringmemory($2.last)),1); 
+                                                                                                                                                 gencode(IF,avc(NULL,-1),avc(casetop().s,casetop().value),avc(clabel($2.last),-1),1); 
                                                                                                                                                  complete($2.entrer,avc(NULL,quad.next));
                                                                                                                                             } 
                 LISTE_INTRSUCTIONS ';'';'                                                                                                                       {
@@ -322,17 +320,17 @@ FILTRE: ID                          {
                                     {
                                         $$.last=$3;
                                         $$.entrer = concat($1.entrer, crelist(quad.next)) ;
-                                        gencode(IF,avc(NULL,-1),avc(casetop().s,casetop().value),avc(NULL,writestringmemory($1.last)),0);
+                                        gencode(IF,avc(NULL,-1),avc(casetop().s,casetop().value),avc(clabel($1.last),-1),0);
                                     }           
            |FILTRE '|'chaine        {
                                         $$.last=$3;
                                         $$.entrer = concat($1.entrer, crelist(quad.next)) ;
-                                        gencode(IF,avc(NULL,-1),avc(casetop().s,casetop().value),avc(NULL,writestringmemory($1.last)),0) ;
+                                        gencode(IF,avc(NULL,-1),avc(casetop().s,casetop().value),avc(clabel($1.last),-1),0) ;
                                     }     
             |FILTRE '|' ID          {
                                         $$.last=$3;
                                         $$.entrer = concat($1.entrer, crelist(quad.next)) ;
-                                        gencode(IF,avc(NULL,-1),avc(casetop().s,casetop().value),avc(NULL,writestringmemory($1.last)),0) ;
+                                        gencode(IF,avc(NULL,-1),avc(casetop().s,casetop().value),avc(clabel($1.last),-1),0) ;
                                     }              
            | '*'                    {
                                         $$.entrer = crelist(quad.next) ;
@@ -489,11 +487,10 @@ OPERANDE:'$''{'ID'}'                          {
                                                 $$.addr= findtable($3,0)->memory_place;              //pb ici
                                                 }
             |mot                              {
-                                                $$.s=NULL;
-                                                $$.addr=writestringmemory($1);
+                                                $$.s=clabel($1);
+                                                $$.addr=-1;
                                                 }
             |entier                           {                      //Rajouter a la grammaire 
-                                                $$.s=NULL;
                                                 char *mal = malloc(32);
                                                  if (!mal)
                                                  {
@@ -501,15 +498,16 @@ OPERANDE:'$''{'ID'}'                          {
                                                     exit(1);
                                                  } 
                                                  snprintf(mal,32,"%i",$1);
-                                                 $$.addr = writestringmemory(mal);
+                                                $$.s=clabel(mal);
+                                                 $$.addr = -1;
                                                 }                     
             |id                               {
-                                                $$.addr =writestringmemory($1);
-                                                $$.s=NULL;
+                                                $$.addr =-1;
+                                                $$.s=clabel($1);
                                                 }     //Rajouter a la grammaire
             |chaine                           {
-                                                $$.addr =writestringmemory($1);
-                                                $$.s=NULL;
+                                                $$.addr =-1;
+                                                $$.s=clabel($1);
                                                 }
             |'$'entier                         { 
                                                 if($2>nbarg)
@@ -604,11 +602,9 @@ FOIS_DIV_MOD: '*'
 
 
 DECLARATION_FONTION: ID '(' entier ')'                                              <entier>{       //chagement de la grammaire (ajout entier) car sinon valeur inconue à la compilation (nb d'argument) ce qui pose nottament probleme sur for i do ...
-                                                                                        struct symbole s = simples();
-                                                                                        s.fun = $3; 
-                                                                                        s.name = $1;
-                                                                                        s.onstack_reg=0;
-                                                                                        inmemory(createsymbole(&s)->memory_place,(char *)&quad.next,CELLSIZE);
+
+                                                                                        struct function *f = findfun($1,1);                 //peut ecraser une autre function
+                                                                                        f->nbarg = $3;
                                                                                         $$ = nbarg;
                                                                                         nbarg = $3;
 
@@ -632,11 +628,11 @@ DECLARATION_FONTION: ID '(' entier ')'                                          
                                                                                         }   
 
                                                                                         spfindtable("_ret",1);
-
+                                                                                        f->place = quad.next;
 
                                                                                     }
                 '{'DECL_LOC LISTE_INTRSUCTIONS '}'                                  {
-                                                                                        nbarg = $5;
+                                                                                        nbarg = $5;                                     // On resature le nb d'arg d'avant
                                                                                         complete($8,avc(findtable("_ret",0),-1));  // -3 --> valeur de retour de la fonction (:pas encore implementé)
                                                                                         gencode(AFF,avc(reg(31),-1),avc(NULL,0),avc(NULL,-1),0);
                                                                                         gencode(GOTO,avc(findtable("_ret",0),-1),avc(NULL,-1),avc(NULL,-1),0);
@@ -652,7 +648,7 @@ DECL_LOC: DECL_LOC  local ID '=' CONCATENATION ';'                              
                                                                                             s.name = $3;
                                                                                             s.isint =0;
                                                                                             struct symbole *id =spcreatesymbole(&s);
-                                                                                            gencode(AFF,avc(id,-1),avc(NULL,-1),avc(NULL,-1),0);
+                                                                                            gencode(AFF,avc(id,-1),avc($5.s,$5.addr),avc(NULL,-1),0);
 
                                                                                         }
             |%empty 
@@ -663,35 +659,28 @@ APPEL_FONCTION: ID                                                              
                                                                                             
                                                                                         }
                 LISTE_ARG                                                                   {
-                                                                                                struct symbole sim =simples();
-                                                                                                sim.onstack_reg =1;
-                                                                                                sim.name = malloc(5);
-                                                                                                sim.name="_ret";
-                                                                                                sim.isint =1;
-                                                                                                struct symbole *sb=spcreatesymbole(&sim);
-                                                                                                gencode(AFF,avc(sb,-1),avc(NULL,quad.next+2),avc(NULL,-1),0);     
+                                                                                                struct symbole *sim =malloc(sizeof(*sim));
+                                                                                                sim->onstack_reg =1;
+                                                                                                sim->name="_ret_bidon";
+                                                                                                sim->isint =1;
+                                                                                                gencode(AFF,avc(sim,-1),avc(NULL,quad.next+2),avc(NULL,-1),0);     
 
-                                                                                                struct symbole *s;
-                                                                                                if (!(s=findtable($1,0)))
+                                                                                                struct function *f;
+                                                                                                if (!(f = findfun($1,0)))
                                                                                                 {
                                                                                                     fprintf(stderr,"Error %s not declared\n",$1);
                                                                                                     exit(3);
                                                                                                 }
-                                                                                                if (s->fun==-1)
-                                                                                                {
-                                                                                                    fprintf(stderr,"Error %s is not a function\n",s->name);
-                                                                                                    exit(3);
-                                                                                                }
-                                                                                                gencode(GOTO,avc(s,-1),avc(NULL,-1),avc(NULL,-1),0);
+                                                                                                gencode(GOTO,avc(NULL,f->place),avc(NULL,-1),avc(NULL,-1),0);
                                                                                             }
             |ID                                                                     {
-                                                                                        struct symbole *s;
-                                                                                        if (!(s=findtable($1,0)))
+                                                                                        struct function *f;
+                                                                                        if (!(f=findfun($1,0)))
                                                                                         {
                                                                                             fprintf(stderr,"Error %s not declared\n",$1);
                                                                                             exit(3);
                                                                                         }
-                                                                                        gencode(GOTO,avc(s,-1),avc(NULL,-1),avc(NULL,-1),0);
+                                                                                        gencode(GOTO,avc(NULL,f->place),avc(NULL,-1),avc(NULL,-1),0);
                                                                                     }
             ;
 
