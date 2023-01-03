@@ -268,7 +268,7 @@ void iltoMIPS(struct quad quad)
     int instructions=0;
 
     //creation of the file that will contain the binary code
-    FILE * f = fopen("codeMIPS.s", "wb");
+    FILE *f = fopen("codeMIPS.s", "wb");
     if (f == NULL)
     {
         printf("Error opening file!\n");
@@ -327,7 +327,7 @@ void iltoMIPS(struct quad quad)
 
                     fillRinst(&instructions, 5, 8);
 
-                    write(&instructions, sizeof(int), 1, f);
+                    fwrite(&instructions, sizeof(int), 1, f);
                 }
                 break;
             case AFF:
