@@ -301,6 +301,7 @@ void iltoMIPS(struct quad quad)
 
                     fillIinst(&instructions, 3, quad.quadrup[i].zero.s->memory_place>>16);
 
+                    instructions=bswap_32(instructions);
                     fwrite(&instructions, sizeof(int), 1, f);
 
                     //lw $s0 add1($1)
@@ -312,6 +313,7 @@ void iltoMIPS(struct quad quad)
 
                     fillIinst(&instructions, 3, quad.quadrup[i].zero.s->memory_place);
 
+                    instructions=bswap_32(instructions);
                     fwrite(&instructions, sizeof(int), 1, f);
 
                     //make the jump j
@@ -327,6 +329,7 @@ void iltoMIPS(struct quad quad)
 
                     fillRinst(&instructions, 5, 8);
 
+                    instructions=bswap_32(instructions);
                     fwrite(&instructions, sizeof(int), 1, f);
                 }
                 break;
@@ -353,6 +356,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].one.s->memory_place>>16);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //lw $s1 addr2($1)
@@ -364,6 +368,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].one.s->memory_place);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
 
@@ -381,6 +386,8 @@ void iltoMIPS(struct quad quad)
                             fillRinst(&instructions,4,0);
 
                             fillRinst(&instructions,5,0x20);
+                            
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
 
@@ -394,6 +401,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].zero.s->memory_place>>16);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //sw $s0 add1($1)
@@ -408,6 +416,7 @@ void iltoMIPS(struct quad quad)
                             //immediate
                             fillIinst(&instructions, 3, quad.quadrup[i].zero.s->memory_place);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //fprintf(f,"move $%i, $%i\n", quad.quadrup[i].zero.s->memory_place, quad.quadrup[i].one.s->memory_place);
@@ -426,8 +435,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions,3,quad.quadrup[i].one.value);
 
-                            printf("intstruction: %x\n", instructions);
-
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
 
@@ -441,6 +449,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].zero.s->memory_place>>16);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //sw $s0 add1($1)
@@ -456,6 +465,8 @@ void iltoMIPS(struct quad quad)
                             //immediate
                             fillIinst(&instructions, 3, quad.quadrup[i].zero.s->memory_place);
 
+                            printf("intstruction: %x\n", instructions);
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //fprintf(f,"li $%i, %i\n", quad.quadrup[i].zero.s->memory_place, quad.quadrup[i].one.value);
@@ -474,6 +485,7 @@ void iltoMIPS(struct quad quad)
 
                                 fillIinst(&instructions, 3, quad.quadrup[i].one.s->memory_place>>16);
 
+                                instructions=bswap_32(instructions);
                                 fwrite(&instructions, sizeof(int), 1, f);
 
                                 //lw $s1 add2
@@ -485,6 +497,7 @@ void iltoMIPS(struct quad quad)
 
                                 fillIinst(&instructions, 3, quad.quadrup[i].one.s->memory_place);
 
+                                instructions=bswap_32(instructions);
                                 fwrite(&instructions, sizeof(int), 1, f);
 
                                 
@@ -498,6 +511,7 @@ void iltoMIPS(struct quad quad)
 
                                 fillIinst(&instructions, 3, quad.quadrup[i].two.s->memory_place>>16);
 
+                                instructions=bswap_32(instructions);
                                 fwrite(&instructions, sizeof(int), 1, f);
 
                                 //lw $s2 add3
@@ -509,6 +523,7 @@ void iltoMIPS(struct quad quad)
 
                                 fillIinst(&instructions, 3, quad.quadrup[i].two.s->memory_place);
 
+                                instructions=bswap_32(instructions);
                                 fwrite(&instructions, sizeof(int), 1, f);
 
 
@@ -526,6 +541,7 @@ void iltoMIPS(struct quad quad)
 
                                 fillRinst(&instructions,5,0x20);
 
+                                instructions=bswap_32(instructions);
                                 fwrite(&instructions, sizeof(int), 1, f);
 
 
@@ -539,6 +555,7 @@ void iltoMIPS(struct quad quad)
 
                                 fillIinst(&instructions, 3, quad.quadrup[i].zero.s->memory_place>>16);
 
+                                instructions=bswap_32(instructions);
                                 fwrite(&instructions, sizeof(int), 1, f);
 
                                 //sw $t0 add1
@@ -554,6 +571,7 @@ void iltoMIPS(struct quad quad)
                                 //immediate
                                 fillIinst(&instructions, 3, quad.quadrup[i].zero.s->memory_place);
 
+                                instructions=bswap_32(instructions);
                                 fwrite(&instructions, sizeof(int), 1, f);
 
                                 //fprintf(f,"add $%i, $%i, $%i\n", quad.quadrup[i].zero.s->memory_place, quad.quadrup[i].one.s->memory_place, quad.quadrup[i].two.s->memory_place);
@@ -569,6 +587,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].one.s->memory_place>>16);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //lw $s1 add2
@@ -580,6 +599,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].one.s->memory_place);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
 
@@ -593,7 +613,8 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions,3,quad.quadrup[i].two.value);
 
-
+                            instructions=bswap_32(instructions);
+                            fwrite(&instructions, sizeof(int), 1, f);
 
                             //we are gonna do lui $1 and the word without the 4 last bits
                             fillopcode(&instructions, 0x0F);
@@ -604,6 +625,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].zero.s->memory_place>>16);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //sw $t0 add1
@@ -619,6 +641,7 @@ void iltoMIPS(struct quad quad)
                             //immediate
                             fillIinst(&instructions, 3, quad.quadrup[i].zero.s->memory_place);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //fprintf(f,"addi $%i, $%i, %i\n", quad.quadrup[i].zero.s->memory_place, quad.quadrup[i].one.s->memory_place, quad.quadrup[i].two.value);
@@ -637,6 +660,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].one.s->memory_place>>16);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //lw $s1 add2
@@ -648,6 +672,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].one.s->memory_place);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             
@@ -661,6 +686,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].two.s->memory_place>>16);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //lw $s2 add3
@@ -672,6 +698,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].two.s->memory_place);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
 
@@ -689,6 +716,7 @@ void iltoMIPS(struct quad quad)
 
                             fillRinst(&instructions,5,0x22);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //we are gonna do lui $1 and the word without the 4 last bits
@@ -700,6 +728,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].zero.s->memory_place>>16);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //sw $t0 add1
@@ -714,6 +743,7 @@ void iltoMIPS(struct quad quad)
                             //immediate
                             fillIinst(&instructions, 3, quad.quadrup[i].zero.s->memory_place);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
 
@@ -730,6 +760,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].one.s->memory_place>>16);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //lw $s1 add2
@@ -741,6 +772,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].one.s->memory_place);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
 
@@ -755,6 +787,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].two.value);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
 
@@ -772,6 +805,7 @@ void iltoMIPS(struct quad quad)
 
                             fillRinst(&instructions,5,0x22);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //we are gonna do lui $1 and the word without the 4 last bits
@@ -783,6 +817,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].zero.s->memory_place>>16);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //sw $t0 add1
@@ -797,6 +832,7 @@ void iltoMIPS(struct quad quad)
                             //immediate
                             fillIinst(&instructions, 3, quad.quadrup[i].zero.s->memory_place);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //fprintf(f,"subi $%i, $%i, %i\n", quad.quadrup[i].zero.s->memory_place, quad.quadrup[i].one.s->memory_place, quad.quadrup[i].two.value);
@@ -815,6 +851,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].one.s->memory_place>>16);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //lw $s1 add2
@@ -826,6 +863,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].one.s->memory_place);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             
@@ -839,6 +877,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].two.s->memory_place>>16);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //lw $s2 add3
@@ -850,6 +889,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].two.s->memory_place);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //mult $s1 $s2
@@ -866,6 +906,7 @@ void iltoMIPS(struct quad quad)
 
                             fillRinst(&instructions,5,0x18);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //mflo $s0 (to put the result of the operation in $s0)
@@ -882,6 +923,7 @@ void iltoMIPS(struct quad quad)
 
                             fillRinst(&instructions,5,0x12);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //we are gonna do lui $1 and the word without the 4 last bits
@@ -893,6 +935,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].zero.s->memory_place>>16);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //sw $t0 add1
@@ -907,6 +950,7 @@ void iltoMIPS(struct quad quad)
                             //immediate
                             fillIinst(&instructions, 3, quad.quadrup[i].zero.s->memory_place);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
                         }
                         else
@@ -920,6 +964,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].one.s->memory_place>>16);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //lw $s1 add2
@@ -931,6 +976,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].one.s->memory_place);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
 
@@ -945,6 +991,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].two.value);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
 
@@ -964,6 +1011,7 @@ void iltoMIPS(struct quad quad)
 
                             fillRinst(&instructions,5,0x18);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
 
@@ -982,6 +1030,7 @@ void iltoMIPS(struct quad quad)
 
                             fillRinst(&instructions,5,0x12);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
 
@@ -995,6 +1044,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].zero.s->memory_place>>16);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //sw $t0 add1
@@ -1009,6 +1059,7 @@ void iltoMIPS(struct quad quad)
                             //immediate
                             fillIinst(&instructions, 3, quad.quadrup[i].zero.s->memory_place);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
                         }//end if address
                         break;
@@ -1025,6 +1076,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].one.s->memory_place>>16);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //lw $s1 add2
@@ -1036,6 +1088,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].one.s->memory_place);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             
@@ -1049,6 +1102,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].two.s->memory_place>>16);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //lw $s2 add3
@@ -1060,6 +1114,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].two.s->memory_place);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //div $s1 $s2
@@ -1076,6 +1131,7 @@ void iltoMIPS(struct quad quad)
 
                             fillRinst(&instructions,5,0x1A);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //mflo $s0 (to put the result of the operation in $s0)
@@ -1092,6 +1148,7 @@ void iltoMIPS(struct quad quad)
 
                             fillRinst(&instructions,5,0x12);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
 
@@ -1105,6 +1162,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].zero.s->memory_place>>16);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //sw $t0 add1
@@ -1119,6 +1177,7 @@ void iltoMIPS(struct quad quad)
                             //immediate
                             fillIinst(&instructions, 3, quad.quadrup[i].zero.s->memory_place);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
                         }//end if address
                         else if(quad.quadrup[i].two.s == NULL && quad.quadrup[i].one.s != NULL)
@@ -1132,6 +1191,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].one.s->memory_place>>16);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //lw $s1 add2
@@ -1143,6 +1203,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].one.s->memory_place);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
 
@@ -1157,6 +1218,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].two.value);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //div $s1 $s2
@@ -1173,6 +1235,7 @@ void iltoMIPS(struct quad quad)
 
                             fillRinst(&instructions,5,0x1A);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //mflo $s0 (to put the result of the operation in $s0)
@@ -1189,6 +1252,7 @@ void iltoMIPS(struct quad quad)
 
                             fillRinst(&instructions,5,0x12);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
 
@@ -1202,6 +1266,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].zero.s->memory_place>>16);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //sw $t0 add1
@@ -1216,6 +1281,7 @@ void iltoMIPS(struct quad quad)
                             //immediate
                             fillIinst(&instructions, 3, quad.quadrup[i].zero.s->memory_place);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);                        
                         }//end if add2 et entier
                         else if(quad.quadrup[i].two.s != NULL && quad.quadrup[i].one.s == NULL)
@@ -1229,6 +1295,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].two.s->memory_place>>16);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //lw $s2 add3
@@ -1240,6 +1307,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].two.s->memory_place);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //addi $s1 $0 add2
@@ -1252,6 +1320,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].one.value);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //div $s1 $s2
@@ -1268,6 +1337,7 @@ void iltoMIPS(struct quad quad)
 
                             fillRinst(&instructions,5,0x1A);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //mflo $s0 (to put the result of the operation in $s0)
@@ -1284,6 +1354,7 @@ void iltoMIPS(struct quad quad)
 
                             fillRinst(&instructions,5,0x12);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //we are gonna do lui $1 and the word without the 4 last bits
@@ -1295,6 +1366,7 @@ void iltoMIPS(struct quad quad)
 
                             fillIinst(&instructions, 3, quad.quadrup[i].zero.s->memory_place>>16);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f);
 
                             //sw $t0 add1
@@ -1309,6 +1381,7 @@ void iltoMIPS(struct quad quad)
                             //immediate
                             fillIinst(&instructions, 3, quad.quadrup[i].zero.s->memory_place);
 
+                            instructions=bswap_32(instructions);
                             fwrite(&instructions, sizeof(int), 1, f); 
                         }//end if add3 et int
                         break;
@@ -1331,6 +1404,7 @@ void iltoMIPS(struct quad quad)
 
                     fillIinst(&instructions, 3, quad.quadrup[i].one.s->memory_place>>16);
 
+                    instructions=bswap_32(instructions);
                     fwrite(&instructions, sizeof(int), 1, f);
 
                     //lw $s1 add2
@@ -1342,6 +1416,7 @@ void iltoMIPS(struct quad quad)
 
                     fillIinst(&instructions, 3, quad.quadrup[i].one.s->memory_place);
 
+                    instructions=bswap_32(instructions);
                     fwrite(&instructions, sizeof(int), 1, f);
                 }
                 else
@@ -1356,6 +1431,7 @@ void iltoMIPS(struct quad quad)
 
                     fillIinst(&instructions, 3, quad.quadrup[i].one.value);
 
+                    instructions=bswap_32(instructions);
                     fwrite(&instructions, sizeof(int), 1, f);
                 }
                 if(quad.quadrup[i].two.s != NULL)
@@ -1369,6 +1445,7 @@ void iltoMIPS(struct quad quad)
 
                     fillIinst(&instructions, 3, quad.quadrup[i].two.s->memory_place>>16);
 
+                    instructions=bswap_32(instructions);
                     fwrite(&instructions, sizeof(int), 1, f);
 
                     //lw $s2 add3
@@ -1380,6 +1457,7 @@ void iltoMIPS(struct quad quad)
 
                     fillIinst(&instructions, 3, quad.quadrup[i].two.s->memory_place);
 
+                    instructions=bswap_32(instructions);
                     fwrite(&instructions, sizeof(int), 1, f);
                 }
                 else
@@ -1394,6 +1472,7 @@ void iltoMIPS(struct quad quad)
 
                     fillIinst(&instructions, 3, quad.quadrup[i].two.value);
 
+                    instructions=bswap_32(instructions);
                     fwrite(&instructions, sizeof(int), 1, f);
                 }
                 switch(quad.quadrup[i].type)
@@ -1408,6 +1487,7 @@ void iltoMIPS(struct quad quad)
 
                         fillIinst(&instructions, 3, quad.quadrup[i].zero.s->memory_place);
 
+                        instructions=bswap_32(instructions);
                         fwrite(&instructions, sizeof(int), 1, f);
                         break;
                     case 1:
@@ -1420,6 +1500,7 @@ void iltoMIPS(struct quad quad)
 
                         fillIinst(&instructions, 3, quad.quadrup[i].zero.s->memory_place);
 
+                        instructions=bswap_32(instructions);
                         fwrite(&instructions, sizeof(int), 1, f);
                         break;
                     case 2:
@@ -1436,6 +1517,7 @@ void iltoMIPS(struct quad quad)
 
                         fillRinst(&instructions, 5, 0x2A);
 
+                        instructions=bswap_32(instructions);
                         fwrite(&instructions, sizeof(int), 1, f);
 
                         //bne $1 $0 add1
@@ -1447,6 +1529,7 @@ void iltoMIPS(struct quad quad)
 
                         fillIinst(&instructions, 3, quad.quadrup[i].zero.s->memory_place);
 
+                        instructions=bswap_32(instructions);
                         fwrite(&instructions, sizeof(int), 1, f);
                         break;
                     case 3:
@@ -1463,6 +1546,7 @@ void iltoMIPS(struct quad quad)
 
                         fillRinst(&instructions, 5, 0x2A);
 
+                        instructions=bswap_32(instructions);
                         fwrite(&instructions, sizeof(int), 1, f);
 
                         //bne $1 $0 add1
@@ -1474,6 +1558,7 @@ void iltoMIPS(struct quad quad)
 
                         fillIinst(&instructions, 3, quad.quadrup[i].zero.s->memory_place);
 
+                        instructions=bswap_32(instructions);
                         fwrite(&instructions, sizeof(int), 1, f);
                         break;
                     case 4:
@@ -1490,6 +1575,7 @@ void iltoMIPS(struct quad quad)
 
                         fillRinst(&instructions, 5, 0x2A);
 
+                        instructions=bswap_32(instructions);
                         fwrite(&instructions, sizeof(int), 1, f);
 
                         //beq $1 $0 add1
@@ -1502,6 +1588,7 @@ void iltoMIPS(struct quad quad)
 
                         fillIinst(&instructions, 3, quad.quadrup[i].zero.s->memory_place);
 
+                        instructions=bswap_32(instructions);
                         fwrite(&instructions, sizeof(int), 1, f);
                         break;
                     case 5:
@@ -1518,6 +1605,7 @@ void iltoMIPS(struct quad quad)
 
                         fillRinst(&instructions, 5, 0x2A);
 
+                        instructions=bswap_32(instructions);
                         fwrite(&instructions, sizeof(int), 1, f);
 
                         //beq $1 $0 add1
@@ -1529,6 +1617,7 @@ void iltoMIPS(struct quad quad)
 
                         fillIinst(&instructions, 3, quad.quadrup[i].zero.s->memory_place);
 
+                        instructions=bswap_32(instructions);
                         fwrite(&instructions, sizeof(int), 1, f);
                         break;
                 }
