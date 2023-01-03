@@ -175,7 +175,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                 $$ = NULL;
                                                                                                                                                 printf(">echo \n");
                                                                                                                                             }
-            |read_ ID                                                                                                                       {
+            |read_ ID                                                                                                                       {           // achanger en fonction du isint de id
                                                                                                                                                 $$ = NULL;
                                                                                                                                                 printf(">Read \n");
                                                                                                                                                 struct symbole *id =findtable($2,1), *mem = findtable("-mem",1);
@@ -481,11 +481,11 @@ TEST_EXPR3: '(' TEST_EXPR ')'                                           {
             ;
 
 
-TEST_INSTRUCTION :CONCATENATION '=' CONCATENATION 
-            |CONCATENATION '!''=' CONCATENATION 
+TEST_INSTRUCTION :CONCATENATION '=' CONCATENATION       // Si operande entier comparaison impossible -> false 
+            |CONCATENATION '!''=' CONCATENATION         //idem 
             |OPERATEUR1 CONCATENATION 
             |OPERANDE OPERATEUR2 OPERANDE 
-            |magic {
+            |magic {                                                                        //Pour tester
                 $$.true = crelist(quad.next);
                 gencode(GOTO,addvalcreate(NULL,-1),addvalcreate(NULL,-1),addvalcreate(NULL,-1),0);
                 $$.false = NULL;
@@ -552,6 +552,8 @@ OPERANDE:'$''{'ID'}'                          {
                                                     }
                                                 }
             |'$''?'                             {
+                                                    $$.s = reg(31);
+                                                    $$.addr = -1; 
                                                     /* struct symbole s =simples();
                                                     s.onstack_reg=2;
                                                     s.name="$?";

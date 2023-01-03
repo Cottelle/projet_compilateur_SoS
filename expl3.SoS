@@ -3,7 +3,7 @@ declare mots[100] ;
 echo "Entrez le nombre de mots de la phrase : " ;
 read nombre ;
 i=1 ;
-while test ${i} -le ${nombre} do
+while test then do
 echo "Entrez le mot numero " ${i} " : " ;
 read mots[${i}] ;
 i = $( expr ${i} + 1 )
