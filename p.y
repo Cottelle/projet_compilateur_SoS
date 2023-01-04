@@ -12,6 +12,7 @@ extern int yylex(void);
 extern struct quad quad;
 extern unsigned int nbarg;
 extern unsigned int nligne;
+unsigned int infun;
 
 
 
@@ -79,7 +80,7 @@ unsigned int nbfor;
 %%
 
                                                                                                                                                 
-PROGRAMME :  LISTE_INTRSUCTIONS      {gencode(AFF,avc(reg(31),-1) ,avc(NULL,0),avc(NULL,-1),0);gencode(SYS,avc(NULL,10),avc(NULL,-1),avc(NULL,-1),0); }     //On ecrit l'endroit de la mémoire ici pour pouvoir dans le code generer acceder a cette memoire ( par ex dans read)
+PROGRAMME :  LISTE_INTRSUCTIONS      {gencode(SYS,avc(NULL,10),avc(NULL,-1),avc(NULL,-1),0); }     //On ecrit l'endroit de la mémoire ici pour pouvoir dans le code generer acceder a cette memoire ( par ex dans read)
             ;
 
 LISTE_INTRSUCTIONS: LISTE_INTRSUCTIONS ';'INSTRUCTION   {
@@ -222,28 +223,26 @@ INSTRUCTION : ID '=' CONCATENATION                                              
             |return_                                                                                                                        {
                                                                                                                                                 $$ =NULL;
                                                                                                                                                 printf(">return \n");
-                                                                                                                                                struct symbole *ret = spfindtable("_ret",0);
-                                                                                                                                                if (!ret)
+                                                                                                                                                if(!infun)
                                                                                                                                                 {
-                                                                                                                                                    fprintf(stderr,"Error not in function can't return (use exit to exit programm) \n");
-                                                                                                                                                    exit(2);
+                                                                                                                                                    fprintf(stderr,"Error you are not in a function you can't return (use exit to exit the programme)\n");
+                                                                                                                                                    exit(1);
                                                                                                                                                 }
 
-                                                                                                                                                gencode(AFF,avc(reg(31),-1) ,avc(NULL,0),avc(NULL,-1),0);
-                                                                                                                                                gencode(GOTO,avc(ret,-1) ,avc(NULL,-1),avc(NULL,-1),0);
+                                                                                                                                                gencode(AFF,avc(findtable("_ret_val",1),-1) ,avc(NULL,0),avc(NULL,-1),0);
+                                                                                                                                                gencode(GOTO,avc(reg(31),-1) ,avc(NULL,-1),avc(NULL,-1),0);
                                                                                                                                             }
             |return_ '(' OPERATEUR_ENTIER ')'                                                                                                        {
                                                                                                                                                 $$ =NULL;
                                                                                                                                                 printf(">return entier \n");
-                                                                                                                                                struct symbole *ret = spfindtable("_ret",0);
-                                                                                                                                                if (!ret)
+                                                                                                                                                if(!infun)
                                                                                                                                                 {
-                                                                                                                                                    fprintf(stderr,"Error not in function can't return (use exit to exit programm) \n");
-                                                                                                                                                    exit(2);
+                                                                                                                                                    fprintf(stderr,"Error you are not in a function you can't return (use exit to exit the programme)\n");
+                                                                                                                                                    exit(1);
                                                                                                                                                 }
 
-                                                                                                                                                gencode(AFF,avc(reg(31),-1) ,avc(reg(23),-1),avc(NULL,-1),0);
-                                                                                                                                                gencode(GOTO,avc(ret,-1) ,avc(NULL,-1),avc(NULL,-1),0);
+                                                                                                                                                gencode(AFF,avc(findtable("_ret_val",1),-1) ,avc(reg(23),-1),avc(NULL,-1),0);
+                                                                                                                                                gencode(GOTO,avc(reg(31),-1) ,avc(NULL,-1),avc(NULL,-1),0);
                                                                                                                                             }
             |APPEL_FONCTION                                                                                                                 {
                                                                                                                                                 printf(">appel fonction \n");
@@ -633,7 +632,7 @@ OPERANDE_ENTIER:'$''{'ID'}' {
 
 
 DECLARATION_FONTION: ID '(' entier ')'                                              <entier>{       //chagement de la grammaire (ajout entier) car sinon valeur inconue à la compilation (nb d'argument) ce qui pose nottament probleme sur for i do ...
-
+                                                                                        infun++;
                                                                                         struct function *f = findfun($1,1);                 //peut ecraser une autre function
                                                                                         f->nbarg = $3;
                                                                                         $$ = nbarg;
@@ -658,16 +657,16 @@ DECLARATION_FONTION: ID '(' entier ')'                                          
                                                                                           struct symbole *s=spfindtable(buf,1);            //create the entry on sp for the arg
                                                                                         }   
 
-                                                                                        spfindtable("_ret",1);
                                                                                         f->place = quad.next;
 
                                                                                     }
                 '{'DECL_LOC LISTE_INTRSUCTIONS '}'                                  {
                                                                                         nbarg = $5;                                     // On resature le nb d'arg d'avant
-                                                                                        complete($8,avc(findtable("_ret",0),-1));  // -3 --> valeur de retour de la fonction (:pas encore implementé)
-                                                                                        gencode(AFF,avc(reg(31),-1),avc(NULL,0),avc(NULL,-1),0);
-                                                                                        gencode(GOTO,avc(findtable("_ret",0),-1),avc(NULL,-1),avc(NULL,-1),0);
+                                                                                        complete($8,avc(reg(31),-1));  // -3 --> valeur de retour de la fonction (:pas encore implementé)
+                                                                                        gencode(AFF,avc(findtable("_ret_val",1),-1),avc(NULL,0),avc(NULL,-1),0);
+                                                                                        gencode(GOTO,avc(reg(31),-1),avc(NULL,-1),avc(NULL,-1),0);
                                                                                         popstacknext();                  //the local variable space is delete
+                                                                                        infun--;
                                                                                     }
             ;
 
@@ -690,19 +689,13 @@ APPEL_FONCTION: ID                                                              
                                                                                             
                                                                                         }
                 LISTE_ARG                                                                   {
-                                                                                                struct symbole *sim =malloc(sizeof(*sim));
-                                                                                                sim->onstack_reg_label =1;
-                                                                                                sim->name="_ret_bidon";
-                                                                                                sim->isint =1;
-                                                                                                gencode(AFF,avc(sim,-1),avc(NULL,quad.next+2),avc(NULL,-1),0);     
-
                                                                                                 struct function *f;
                                                                                                 if (!(f = findfun($1,0)))
                                                                                                 {
                                                                                                     fprintf(stderr,"Error %s not declared\n",$1);
                                                                                                     exit(3);
                                                                                                 }
-                                                                                                gencode(GOTO,avc(NULL,f->place),avc(NULL,-1),avc(NULL,-1),0);
+                                                                                                gencode(GOTO,avc(NULL,f->place),avc(NULL,-1),avc(NULL,-1),1);
                                                                                             }
             |ID                                                                     {
                                                                                         struct function *f;
