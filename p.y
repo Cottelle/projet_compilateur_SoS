@@ -59,12 +59,15 @@ unsigned int nbfor;
 
 }
 
+%left '+' '-'
+%left '*' '/' '%'
+%left '(' ')'
 
 %token <entier> entier
 %token <name> id mot chaine
 %token declare if_ then elif else_ fi for_ do_ done in while_ until case_ esac echo read_ return_ exit_  test expr local to ta teq tne tgt tge tlt tle magic
 %type <name> ID  
-%type <operande> OPERANDE CONCATENATION OPERANDE_ENTIER
+%type <operande> OPERANDE CONCATENATION OPERANDE_ENTIER OPERATEUR_ENTIER
 %type <list_ope> LISTE_OPERANDES
 %type <filtre> FILTRE
 %type <cond> TEST_EXPR TEST_EXPR2 TEST_EXPR3 TEST_INSTRUCTION TEST_BLOC
@@ -546,7 +549,7 @@ OPERANDE:'$''{'ID'}'                          {
                                                     s.isint = 15;               //prend la valeur du registre
                                                     struct symbole *sb=createsymbole(&s);      */                 //the symbole $? ????????
                                                 }
-            |'$''('expr SOMME_ENTIER ')' 
+            |'$''('expr OPERATEUR_ENTIER ')' 
             |'$' '('APPEL_FONCTION ')'          {
                                                     //Il faut store $? puis appeler la fonction voire le nouveau $? puis remettre l'ancient ou pas, je ne sais pas 
                                                 }
@@ -567,37 +570,65 @@ OPERATEUR2: teq
             |tle
             ;
 
+//possible error if weird calcls
+OPERATEUR_ENTIER:OPERATEUR_ENTIER '*' OPERANDE_ENTIER   {
+                                                            //create buffer to store result
+                                                            gencode(AFF, avc(reg(23), -1), avc(reg(23), -1), avc($3.s, $3.addr), 3);
+                                                        }
+                |OPERATEUR_ENTIER '/' OPERANDE_ENTIER   {
 
-SOMME_ENTIER:SOMME_ENTIER PLUS_MOINS PRODUIT_ENTIER 
-            |PRODUIT_ENTIER 
-            ;
+                                                            gencode(AFF, avc(reg(23), -1), avc(reg(23), -1), avc($3.s, $3.addr), 4);
+                                                        }
+                |OPERATEUR_ENTIER '%' OPERANDE_ENTIER   {
+
+                                                            gencode(AFF, avc(reg(23), -1), avc(reg(23), -1), avc($3.s, $3.addr), 42);
+                                                        }
+                |OPERATEUR_ENTIER '+' OPERANDE_ENTIER   {
+
+                                                            gencode(AFF, avc(reg(23), -1), avc(reg(23), -1), avc($3.s, $3.addr), 1);
+                                                        }
+                |OPERATEUR_ENTIER '-' OPERANDE_ENTIER   {
+
+                                                            gencode(AFF, avc(reg(23), -1), avc(reg(23), -1), avc($3.s, $3.addr), 2);
+                                                        }
+                |'(' OPERATEUR_ENTIER ')'               {
+
+                                                        }
+                |OPERANDE_ENTIER                        {
+                                                            gencode(AFF, avc(reg(23), -1), avc($1.s, $1.addr), avc(NULL, -1), 0);
+                                                        }
+                |'+' OPERANDE_ENTIER                    {
+                                                            gencode(AFF, avc(reg(23), -1), avc($2.s, $2.addr), avc(NULL, -1), 0);
+                                                        }
+                |'-' OPERANDE_ENTIER                    {
+                                                            gencode(AFF, avc(reg(23), -1), avc($2.s, $2.addr), avc(NULL, -1), 3);
+                                                        }
 
 
-PRODUIT_ENTIER:PRODUIT_ENTIER FOIS_DIV_MOD OPERANDE_ENTIER 
-            |OPERANDE_ENTIER 
-            ;
 
 
-OPERANDE_ENTIER:'$''{'ID'}' 
-            |'$''{'ID'['OPERANDE_ENTIER']''}' 
-            |'$' entier 
-            |PLUS_MOINS '$''{'ID'}' 
-            |PLUS_MOINS '$''{'ID'['OPERANDE_ENTIER']''}' 
-            |PLUS_MOINS '$'entier 
-            |entier 
-            |PLUS_MOINS entier 
-            |'('SOMME_ENTIER ')' 
-            ;
-
-
-PLUS_MOINS : '+' 
-            |'-' 
-            ;
-
-
-FOIS_DIV_MOD: '*' 
-            |'/' 
-            |'%' 
+OPERANDE_ENTIER:'$''{'ID'}' {
+                                if ( ($$.s=findtable($3, 0)) == NULL ) {
+                                    //erreur
+                                }
+                                $$.s->isint = 1;
+                                $$.addr=-1;
+                            }
+            |'$''{'ID'['OPERANDE_ENTIER']''}'   {
+                                                    $$.s=NULL;
+                                                    $$.addr=-1;
+                                                }
+            |'$' entier { 
+                            if($2 > nbarg) {
+                                //erreur
+                            }
+                            $$.s=spfindtable(createbuf("$%i", $2), 0);
+                            $$.addr=-1;
+                        }
+            |entier {                      
+                        $$.addr = $1;
+                        $$.s=NULL;
+                    }  
             ;
 
 
