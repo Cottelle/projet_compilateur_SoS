@@ -72,6 +72,49 @@ void MIPSstrconcat(FILE *f)
     fprintf(f,"jr $ra\n");//on retourne
 }
 
+void MIPSread(FILE *f)
+{
+    fprintf(f,"\n_read:\n");
+    fprintf(f,"li $v0,8\n");
+    fprintf(f,"li $a1,31\n");
+    fprintf(f,"la $a0, l0\n");
+    fprintf(f,"syscall\n"); 
+
+
+    fprintf(f,"li $t0,0\n");
+    fprintf(f,"la $9,l0\n");
+
+    fprintf(f,"\nloop: 			#taille du buffer lu \n");
+    fprintf(f,"lb $t2 , ($9)\n");
+    fprintf(f,"beq $t2, $0 , exit\n");
+    fprintf(f,"addi $t0, $t0, 1\n");
+    fprintf(f,"addi $9 , $t1, 1\n");
+    fprintf(f,"j loop\n");
+    
+    fprintf(f,"\nexit : \n");
+    fprintf(f,"li $v0, 9\n");
+    fprintf(f,"move $a0 , $t0			#alloue\n");
+    fprintf(f,"syscall\n");
+
+    fprintf(f,"la $9,l0\n");
+    fprintf(f,"move $11, $v0\n");
+
+    fprintf(f,"\nloop2 :\n");
+    fprintf(f,"beq $t0,$0 , exit2\n");
+    fprintf(f,"lb $t2, ($9)\n");
+    fprintf(f,"sb $t2, ($v0)\n");
+    fprintf(f,"addi $9,$9,1\n");
+    fprintf(f,"addi $v0,$v0,1\n");
+    fprintf(f,"addi $t0,$t0,-1\n");
+    fprintf(f,"j loop2\n");
+
+    fprintf(f,"\nexit2 :\n");
+
+    fprintf(f,"jr $31					#resulat ds $11\n");
+    fprintf(f,"#the value allocated is in $11\n");
+}
+
+
 //reserver la memoire pour les symboles et pour les labels 
 void labelprint(struct labels l, int size_symb,FILE *f)
 {
@@ -599,12 +642,12 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                 {
                     if(quad.quadrup[i].type == 0)//=
                     {
-                        MIPSstrcompare(f);// à adapter pour que ca colle avec le reste
+                        //MIPSstrcompare(f);// à adapter pour que ca colle avec le reste
                         fprintf(f,"\n beq $t0,$zeros,a%i\n",quad.quadrup[i].zero.value);
                     }
                     else if(quad.quadrup[i].type == 1)//!=
                     {
-                        MIPSstrcompare(f);// à adapter pour que ca colle avec le reste
+                        //MIPSstrcompare(f);// à adapter pour que ca colle avec le reste
                         fprintf(f,"\n bne $t0,$zeros,a%i\n",quad.quadrup[i].zero.value);
                     }
                     else
@@ -642,4 +685,8 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                 break;
         }//fin switch instruction
     }//fin for quad
+    MIPSread(f);
+    MIPSstrcompare(f);
+    MIPSstrconcat(f);
+    MIPSstrlen(f);
 }//fin fonction
