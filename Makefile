@@ -14,11 +14,11 @@ LDFLAGS = -g -Werror -Wextra -Wall
 
 all: main
 
-main: $(prefixe).tab.o lex.yy.o main.o tabsymbole.o gencode.o usefull.o SoSMIPS.o
+main: $(prefixe).tab.o lex.yy.o main.o tabsymbole.o gencode.o usefull.o SoS2MIPS.o
 	$(CC) $(LDFLAGS) $^ -o $@ $(LDLIBS)
 
-SoSMIPS.o : SoSMIPS.c
-	gcc -o SoSMIPS.o -c SoSMIPS.c
+SoSMIPS.o : SoS2MIPS.c
+	gcc -o SoS2MIPS.o -c SoS2MIPS.c
 
 tabsymbole.o : tabsymbole.c
 	gcc -o tabsymbole.o -c tabsymbole.c $(LDFLAGS)
