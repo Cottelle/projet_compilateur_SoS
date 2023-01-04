@@ -9,6 +9,8 @@
 
 
     unsigned int nligne;
+
+    extern void cpy_without_quote(char *,char *);
 %}
 
 
@@ -84,7 +86,7 @@ ALLE [^\"\'" "";""=""\n""\t""\]""\)""\[""\(""$""{""}" "\|"]
 {NUMBER} { yylval = (YYSTYPE)atoi(yytext) ;return entier;}
 {ID} {char *value; value =malloc(strlen(yytext)+1);strcpy(value,yytext);yylval =(YYSTYPE)value;return id;}
 
-{QUOTE}.*{QUOTE} {char *value; value =malloc(strlen(yytext))+1;strcpy(value,yytext);yylval =(YYSTYPE)value;return chaine;}
+{QUOTE}.*{QUOTE} {char *value; value =malloc(strlen(yytext)-1);cpy_without_quote(value,yytext);yylval =(YYSTYPE)value;return chaine;}
 
 {ALLE}+     { char *value; value =malloc(strlen(yytext)+1);strcpy(value,yytext);yylval =(YYSTYPE)value;return mot;}
 
@@ -92,3 +94,16 @@ ALLE [^\"\'" "";""=""\n""\t""\]""\)""\[""\(""$""{""}" "\|"]
 
 . {printf("Unknow symbol %c\n",*yytext);}
 
+
+
+%%
+
+void cpy_without_quote(char *dst, char *src)//copy without quote
+{
+    int i=1;
+    while(src[i]!='\"' && src[i]!='\'' )
+    {
+        dst[i-1] =src[i];
+        i++;
+    }
+}

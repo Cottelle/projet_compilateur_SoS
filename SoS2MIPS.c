@@ -21,10 +21,10 @@ void MIPSstrlen(FILE *f)
 void labelprint(struct labels l, int size_symb,FILE *f)
 {
     fprintf(f, ".data\n .space %i   #place pour les symboles\n #place pour les lables de chaine de charactere\n", size_symb*4);
-    for (int i = 0; i < l.cur_place; i++)
+    for (int i = 1; i < l.cur_place; i++)
         fprintf(f, "la%i : .asciiz \"%s\"\n", i, l.tab[i]);
 
-    fprintf(f, "la-1: .space 32         #the buffer for the read buffer of siez 32\n  \n\n .text\n");
+    fprintf(f, "la0: .space 32         #the buffer for the read buffer of siez 32\n  \n\n .text\n");
 }
 
 

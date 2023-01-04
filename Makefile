@@ -18,7 +18,7 @@ main: $(prefixe).tab.o lex.yy.o main.o tabsymbole.o gencode.o usefull.o SoS2MIPS
 	$(CC) $(LDFLAGS) $^ -o $@ $(LDLIBS)
 
 SoSMIPS.o : SoS2MIPS.c
-	gcc -o SoS2MIPS.o -c SoS2MIPS.c
+	gcc -o SoS2MIPS.o -c SoS2MIPS.c $(LDFLAGS)
 
 tabsymbole.o : tabsymbole.c
 	gcc -o tabsymbole.o -c tabsymbole.c $(LDFLAGS)
