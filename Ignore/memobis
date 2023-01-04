@@ -1,0 +1,98 @@
+Les fonction importantes: 
+
+void gencode(enum instruction, struct addval z, struct addval o, struct addval t, int type)   --> genere un instruction intermediare (et incremente quad.next)	
+instruction est le type d'instruction (GOTO AFF IF SYS) 
+type specificie l'instruction (si AFF peut être une simple instruction ou une addition ou ...) 
+
+z o t sont les trois "addresse" 
+struct addval
+{
+struct symbole *s   --> fait reference vers un symbole (qui generelament est dans la table des symbole) 
+int value;	--> la valeur direct (et prise en compte si s est NULL) 
+} 
+
+Cela permet de faire des operation direct (avec value) ou indirect (avec s)
+
+
+Exemple :
+gencode(GOTO,avc(NULL,100),avc(NULL,-1),avc(NULL,-1),0)
+
+avc(struct symbole *s,int value) creer juste la struct addval pour le gencode
+
+Ici le gencode genere une instruction qui fait un goto (un jump) à la ligne 100
+o et t sont inutilisées
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+struct symbole *findtable(char *id ,int create)        --> chercher l'id dans la table de symbole le crée si il ne le trouve pas et et si create=1, sinon renvoie NULL
+							cherche aussi dans la pile mais c'est acnedotique. 
+
+
+
+Exemple 
+
+gencode(GOTO,avc(findtable("a",0),-1),avc(NULL,-1),avc(NULL,-1),0)
+
+goto vers la valeur contenu dans le symboe a (Si il n'existe pas c'est problematique)
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+crelist concat complete, utilise des liste chainée (struct lpos *), ces liste contienne des numéro de quad
+
+crelist en crer une nouvelle 
+concat les concatenent
+
+complete complete le premier struct addval  (le struct addval nommé zero)  des quad de la liste par le addval passé en second argument 
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+autre fonctions dans gencode.c
+
+
+void casepush(int);
+
+int casepop(void);
+
+int casetop(void);
+
+lpos *arggencode(lpos **);
+
+struct symbole *stackpush(char *name,int value);
+
+sont situationels vous n'aurez pas a les utilisée normalement. Mais si vous voulez ajoutez des fonctions allez y.
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+autre fonctions dans tabsymbole.h
+
+symbole *createsymbole(symbole *s) --> alloue un symbole, l'initialise (partiellemnt cf voire la fonction) et le renvoie
+
+symbole simples(void) 	----> initialise un symbole basique (pas une fonction, pas un tableau, ....)
+
+les fonctions writememory writestringmemory inmemory ecrivent en memoire du programme 
+
+
+
+
+
+
+
+nextstackcreate popstacknext spfindtable spcreatesymbole spsimples writesp writestringsp insp ------> sont pour la pile, pas pour nécessaire pour vous 
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+usefull.h
+
+
+
+createbuf 				--> alloue un char * avec le contenue de format (comme printf) : createbuf("salut %i",3) -> "salut 3"
+
+
+
+ 
+ 
+

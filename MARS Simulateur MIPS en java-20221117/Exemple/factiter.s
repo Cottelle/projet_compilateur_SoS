@@ -8,7 +8,9 @@ main:	li $v0, 4        # system call code for print_str
         la $a0, str1     # address of string to print
         syscall          # print the string
 	
-	li $v0, 5	 # system call code for read_int
+	li $v0, 5	 # sys                                                                                                                                        
+                                                                                                                                      
+
 	syscall		 # read int, result in $v0
 
 	li  $3, 1	 # initialisation du resultat 

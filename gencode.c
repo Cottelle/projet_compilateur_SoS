@@ -80,7 +80,7 @@ void gencode(enum instruction instruction, struct addval z, struct addval o, str
     quad.next++;
 }
 
-struct addval addvalcreate(struct symbole *s, int value)
+struct addval avc(struct symbole *s, int value)
 {
     struct addval a;
     a.s = s;
@@ -97,13 +97,13 @@ void printquad()
 
         char zero[SIZEPRINT], one[SIZEPRINT], two[SIZEPRINT];
         snprintf(zero, SIZEPRINT, "%s%s%i%s", (quad.quadrup[i].zero.s == NULL) ? "" : "[", (quad.quadrup[i].zero.s != NULL && quad.quadrup[i].zero.s->onstack_reg == 1) ? "<sp>" : (quad.quadrup[i].zero.s != NULL && quad.quadrup[i].zero.s->onstack_reg == 2) ? "R"
-                                                                                                                                                                                                                                                                : "",
+                                                                                                                                                                                                                                                                : (quad.quadrup[i].zero.s != NULL && quad.quadrup[i].zero.s->onstack_reg == 3) ? "la" : "",
                  (quad.quadrup[i].zero.s == NULL) ? quad.quadrup[i].zero.value : (int)quad.quadrup[i].zero.s->memory_place, (quad.quadrup[i].zero.s == NULL) ? "" : "]");
         snprintf(one, SIZEPRINT, "%s%s%i%s", (quad.quadrup[i].one.s == NULL) ? "" : "[", (quad.quadrup[i].one.s != NULL && quad.quadrup[i].one.s->onstack_reg == 1) ? "<sp>" : (quad.quadrup[i].one.s != NULL && quad.quadrup[i].one.s->onstack_reg == 2) ? "R"
-                                                                                                                                                                                                                                                          : "",
+                                                                                                                                                                                                                                                          :(quad.quadrup[i].one.s != NULL && quad.quadrup[i].one.s->onstack_reg == 3) ? "la" : "",
                  (quad.quadrup[i].one.s == NULL) ? quad.quadrup[i].one.value : (int)quad.quadrup[i].one.s->memory_place, (quad.quadrup[i].one.s == NULL) ? "" : "]");
         snprintf(two, SIZEPRINT, "%s%s%i%s", (quad.quadrup[i].two.s == NULL) ? "" : "[", (quad.quadrup[i].two.s != NULL && quad.quadrup[i].two.s->onstack_reg == 1) ? "<sp>" : (quad.quadrup[i].two.s != NULL && quad.quadrup[i].two.s->onstack_reg == 2) ? "R"
-                                                                                                                                                                                                                                                          : "",
+                                                                                                                                                                                                                                                          : (quad.quadrup[i].two.s != NULL && quad.quadrup[i].two.s->onstack_reg == 3) ? "la" :"",
                  (quad.quadrup[i].two.s == NULL) ? quad.quadrup[i].two.value : (int)quad.quadrup[i].two.s->memory_place, (quad.quadrup[i].two.s == NULL) ? "" : "]");
 
         switch (quad.quadrup[i].instruction)
@@ -236,9 +236,9 @@ lpos *arggencode(lpos **start)
             exit(1);
         }
         value = concat(value, crelist(quad.next));
-        gencode(AFF, addvalcreate(NULL, -1), addvalcreate(findtable(buf,0), -1), addvalcreate(NULL, -1), 0); // les argument sont quelque part je sais pas où 's' 'p' à la place
+        gencode(AFF, avc(NULL, -1), avc(findtable(buf,0), -1), avc(NULL, -1), 0); // les argument sont quelque part je sais pas où 's' 'p' à la place
         *start = concat(*start, crelist(quad.next));
-        gencode(GOTO, addvalcreate(NULL, -1), addvalcreate(NULL, -1), addvalcreate(NULL, -1), 0);
+        gencode(GOTO, avc(NULL, -1), avc(NULL, -1), avc(NULL, -1), 0);
     }
 
     return value;
@@ -255,7 +255,7 @@ lpos *arggencode(lpos **start)
 
     insp(s->memory_place,(char *)&value,CELLSIZE);
 
-    gencode(AFF,addvalcreate(s,-1),addvalcreate(NULL,value),addvalcreate(NULL,-1),0);
+    gencode(AFF,avc(s,-1),avc(NULL,value),avc(NULL,-1),0);
 
     return s;
 

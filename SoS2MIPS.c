@@ -17,24 +17,18 @@ void MIPSstrlen(FILE *f)
     fprintf(f,"jr $ra\n");
 }
 
-//je sais pas ce que c'est
-void labelprint(struct labels l, int size_symb)
+//je sais pas ce que c'est  ---> reserver la memoire pour les symboles et pour les labels 
+void labelprint(struct labels l, int size_symb,FILE *f)
 {
-    fprintf(stdout, ".data\n .space %i   #place pour les symboles\n #place pour les lables de chaine de charactere\n", size_symb);
-    for (int i = 0; i < labels.cur_place; i++)
-        fprintf(stdout, "la%i .asciiz \"%s\"\n", i, labels.tab[i]);
+    fprintf(f, ".data\n .space %i   #place pour les symboles\n #place pour les lables de chaine de charactere\n", size_symb);
+    for (int i = 0; i < l.cur_place; i++)
+        fprintf(f, "la%i : .asciiz \"%s\"\n", i, l.tab[i]);
 
-    fprintf(stdout, "la-1 .space 32         #the buffer for the read\n");
+    fprintf(f, "la-1: .space 32         #the buffer for the read buffer of siez 32\n  \n\n .text\n");
 }
 
-//ca non plus
-int size_symb = 0;
-    for (int i = 0; i < tabsymbole.size; i++)
-        if (tabsymbole.tab[i])
-            size_symb += tabsymbole.tab[i]->nb;
-    labelprint(labels, size_symb);
 
-void il2MIPS(struct quad quad)
+void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels labels)
 {
     FILE *f=fopen("codeMIPS.s","w");
     if(f==NULL)
@@ -42,6 +36,18 @@ void il2MIPS(struct quad quad)
         printf("Error opening file");
         exit(1);
     }
+
+    //reservation of memory (.data)
+    int size_symb = 0;
+
+    for (int i = 0; i < tabsymbole.size; i++)
+
+        if (tabsymbole.tab[i])
+
+            size_symb += tabsymbole.tab[i]->nb;
+
+    labelprint(labels, size_symb,f);
+
 
     int i=0;
     for(i=0;i<quad.next;i++)
@@ -265,7 +271,7 @@ void il2MIPS(struct quad quad)
                         fprintf(f,"syscall\n");
                         break;
                     case 4://print string
-                        fprintf(f,"la $a0,%s\n",quad.quadrup[i].one.s->memory_place);
+                        fprintf(f,"lw $a0,%i\n",quad.quadrup[i].one.s->memory_place);
                         fprintf(f,"li $v0,4\n");
                         fprintf(f,"syscall\n");
                         break;

@@ -1,8 +1,14 @@
+lecture_valeurs(1){
+    for i do 
+    read nombre
+    done
+};
+
 
 echo "Nombre de valeurs : " ;
 read nombre ;
 lecture_valeurs ${nombre} ;
-if test $?=$1 then
+if test mm then
 else
 echo "Erreur\n"
 fi;
