@@ -4,17 +4,45 @@ void MIPSstrlen(FILE *f)
 {
     fprintf(f,"strlen:\n");
 
-    fprintf(f,"li $t0,0\n");
+    fprintf(f,"li $t0,0\n");// compteur de caractere
 
     fprintf(f,"strlenboucle:\n");
-    fprintf(f,"lb $t1,0($a0)\n");
-    fprintf(f,"beq $t1,$zero,strlenfin\n");
-    fprintf(f,"addi $a0,$a0,1\n");
-    fprintf(f,"addi $t0,$t0,1\n");
-    fprintf(f,"j strlenboucle\n");
+    fprintf(f,"lb $t1,0($a0)\n");//on charge le caractere dans $t1
+    fprintf(f,"beq $t1,$zero,strlenfin\n");//si le caractere est nul on sort de la boucle
+    fprintf(f,"addi $a0,$a0,1\n");//on incremente l'adresse de la chaine de caractere
+    fprintf(f,"addi $t0,$t0,1\n");//on incremente le compteur de caractere
+    fprintf(f,"j strlenboucle\n");//on recommence
 
-    fprintf(f,"strlenfin:\n");
-    fprintf(f,"jr $ra\n");
+    fprintf(f,"strlenfin:\n");//on a fini de compter
+    fprintf(f,"jr $ra\n");//on retourne
+}
+
+void MIPSstrcompare(FILE *f)
+{
+    fprintf(f,"strcompare:\n");
+
+    fprintf(f,"li $t0,0\n");//renvoie 0 si les 2 chaines sont egales
+
+    fprintf(f,"\nstrcompareboucle:\n");
+    fprintf(f,"lb $t1,0($a0)\n");//on charge le 1er caractere dans $t1
+    fprintf(f,"lb $t2,0($a1)\n");//on charge le 2eme caractere dans $t2
+    fprintf(f,"bne $t1,$t2,notequal\n");//si les 2 caracteres sont differents on sort de la boucle
+    fprintf(f,"beq $t1,$zero,equal\n");//si le caractere est nul on sort de la boucle
+    fprintf(f,"addi $a0,$a0,1\n");//on incremente l'adresse de la 1ere chaine de caractere
+    fprintf(f,"addi $a1,$a1,1\n");//on incremente l'adresse de la 2eme chaine de caractere
+    fprintf(f,"j strcompareboucle\n");//on recommence
+
+    fprintf(f,"\nnotequal:\n");
+    fprintf(f,"addi $t0,$t0,1\n");//on met 1 dans $t0 pour dire que les 2 chaines sont differentes
+    fprintf(f,"j strcomparefin\n");//on sort de la boucle
+
+    fprintf(f,"\nequal:\n");
+    fprintf(f,"addi $t0,$t0,0\n");//on met 0 dans $t0 pour dire que les 2 chaines sont egales
+    fprintf(f,"j strcomparefin\n");//on sort de la boucle
+
+
+    fprintf(f,"\nstrcomparefin:\n");//on a fini de comparer
+    fprintf(f,"jr $ra\n");//on retourne
 }
 
 //je sais pas ce que c'est  ---> reserver la memoire pour les symboles et pour les labels 
