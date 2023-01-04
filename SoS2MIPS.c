@@ -371,22 +371,22 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                 switch(quad.quadrup[i].type)
                 {
                     case 0://=
-                        fprintf(f,"beq $s0,$s1,%i\n",quad.quadrup[i].zero.value);
+                        fprintf(f,"beq $s0,$s1,a%i\n",quad.quadrup[i].zero.value);
                         break;
                     case 1://!=
-                        fprintf(f,"bne $s0,$s1,%i\n",quad.quadrup[i].zero.value);
+                        fprintf(f,"bne $s0,$s1,a%i\n",quad.quadrup[i].zero.value);
                         break;
                     case 2://<
-                        fprintf(f,"blt $s0,$s1,%i\n",quad.quadrup[i].zero.value);
+                        fprintf(f,"blt $s0,$s1,a%i\n",quad.quadrup[i].zero.value);
                         break;
                     case 3://>
-                        fprintf(f,"bgt $s0,$s1,%i\n",quad.quadrup[i].zero.value);
+                        fprintf(f,"bgt $s0,$s1,a%i\n",quad.quadrup[i].zero.value);
                         break;
                     case 4://<=
-                        fprintf(f,"ble $s0,$s1,%i\n",quad.quadrup[i].zero.value);
+                        fprintf(f,"ble $s0,$s1,a%i\n",quad.quadrup[i].zero.value);
                         break;
                     case 5://>=
-                        fprintf(f,"bge $s0,$s1,%i\n",quad.quadrup[i].zero.value);
+                        fprintf(f,"bge $s0,$s1,a%i\n",quad.quadrup[i].zero.value);
                         break;
                 }//fin switch type
                 break;
