@@ -685,6 +685,9 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                 fprintf(f,"li $v0,%i\n",quad.quadrup[i].zero.value);
                 fprintf(f,"syscall\n");
                 break;
+            case CALL:
+                fprintf(f,"jal %s\n",(char *)quad.quadrup[i].zero.s);
+                break;
         }//fin switch instruction
     }//fin for quad
     MIPSread(f);
