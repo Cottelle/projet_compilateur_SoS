@@ -85,6 +85,9 @@ void labelprint(struct labels l, int size_symb,FILE *f)
 
 void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels labels)
 {
+
+    int isstring1 = 0;
+    int isstring2 = 0;
     FILE *f=fopen("codeMIPS.s","w");
     if(f==NULL)
     {
@@ -547,6 +550,7 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                             break;
                         case 3:
                             fprintf(f,"la $s0,la%i\n",quad.quadrup[i].one.s->memory_place);
+                            isstring1=1;
                             break;
                         default:
                             printf("Error: variable not found");
@@ -572,6 +576,7 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                             break;
                         case 3:
                             fprintf(f,"la $s0,la%i\n",quad.quadrup[i].one.s->memory_place);
+                            isstring2=1;
                             break;
                         default:
                             printf("Error: variable not found");
@@ -582,6 +587,32 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                 else
                 {
                     fprintf(f,"li $s1,%i\n",quad.quadrup[i].two.value);
+                }
+                
+                if((isstring1 && !isstring2) || (!isstring1 && isstring2))
+                {
+                    printf("Error: cannot compare string with int");
+                    exit(1);
+                }
+
+                if(isstring1 && isstring2)
+                {
+                    if(quad.quadrup[i].type == 0)//=
+                    {
+                        MIPSstrcompare(f);// à adapter pour que ca colle avec le reste
+                        fprintf(f,"\n bne $t0,$zeros,a%i\n",quad.quadrup[i].zero.value);
+                    }
+                    else if(quad.quadrup[i].type == 1)//!=
+                    {
+                        MIPSstrcompare(f);// à adapter pour que ca colle avec le reste
+                        fprintf(f,"\n beq $t0,$zeros,a%i\n",quad.quadrup[i].zero.value);
+                    }
+                    else
+                    {
+                        printf("Error: cannot compare string with < or >");
+                        exit(1);
+                    }
+
                 }
                 switch(quad.quadrup[i].type)
                 {
