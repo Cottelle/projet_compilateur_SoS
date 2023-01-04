@@ -600,12 +600,12 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                     if(quad.quadrup[i].type == 0)//=
                     {
                         MIPSstrcompare(f);// à adapter pour que ca colle avec le reste
-                        fprintf(f,"\n bne $t0,$zeros,a%i\n",quad.quadrup[i].zero.value);
+                        fprintf(f,"\n beq $t0,$zeros,a%i\n",quad.quadrup[i].zero.value);
                     }
                     else if(quad.quadrup[i].type == 1)//!=
                     {
                         MIPSstrcompare(f);// à adapter pour que ca colle avec le reste
-                        fprintf(f,"\n beq $t0,$zeros,a%i\n",quad.quadrup[i].zero.value);
+                        fprintf(f,"\n bne $t0,$zeros,a%i\n",quad.quadrup[i].zero.value);
                     }
                     else
                     {
