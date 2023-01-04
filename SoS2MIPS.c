@@ -57,32 +57,65 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
         switch(quad.quadrup[i].instruction)
         {
             case GOTO:
-                if(quad.quadrup[i].zero.s==NULL)
+                if(quad.quadrup[i].type==1)
                 {
-                    fprintf(f,"j a%i\n",quad.quadrup[i].zero.value);
+                    if(quad.quadrup[i].zero.s==NULL)
+                    {
+                        fprintf(f,"jal a%i\n",quad.quadrup[i].zero.value);
+                    }
+                    else
+                    {
+                        switch(quad.quadrup[i].zero.s->onstack_reg_label)
+                        {
+                            case 0:
+                                fprintf(f,"lw $s0,0x%x\n",quad.quadrup[i].zero.s->memory_place+DATA_SEGMENT);
+                                break;
+                            case 1:
+                                fprintf(f,"lw $s0,%i($sp)\n",quad.quadrup[i].zero.s->memory_place);
+                                break;
+                            case 2:
+                                fprintf(f,"move $s0,$%i\n",quad.quadrup[i].zero.s->isint);
+                                break;
+                            case 3:
+                                fprintf(f,"la $s0,la%i\n",quad.quadrup[i].zero.s->memory_place);
+                            default:
+                                printf("Error: variable not found");
+                                exit(1);
+                        }
+
+                        //jalr $s0
+                        fprintf(f,"jalr $s0\n");
+                    }
                 }
                 else
                 {
-                    switch(quad.quadrup[i].zero.s->onstack_reg_label)
+                    if(quad.quadrup[i].zero.s==NULL)
                     {
-                        case 0:
-                            fprintf(f,"lw $s0,0x%x\n",quad.quadrup[i].zero.s->memory_place+DATA_SEGMENT);
-                            break;
-                        case 1:
-                            fprintf(f,"lw $s0,%i($sp)\n",quad.quadrup[i].zero.s->memory_place);
-                            break;
-                        case 2:
-                            fprintf(f,"move $s0,$%i\n",quad.quadrup[i].zero.s->isint);
-                            break;
-                        case 3:
-                            fprintf(f,"la $s0,la%i\n",quad.quadrup[i].zero.s->memory_place);
-                        default:
-                            printf("Error: variable not found");
-                            exit(1);
+                        fprintf(f,"j a%i\n",quad.quadrup[i].zero.value);
                     }
+                    else
+                    {
+                        switch(quad.quadrup[i].zero.s->onstack_reg_label)
+                        {
+                            case 0:
+                                fprintf(f,"lw $s0,0x%x\n",quad.quadrup[i].zero.s->memory_place+DATA_SEGMENT);
+                                break;
+                            case 1:
+                                fprintf(f,"lw $s0,%i($sp)\n",quad.quadrup[i].zero.s->memory_place);
+                                break;
+                            case 2:
+                                fprintf(f,"move $s0,$%i\n",quad.quadrup[i].zero.s->isint);
+                                break;
+                            case 3:
+                                fprintf(f,"la $s0,la%i\n",quad.quadrup[i].zero.s->memory_place);
+                            default:
+                                printf("Error: variable not found");
+                                exit(1);
+                        }
 
-                    //jr $s0
-                    fprintf(f,"jr $s0\n");
+                        //jr $s0
+                        fprintf(f,"jr $s0\n");
+                    }
                 }
                 break;
             case AFF:
@@ -247,7 +280,7 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                         }
                         break;
 
-                        
+
                     case 2://soustraction
                         if(quad.quadrup[i].one.s==NULL)
                         {
