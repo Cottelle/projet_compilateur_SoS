@@ -181,10 +181,15 @@ INSTRUCTION : ID '=' CONCATENATION                                              
             |read_ ID                                                                                                                       {           // faudra utiliser le label la-1 de 32
                                                                                                                                                 $$ = NULL;
                                                                                                                                                 printf(">Read \n");
-                                                                                                                                                struct symbole *id = findtable($2,1), *buf_read = malloc(sizeof(struct symbole));
-                                                                                                                                                gencode(AFF,avc(reg(4),-1),avc(buf_read,-1),avc(NULL,-1),0); 
-                                                                                                                                                gencode(AFF,avc(reg(5),-1),avc(NULL,SIZEREAD),avc(NULL,-1),0); 
-                                                                                                                                                gencode(SYS,avc(NULL,4),avc(NULL,-1),avc(NULL,-1),0);
+
+                                                                                                                                                struct symbole *s=spfindtable("_store$31",1);
+
+                                                                                                                                                gencode(AFF, avc(s,-1),avc(reg(31),-1),avc(NULL,-1),0);
+                                                                                                                                                
+                                                                                                                                                gencode(CALL,avc((struct symbole *)"_read",-1),avc(NULL,-1),avc(NULL,-1),0);
+                                                                                                                                                gencode(AFF,avc(findtable($2,1),-1),avc(reg(11),-1),avc(NULL,-1),0);    // dans $11 il y a le char lu et aloué
+                                                                                                                                                gencode(AFF, avc(reg(31),-1),avc(s,-1),avc(NULL,-1),0);
+
 
                                                                                                                                                 //calcul de la taille 
 
