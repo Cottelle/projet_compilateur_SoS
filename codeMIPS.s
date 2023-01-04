@@ -64,29 +64,6 @@ exit2 :
 jr $31					#resulat ds $11
 #the value allocated is in $11
 
-strcompare:
-li $t0,0
-
-strcompareboucle:
-lb $t1,0($a0)
-lb $t2,0($a1)
-bne $t1,$t2,notequal
-beq $t1,$zero,equal
-addi $a0,$a0,1
-addi $a1,$a1,1
-j strcompareboucle
-
-notequal:
-addi $t0,$t0,1
-j strcomparefin
-
-equal:
-addi $t0,$t0,0
-j strcomparefin
-
-strcomparefin:
-jr $ra
-
 strconcat:
 
 strconcatboucle:
