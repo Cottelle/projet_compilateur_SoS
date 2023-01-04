@@ -2,24 +2,24 @@
 
 void MIPSstrlen(FILE *f)
 {
-    fprintf(f,"strlen:\n");
+    fprintf(f,"\nstrlen:\n");
 
     fprintf(f,"li $t0,0\n");// compteur de caractere
 
-    fprintf(f,"strlenboucle:\n");
+    fprintf(f,"\nstrlenboucle:\n");
     fprintf(f,"lb $t1,0($a0)\n");//on charge le caractere dans $t1
     fprintf(f,"beq $t1,$zero,strlenfin\n");//si le caractere est nul on sort de la boucle
     fprintf(f,"addi $a0,$a0,1\n");//on incremente l'adresse de la chaine de caractere
     fprintf(f,"addi $t0,$t0,1\n");//on incremente le compteur de caractere
     fprintf(f,"j strlenboucle\n");//on recommence
 
-    fprintf(f,"strlenfin:\n");//on a fini de compter
+    fprintf(f,"\nstrlenfin:\n");//on a fini de compter
     fprintf(f,"jr $ra\n");//on retourne
 }
 
 void MIPSstrcompare(FILE *f)
 {
-    fprintf(f,"strcompare:\n");
+    fprintf(f,"\nstrcompare:\n");
 
     fprintf(f,"li $t0,0\n");//renvoie 0 si les 2 chaines sont egales
 
@@ -47,7 +47,7 @@ void MIPSstrcompare(FILE *f)
 
 void MIPSstrconcat(FILE *f)
 {
-    fprintf(f,"strconcat:\n");
+    fprintf(f,"\nstrconcat:\n");
 
     fprintf(f,"\nstrconcatboucle:\n");
     fprintf(f,"lb $t1,0($a0)\n");//on charge le caractere dans $t1
