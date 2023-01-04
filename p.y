@@ -380,20 +380,13 @@ LISTE_OPERANDES:LISTE_OPERANDES OPERANDE {
 
 LISTE_ECHO:LISTE_ECHO OPERANDE {
                                              gencode(AFF,avc(reg(4),-1),avc($2.s,$2.addr),avc(NULL,-1),0); 
+                                             if ($2.s && $2.s->isint)
+                                                 gencode(SYS,avc(NULL,1),avc(NULL,-1),avc(NULL,-1),0);
+                                            else
                                              gencode(SYS,avc(NULL,4),avc(NULL,-1),avc(NULL,-1),0);
                                         } 
             |OPERANDE                   {
-                                            struct symbole *s = malloc(sizeof(struct symbole));
-                                            if (!s)
-                                            {
-                                                fprintf(stderr,"Error malloc\n");
-                                                exit(1);
-                                            }
-                                            s->name = "BIDON";
-                                            s->memory_place = 4;
-                                            s->onstack_reg_label =2;
-                                            s->isint =4;
-                                             gencode(AFF,avc(s,-1),avc($1.s,$1.addr),avc(NULL,-1),0);
+                                             gencode(AFF,avc(reg(4),-1),avc($1.s,$1.addr),avc(NULL,-1),0);
                                              if ($1.s && $1.s->isint)
                                                  gencode(SYS,avc(NULL,1),avc(NULL,-1),avc(NULL,-1),0);
                                             else
@@ -488,6 +481,7 @@ TEST_INSTRUCTION :CONCATENATION '=' CONCATENATION       // Si operande entier co
 
 OPERANDE:'$''{'ID'}'                          {
                                                 $$.s = findtable($3,0);
+                                                $$.addr = -1;
                                                 }
             |'$''{'ID'['OPERANDE_ENTIER']''}' {
                                                 $$.s=NULL;

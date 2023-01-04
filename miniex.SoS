@@ -1,10 +1,7 @@
-fun(4)
-{
-    a= aaaaaaaaaaaaaaaaaaa;
+if test !(mm) then 
+a= aaaaaaaaaaaaaaaaaaa
+else
+a=bbbbbbbbbbbbbbbbbbbb
+fi;
 
-    fun 3
-};
-
-
-
-fun a a a
+echo ${a}
