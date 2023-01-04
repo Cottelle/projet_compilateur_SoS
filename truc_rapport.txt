@@ -1,0 +1,3 @@
+-le binaire
+-le truc pour recuper la veleur de pc (ds les for)
+-changement de la grammaire fun(entier)

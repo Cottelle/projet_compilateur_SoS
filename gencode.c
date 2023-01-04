@@ -62,7 +62,7 @@ void gencode(enum instruction instruction, struct addval z, struct addval o, str
         if (quad.size == 0)
             quad.size++;
         quad.size *= 2;
-        quadrup *temp =(quadrup *) realloc(quad.quadrup, quad.size * sizeof(*(quad.quadrup)));
+        quadrup *temp = (quadrup *)realloc(quad.quadrup, quad.size * sizeof(*(quad.quadrup)));
         if (!temp)
         {
             fprintf(stderr, "[gSoSSoS]Erreur genecode: realloc");
@@ -97,13 +97,16 @@ void printquad()
 
         char zero[SIZEPRINT], one[SIZEPRINT], two[SIZEPRINT];
         snprintf(zero, SIZEPRINT, "%s%s%i%s", (quad.quadrup[i].zero.s == NULL) ? "" : "[", (quad.quadrup[i].zero.s != NULL && quad.quadrup[i].zero.s->onstack_reg_label == 1) ? "<sp>" : (quad.quadrup[i].zero.s != NULL && quad.quadrup[i].zero.s->onstack_reg_label == 2) ? "R"
-                                                                                                                                                                                                                                                                : (quad.quadrup[i].zero.s != NULL && quad.quadrup[i].zero.s->onstack_reg_label == 3) ? "la" : "",
+                                                                                                                                                                                     : (quad.quadrup[i].zero.s != NULL && quad.quadrup[i].zero.s->onstack_reg_label == 3)   ? "la"
+                                                                                                                                                                                                                                                                            : "",
                  (quad.quadrup[i].zero.s == NULL) ? quad.quadrup[i].zero.value : (int)quad.quadrup[i].zero.s->memory_place, (quad.quadrup[i].zero.s == NULL) ? "" : "]");
         snprintf(one, SIZEPRINT, "%s%s%i%s", (quad.quadrup[i].one.s == NULL) ? "" : "[", (quad.quadrup[i].one.s != NULL && quad.quadrup[i].one.s->onstack_reg_label == 1) ? "<sp>" : (quad.quadrup[i].one.s != NULL && quad.quadrup[i].one.s->onstack_reg_label == 2) ? "R"
-                                                                                                                                                                                                                                                          :(quad.quadrup[i].one.s != NULL && quad.quadrup[i].one.s->onstack_reg_label == 3) ? "la" : "",
+                                                                                                                                                                                 : (quad.quadrup[i].one.s != NULL && quad.quadrup[i].one.s->onstack_reg_label == 3)   ? "la"
+                                                                                                                                                                                                                                                                      : "",
                  (quad.quadrup[i].one.s == NULL) ? quad.quadrup[i].one.value : (int)quad.quadrup[i].one.s->memory_place, (quad.quadrup[i].one.s == NULL) ? "" : "]");
         snprintf(two, SIZEPRINT, "%s%s%i%s", (quad.quadrup[i].two.s == NULL) ? "" : "[", (quad.quadrup[i].two.s != NULL && quad.quadrup[i].two.s->onstack_reg_label == 1) ? "<sp>" : (quad.quadrup[i].two.s != NULL && quad.quadrup[i].two.s->onstack_reg_label == 2) ? "R"
-                                                                                                                                                                                                                                                          : (quad.quadrup[i].two.s != NULL && quad.quadrup[i].two.s->onstack_reg_label == 3) ? "la" :"",
+                                                                                                                                                                                 : (quad.quadrup[i].two.s != NULL && quad.quadrup[i].two.s->onstack_reg_label == 3)   ? "la"
+                                                                                                                                                                                                                                                                      : "",
                  (quad.quadrup[i].two.s == NULL) ? quad.quadrup[i].two.value : (int)quad.quadrup[i].two.s->memory_place, (quad.quadrup[i].two.s == NULL) ? "" : "]");
 
         switch (quad.quadrup[i].instruction)
@@ -170,6 +173,10 @@ void printquad()
             printf("sys %i\n", quad.quadrup[i].zero.value);
             break;
 
+        case CALL:
+            printf("jal %s\n", (char *)(quad.quadrup[i].zero.s));
+            break;
+
         default:
             printf("?(%i)\n", quad.quadrup[i].instruction);
             break;
@@ -177,7 +184,7 @@ void printquad()
     }
 }
 
-void casepush( struct symbole *s,int addr )
+void casepush(struct symbole *s, int addr)
 {
     struct casestack *head = malloc(sizeof(struct casestack));
     if (!head)
@@ -208,15 +215,15 @@ struct addval casepop(void)
     return ret;
 }
 
-struct addval  casetop(void)
+struct addval casetop(void)
 {
     if (!casestack)
     {
-    fprintf(stderr, "Error casestack is empty\n");
-    exit(2);
+        fprintf(stderr, "Error casestack is empty\n");
+        exit(2);
     }
 
-     struct addval ret;
+    struct addval ret;
     ret.s = casestack->s;
     ret.value = casestack->addr;
     return ret;
@@ -230,13 +237,13 @@ lpos *arggencode(lpos **start)
     for (unsigned int i = 0; i < nbarg; i++)
     {
         char buf[4];
-        if (snprintf(buf,4,"$%i",i+1)<0)
+        if (snprintf(buf, 4, "$%i", i + 1) < 0)
         {
-            fprintf(stderr,"Error snprintf\n");
+            fprintf(stderr, "Error snprintf\n");
             exit(1);
         }
         value = concat(value, crelist(quad.next));
-        gencode(AFF, avc(NULL, -1), avc(findtable(buf,0), -1), avc(NULL, -1), 0); // les argument sont quelque part je sais pas où 's' 'p' à la place
+        gencode(AFF, avc(NULL, -1), avc(findtable(buf, 0), -1), avc(NULL, -1), 0); // les argument sont quelque part je sais pas où 's' 'p' à la place
         *start = concat(*start, crelist(quad.next));
         gencode(GOTO, avc(NULL, -1), avc(NULL, -1), avc(NULL, -1), 0);
     }

@@ -25,6 +25,7 @@ enum instruction
     AFF,
     IF,
     SYS,
+    CALL,
 };
 
 struct addval{

@@ -80,7 +80,7 @@ unsigned int nbfor;
 %%
 
                                                                                                                                                 
-PROGRAMME :  LISTE_INTRSUCTIONS      {gencode(SYS,avc(NULL,10),avc(NULL,-1),avc(NULL,-1),0); }     //On ecrit l'endroit de la mémoire ici pour pouvoir dans le code generer acceder a cette memoire ( par ex dans read)
+PROGRAMME : {clabel("Bidon: C'est pour read");} LISTE_INTRSUCTIONS      {gencode(SYS,avc(NULL,10),avc(NULL,-1),avc(NULL,-1),0); }     //On ecrit l'endroit de la mémoire ici pour pouvoir dans le code generer acceder a cette memoire ( par ex dans read)
             ;
 
 LISTE_INTRSUCTIONS: LISTE_INTRSUCTIONS ';'INSTRUCTION   {
@@ -181,10 +181,15 @@ INSTRUCTION : ID '=' CONCATENATION                                              
             |read_ ID                                                                                                                       {           // faudra utiliser le label la-1 de 32
                                                                                                                                                 $$ = NULL;
                                                                                                                                                 printf(">Read \n");
-                                                                                                                                                struct symbole *id = findtable($2,1), *buf_read = malloc(sizeof(struct symbole));
-                                                                                                                                                gencode(AFF,avc(reg(4),-1),avc(buf_read,-1),avc(NULL,-1),0); 
-                                                                                                                                                gencode(AFF,avc(reg(5),-1),avc(NULL,SIZEREAD),avc(NULL,-1),0); 
-                                                                                                                                                gencode(SYS,avc(NULL,4),avc(NULL,-1),avc(NULL,-1),0);
+
+                                                                                                                                                struct symbole *s=spfindtable("_store$31",1);
+
+                                                                                                                                                gencode(AFF, avc(s,-1),avc(reg(31),-1),avc(NULL,-1),0);
+                                                                                                                                                
+                                                                                                                                                gencode(CALL,avc((struct symbole *)"_read",-1),avc(NULL,-1),avc(NULL,-1),0);
+                                                                                                                                                gencode(AFF,avc(findtable($2,1),-1),avc(reg(11),-1),avc(NULL,-1),0);    // dans $11 il y a le char lu et aloué
+                                                                                                                                                gencode(AFF, avc(reg(31),-1),avc(s,-1),avc(NULL,-1),0);
+
 
                                                                                                                                                 //calcul de la taille 
 
@@ -695,8 +700,11 @@ APPEL_FONCTION: ID                                                              
                                                                                                     fprintf(stderr,"Error %s not declared\n",$1);
                                                                                                     exit(3);
                                                                                                 }
+                                                                                                struct symbole *s=spfindtable("_store$31",1);
+                                                                                                gencode(AFF, avc(s,-1),avc(reg(31),-1),avc(NULL,-1),0);     //store the current return value
                                                                                                 gencode(GOTO,avc(NULL,f->place),avc(NULL,-1),avc(NULL,-1),1);
-                                                                                            }
+                                                                                                gencode(AFF, avc(reg(31),-1),avc(s,-1),avc(NULL,-1),0);       //restore the current return
+                                                                                                }
             |ID                                                                     {
                                                                                         struct function *f;
                                                                                         if (!(f=findfun($1,0)))
@@ -704,7 +712,10 @@ APPEL_FONCTION: ID                                                              
                                                                                             fprintf(stderr,"Error %s not declared\n",$1);
                                                                                             exit(3);
                                                                                         }
-                                                                                        gencode(GOTO,avc(NULL,f->place),avc(NULL,-1),avc(NULL,-1),0);
+                                                                                        struct symbole *s=spfindtable("_store$31",1);               //sur la mauvaise pil a voire
+                                                                                        gencode(AFF, avc(s,-1),avc(reg(31),-1),avc(NULL,-1),0);     //store the current return value
+                                                                                        gencode(GOTO,avc(NULL,f->place),avc(NULL,-1),avc(NULL,-1),1);
+                                                                                        gencode(AFF, avc(reg(31),-1),avc(s,-1),avc(NULL,-1),0);       //restore the current return
                                                                                     }
             ;
 
