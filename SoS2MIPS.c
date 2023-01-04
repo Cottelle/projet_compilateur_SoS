@@ -72,7 +72,7 @@ void MIPSstrconcat(FILE *f)
     fprintf(f,"jr $ra\n");//on retourne
 }
 
-//je sais pas ce que c'est  ---> reserver la memoire pour les symboles et pour les labels 
+//reserver la memoire pour les symboles et pour les labels 
 void labelprint(struct labels l, int size_symb,FILE *f)
 {
     fprintf(f, ".data\n .space %i   #place pour les symboles\n #place pour les lables de chaine de charactere\n", size_symb*4);
@@ -123,7 +123,7 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                         switch(quad.quadrup[i].zero.s->onstack_reg_label)
                         {
                             case 0:
-                                fprintf(f,"lw $s0,0x%x\n",quad.quadrup[i].zero.s->memory_place+DATA_SEGMENT);
+                                fprintf(f,"lw $s0,0x%x\n",quad.quadrup[i].zero.s->memory_place+TEXT_SEGMENT);
                                 break;
                             case 1:
                                 fprintf(f,"lw $s0,%i($sp)\n",quad.quadrup[i].zero.s->memory_place);
@@ -153,7 +153,7 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                         switch(quad.quadrup[i].zero.s->onstack_reg_label)
                         {
                             case 0:
-                                fprintf(f,"lw $s0,0x%x\n",quad.quadrup[i].zero.s->memory_place+DATA_SEGMENT);
+                                fprintf(f,"lw $s0,0x%x\n",quad.quadrup[i].zero.s->memory_place+TEXT_SEGMENT);
                                 break;
                             case 1:
                                 fprintf(f,"lw $s0,%i($sp)\n",quad.quadrup[i].zero.s->memory_place);
@@ -343,7 +343,21 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                         }
                         else
                         {
-                            fprintf(f,"lw $s0,%i\n",quad.quadrup[i].one.s->memory_place);
+                            switch(quad.quadrup[i].one.s->onstack_reg_label)
+                            {
+                                case 0:
+                                    fprintf(f,"lw $s0,0x%x\n",quad.quadrup[i].one.s->memory_place+DATA_SEGMENT);
+                                    break;
+                                case 1:
+                                    fprintf(f,"lw $s0,%i($sp)\n",quad.quadrup[i].one.s->memory_place);
+                                    break;
+                                case 2:
+                                    fprintf(f,"move $s0,$%i\n",quad.quadrup[i].one.s->isint);
+                                    break;
+                                default:
+                                    printf("Error: variable not found");
+                                    exit(1);
+                            }
                         }
                         if(quad.quadrup[i].two.s==NULL)
                         {
@@ -351,12 +365,39 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                         }
                         else
                         {
-                            fprintf(f,"lw $s1,%i\n",quad.quadrup[i].two.s->memory_place);
+                            switch(quad.quadrup[i].two.s->onstack_reg_label)
+                            {
+                                case 0:
+                                    fprintf(f,"lw $s0,0x%x\n",quad.quadrup[i].two.s->memory_place+DATA_SEGMENT);
+                                    break;
+                                case 1:
+                                    fprintf(f,"lw $s0,%i($sp)\n",quad.quadrup[i].two.s->memory_place);
+                                    break;
+                                case 2:
+                                    fprintf(f,"move $s0,$%i\n",quad.quadrup[i].two.s->isint);
+                                    break;
+                                default:
+                                    printf("Error: variable not found");
+                                    exit(1);
+                            }
                         }
 
                         fprintf(f,"sub $s0,$s0,$s1\n");
-                        fprintf(f,"sw $s0,%i\n",quad.quadrup[i].zero.s->memory_place);
-
+                        switch(quad.quadrup[i].zero.s->onstack_reg_label)
+                        {
+                            case 0:
+                                fprintf(f,"sw $s0,0x%x\n",quad.quadrup[i].zero.s->memory_place+DATA_SEGMENT);
+                                break;
+                            case 1:
+                                fprintf(f,"sw $s0,%i($sp)\n",quad.quadrup[i].zero.s->memory_place);
+                                break;
+                            case 2:
+                                fprintf(f,"move $%i,$s0\n",quad.quadrup[i].zero.s->isint);
+                                break;
+                            default:
+                                printf("Error: variable not found");
+                                exit(1);
+                        }
                         break;
                     case 3://multiplication
                         if(quad.quadrup[i].one.s==NULL)
@@ -365,7 +406,21 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                         }
                         else
                         {
-                            fprintf(f,"lw $s0,%i\n",quad.quadrup[i].one.s->memory_place);
+                            switch(quad.quadrup[i].one.s->onstack_reg_label)
+                            {
+                                case 0:
+                                    fprintf(f,"lw $s0,0x%x\n",quad.quadrup[i].one.s->memory_place+DATA_SEGMENT);
+                                    break;
+                                case 1:
+                                    fprintf(f,"lw $s0,%i($sp)\n",quad.quadrup[i].one.s->memory_place);
+                                    break;
+                                case 2:
+                                    fprintf(f,"move $s0,$%i\n",quad.quadrup[i].one.s->isint);
+                                    break;
+                                default:
+                                    printf("Error: variable not found");
+                                    exit(1);
+                            }
                         }
                         if(quad.quadrup[i].two.s==NULL)
                         {
@@ -373,13 +428,41 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                         }
                         else
                         {
-                            fprintf(f,"lw $s1,%i\n",quad.quadrup[i].two.s->memory_place);
+                            switch(quad.quadrup[i].two.s->onstack_reg_label)
+                            {
+                                case 0:
+                                    fprintf(f,"lw $s0,0x%x\n",quad.quadrup[i].two.s->memory_place+DATA_SEGMENT);
+                                    break;
+                                case 1:
+                                    fprintf(f,"lw $s0,%i($sp)\n",quad.quadrup[i].two.s->memory_place);
+                                    break;
+                                case 2:
+                                    fprintf(f,"move $s0,$%i\n",quad.quadrup[i].two.s->isint);
+                                    break;
+                                default:
+                                    printf("Error: variable not found");
+                                    exit(1);
+                            }
                         }
 
                         fprintf(f,"mult $s0,$s1\n");
                         fprintf(f,"mflo $s0\n");
-                        fprintf(f,"sw $s0,%i\n",quad.quadrup[i].zero.s->memory_place);
 
+                        switch(quad.quadrup[i].zero.s->onstack_reg_label)
+                        {
+                            case 0:
+                                fprintf(f,"sw $s0,0x%x\n",quad.quadrup[i].zero.s->memory_place+DATA_SEGMENT);
+                                break;
+                            case 1:
+                                fprintf(f,"sw $s0,%i($sp)\n",quad.quadrup[i].zero.s->memory_place);
+                                break;
+                            case 2:
+                                fprintf(f,"move $%i,$s0\n",quad.quadrup[i].zero.s->isint);
+                                break;
+                            default:
+                                printf("Error: variable not found");
+                                exit(1);
+                        }
                         break;
                     case 4://division
                         if(quad.quadrup[i].one.s==NULL)
@@ -388,7 +471,21 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                         }
                         else
                         {
-                            fprintf(f,"lw $s0,%i\n",quad.quadrup[i].one.s->memory_place);
+                            switch(quad.quadrup[i].one.s->onstack_reg_label)
+                            {
+                                case 0:
+                                    fprintf(f,"lw $s0,0x%x\n",quad.quadrup[i].one.s->memory_place+DATA_SEGMENT);
+                                    break;
+                                case 1:
+                                    fprintf(f,"lw $s0,%i($sp)\n",quad.quadrup[i].one.s->memory_place);
+                                    break;
+                                case 2:
+                                    fprintf(f,"move $s0,$%i\n",quad.quadrup[i].one.s->isint);
+                                    break;
+                                default:
+                                    printf("Error: variable not found");
+                                    exit(1);
+                            }
                         }
                         if(quad.quadrup[i].two.s==NULL)
                         {
@@ -396,20 +493,65 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                         }
                         else
                         {
-                            fprintf(f,"lw $s1,%i\n",quad.quadrup[i].two.s->memory_place);
+                            switch(quad.quadrup[i].two.s->onstack_reg_label)
+                            {
+                                case 0:
+                                    fprintf(f,"lw $s0,0x%x\n",quad.quadrup[i].two.s->memory_place+DATA_SEGMENT);
+                                    break;
+                                case 1:
+                                    fprintf(f,"lw $s0,%i($sp)\n",quad.quadrup[i].two.s->memory_place);
+                                    break;
+                                case 2:
+                                    fprintf(f,"move $s0,$%i\n",quad.quadrup[i].two.s->isint);
+                                    break;
+                                default:
+                                    printf("Error: variable not found");
+                                    exit(1);
+                            }
                         }
 
                         fprintf(f,"div $s0,$s1\n");
                         fprintf(f,"mflo $s0\n");
-                        fprintf(f,"sw $s0,%i\n",quad.quadrup[i].zero.s->memory_place);
-
+                        
+                        switch(quad.quadrup[i].zero.s->onstack_reg_label)
+                        {
+                            case 0:
+                                fprintf(f,"sw $s0,0x%x\n",quad.quadrup[i].zero.s->memory_place+DATA_SEGMENT);
+                                break;
+                            case 1:
+                                fprintf(f,"sw $s0,%i($sp)\n",quad.quadrup[i].zero.s->memory_place);
+                                break;
+                            case 2:
+                                fprintf(f,"move $%i,$s0\n",quad.quadrup[i].zero.s->isint);
+                                break;
+                            default:
+                                printf("Error: variable not found");
+                                exit(1);
+                        }
                         break;
                 }//fin switch type
                 break;
             case IF:
                 if(quad.quadrup[i].one.s != NULL )
                 {
-                    fprintf(f,"lw $s0,%i\n",quad.quadrup[i].one.s->memory_place);
+                    switch(quad.quadrup[i].one.s->onstack_reg_label)
+                    {
+                        case 0:
+                            fprintf(f,"lw $s0,0x%x\n",quad.quadrup[i].one.s->memory_place+DATA_SEGMENT);
+                            break;
+                        case 1:
+                            fprintf(f,"lw $s0,%i($sp)\n",quad.quadrup[i].one.s->memory_place);
+                            break;
+                        case 2:
+                            fprintf(f,"move $s0,$%i\n",quad.quadrup[i].one.s->isint);
+                            break;
+                        case 3:
+                            fprintf(f,"la $s0,la%i\n",quad.quadrup[i].one.s->memory_place);
+                            break;
+                        default:
+                            printf("Error: variable not found");
+                            exit(1);
+                    }
                 }
                 else
                 {
@@ -417,6 +559,24 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                 }
                 if(quad.quadrup[i].two.s != NULL )
                 {
+                    switch(quad.quadrup[i].two.s->onstack_reg_label)
+                    {
+                        case 0:
+                            fprintf(f,"lw $s0,0x%x\n",quad.quadrup[i].one.s->memory_place+DATA_SEGMENT);
+                            break;
+                        case 1:
+                            fprintf(f,"lw $s0,%i($sp)\n",quad.quadrup[i].one.s->memory_place);
+                            break;
+                        case 2:
+                            fprintf(f,"move $s0,$%i\n",quad.quadrup[i].one.s->isint);
+                            break;
+                        case 3:
+                            fprintf(f,"la $s0,la%i\n",quad.quadrup[i].one.s->memory_place);
+                            break;
+                        default:
+                            printf("Error: variable not found");
+                            exit(1);
+                    }
                     fprintf(f,"lw $s1,%i\n",quad.quadrup[i].two.s->memory_place);
                 }
                 else
