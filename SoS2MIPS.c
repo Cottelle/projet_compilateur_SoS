@@ -391,88 +391,9 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                 }//fin switch type
                 break;
             case SYS:
-                switch(quad.quadrup[i].zero.value)
-                {
-                    case 1://print
-                        if(quad.quadrup[i].one.s != NULL )
-                        {
-                            fprintf(f,"lw $a0,%i\n",quad.quadrup[i].one.s->memory_place);
-                        }
-                        else
-                        {
-                            fprintf(f,"li $a0,%i\n",quad.quadrup[i].one.value);
-                        }
-                        fprintf(f,"li $v0,1\n");
-                        fprintf(f,"syscall\n");
-                        break;
-                    case 2://print float
-                        if(quad.quadrup[i].one.s != NULL )
-                        {
-                            fprintf(f,"lw $f12,%i\n",quad.quadrup[i].one.s->memory_place);
-                        }
-                        else
-                        {
-                            fprintf(f,"li $f12,%i\n",quad.quadrup[i].one.value);
-                        }
-                        fprintf(f,"li $v0,2\n");
-                        fprintf(f,"syscall\n");
-                        break;
-                    case 3://print double
-                        if(quad.quadrup[i].one.s != NULL )
-                        {
-                            fprintf(f,"lw $f12,%i\n",quad.quadrup[i].one.s->memory_place);
-                        }
-                        else
-                        {
-                            fprintf(f,"li $f12,%i\n",quad.quadrup[i].one.value);
-                        }
-                        if(quad.quadrup[i].two.s != NULL )
-                        {
-                            fprintf(f,"lw $f13,%i\n",quad.quadrup[i].two.s->memory_place);
-                        }
-                        else
-                        {
-                            fprintf(f,"li $f13,%i\n",quad.quadrup[i].two.value);
-                        }
-                        fprintf(f,"li $v0,3\n");
-                        fprintf(f,"syscall\n");
-                        break;
-                    case 4://print string
-                        fprintf(f,"lw $a0,%i\n",quad.quadrup[i].one.s->memory_place);
-                        fprintf(f,"li $v0,4\n");
-                        fprintf(f,"syscall\n");
-                        break;
-                    case 5://read int
-                        fprintf(f,"li $v0,5\n");
-                        fprintf(f,"syscall\n");
-                        fprintf(f,"sw $v0,%i\n",quad.quadrup[i].one.s->memory_place);
-                        break;
-                    case 6://read float
-                        fprintf(f,"li $v0,6\n");
-                        fprintf(f,"syscall\n");
-                        fprintf(f,"sw $f0,%i\n",quad.quadrup[i].one.s->memory_place);
-                        break;
-                    case 7://read double
-                        fprintf(f,"li $v0,7\n");
-                        fprintf(f,"syscall\n");
-                        fprintf(f,"sw $f0,%i\n",quad.quadrup[i].one.s->memory_place);
-                        break;
-                    case 8://read string à modifier
-                        fprintf(f,"li $v0,8\n");
-                        fprintf(f,"syscall\n");
-                        fprintf(f,"sw $v0,%i\n",quad.quadrup[i].one.s->memory_place);
-                        break;
-                    case 9://sbrk
-                        fprintf(f,"li $v0,9\n");
-                        fprintf(f,"li $a0,%i\n",quad.quadrup[i].one.value);
-                        fprintf(f,"syscall\n");
-                        fprintf(f,"sw $v0,%i\n",quad.quadrup[i].two.s->memory_place);
-                        break;
-                    case 10://exit
-                        fprintf(f,"li $v0,10\n");
-                        fprintf(f,"syscall\n");
-                        break;
-                }
+                fprintf(f,"li $v0,%i\n",quad.quadrup[i].zero.value);
+                fprintf(f,"syscall\n");
+                break;
         }//fin switch instruction
     }//fin for quad
 }//fin fonction
