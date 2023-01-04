@@ -4,4 +4,4 @@ else
 a=bbbbbbbbbbbbbbbbbbbb
 fi;
 
-echo ${a}
+read b

@@ -1,5 +1,5 @@
 .data
- .space 4   #place pour les symboles
+ .space 8   #place pour les symboles
  #place pour les lables de chaine de charactere
 la1 : .asciiz "aaaaaaaaaaaaaaaaaaa"
 la2 : .asciiz "bbbbbbbbbbbbbbbbbbbb"
@@ -18,14 +18,17 @@ a3:
 la $s0,la2
 sw $s0,0x10010000
 a4:
-j a-1
+j a5
 a5:
-lw $s0,0x10010000
-move $4,$s0
+move $s0,$31
 a6:
-li $v0,4
-syscall
+jal _read
 a7:
+move $s0,$11
+a8:
+lw $s0,0($sp)
+move $31,$s0
+a9:
 li $v0,10
 syscall
 

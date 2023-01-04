@@ -122,6 +122,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                 ELSE_PART fi                                                                                                                {
                                                                                                                                                 printf(">if \n"); 
                                                                                                                                                 $$ = concat($5, crelist($6) ); 
+                                                                                                                                                $$ = concat($$ , $8);
                                                                                                                                             }
             |for_ ID                                                                                                                        {
                                                                                                                                                 gencode(AFF,avc(findtable(createbuf("_for%i",++nbfor),1),-1),avc(NULL,quad.next+1),avc(NULL,-1),0);
