@@ -1,9 +1,9 @@
 .data
  .space 2   #place pour les symboles
  #place pour les lables de chaine de charactere
-la0 .asciiz "aaaaaaaaaaaaaaaa"
-la1 .asciiz "bbbbbbbbbbbbbb"
-la-1 .space 32         #the buffer for the read buffer of siez 32
+la0 : .asciiz "aaaaaaaaaaaaaaaa"
+la1 : .asciiz "bbbbbbbbbbbbbb"
+la-1: .space 32         #the buffer for the read buffer of siez 32
   
 
  .text
