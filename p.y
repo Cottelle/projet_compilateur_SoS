@@ -109,7 +109,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                 struct symbole s = simples();
                                                                                                                                                 s.nb = $4; //test si $4>0?
                                                                                                                                                 s.name = $2;
-                                                                                                                                                s.onstack_reg =0;
+                                                                                                                                                s.onstack_reg_label =0;
                                                                                                                                                 int a = createsymbole(&s)->memory_place;
                                                                                                                                                 printf(">declare %s[%i] : %i\n",$2,$4,a);
                                                                                                                                                  
@@ -189,7 +189,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
 
 
                                                                                                                                             }
-            |read_ ID'['OPERANDE_ENTIER']'                                                                                                  {
+            |read_ ID'['OPERATEUR_ENTIER']'                                                                                                  {
                                                                                                                                                 $$ = NULL;
                                                                                                                                                 printf(">Read \n");
                                                                                                                                                 struct symbole *mem = findtable("-mem",1), *id =findtable($2,0), *stemp =findtable("_read_id_tab",1);
@@ -201,7 +201,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
 
                                                                                                                                                 stemp->isint =1;
                                                                                                                                                 stemp->nb =1;
-                                                                                                                                                stemp->onstack_reg =0;
+                                                                                                                                                stemp->onstack_reg_label =0;
 
 
 
@@ -232,7 +232,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                 gencode(AFF,avc(reg(31),-1) ,avc(NULL,0),avc(NULL,-1),0);
                                                                                                                                                 gencode(GOTO,avc(ret,-1) ,avc(NULL,-1),avc(NULL,-1),0);
                                                                                                                                             }
-            |return_ OPERANDE_ENTIER                                                                                                        {
+            |return_ '(' OPERATEUR_ENTIER ')'                                                                                                        {
                                                                                                                                                 $$ =NULL;
                                                                                                                                                 printf(">return entier \n");
                                                                                                                                                 struct symbole *ret = spfindtable("_ret",0);
@@ -242,7 +242,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                     exit(2);
                                                                                                                                                 }
 
-                                                                                                                                                gencode(AFF,avc(reg(31),-1) ,avc($2.s,$2.addr),avc(NULL,-1),0);
+                                                                                                                                                gencode(AFF,avc(reg(31),-1) ,avc(reg(23),-1),avc(NULL,-1),0);
                                                                                                                                                 gencode(GOTO,avc(ret,-1) ,avc(NULL,-1),avc(NULL,-1),0);
                                                                                                                                             }
             |APPEL_FONCTION                                                                                                                 {
@@ -256,10 +256,10 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                 gencode(AFF,avc(reg(31),-1) ,avc(NULL,0),avc(NULL,-1),0);
                                                                                                                                                 gencode(SYS,avc(NULL,10) ,avc(NULL,-1),avc(NULL,-1),0);
                                                                                                                                             }
-            |exit_ OPERANDE_ENTIER                                                                                                          {
+            |exit_ '(' OPERATEUR_ENTIER ')'                                                                                                          {
                                                                                                                                                 $$ =NULL;
                                                                                                                                                 printf(">exit entier \n");
-                                                                                                                                                gencode(AFF,avc(reg(31),-1) ,avc($2.s,$2.addr),avc(NULL,-1),0);
+                                                                                                                                                gencode(AFF,avc(reg(31),-1) ,avc(reg(23),-1),avc(NULL,-1),0);
                                                                                                                                                 gencode(SYS,avc(NULL,10) ,avc(NULL,-1),avc(NULL,-1),0);
                                                                                                                                             }
             ;                                       
@@ -387,7 +387,7 @@ LISTE_ECHO:LISTE_ECHO OPERANDE {
                                             }
                                             s->name = "BIDON";
                                             s->memory_place = 4;
-                                            s->onstack_reg =2;
+                                            s->onstack_reg_label =2;
                                             s->isint =4;
                                              gencode(AFF,avc(s,-1),avc($1.s,$1.addr),avc(NULL,-1),0);
                                              if ($1.s && $1.s->isint)
@@ -412,7 +412,7 @@ LISTE_ECHO:LISTE_ECHO OPERANDE {
                                                     exit(1);
                                                 }
                                                 s->name = "BIDON";
-                                                s->onstack_reg =2;
+                                                s->onstack_reg_label =2;
                                                 s->memory_place = 4;
                                                 s->isint =4;
 
@@ -544,7 +544,7 @@ OPERANDE:'$''{'ID'}'                          {
                                                     $$.s = reg(31);
                                                     $$.addr = -1; 
                                                     /* struct symbole s =simples();
-                                                    s.onstack_reg=2;
+                                                    s.onstack_reg_label=2;
                                                     s.name="$?";
                                                     s.isint = 15;               //prend la valeur du registre
                                                     struct symbole *sb=createsymbole(&s);      */                 //the symbole $? ????????
@@ -691,7 +691,7 @@ APPEL_FONCTION: ID                                                              
                                                                                         }
                 LISTE_ARG                                                                   {
                                                                                                 struct symbole *sim =malloc(sizeof(*sim));
-                                                                                                sim->onstack_reg =1;
+                                                                                                sim->onstack_reg_label =1;
                                                                                                 sim->name="_ret_bidon";
                                                                                                 sim->isint =1;
                                                                                                 gencode(AFF,avc(sim,-1),avc(NULL,quad.next+2),avc(NULL,-1),0);     
@@ -717,7 +717,7 @@ APPEL_FONCTION: ID                                                              
 
 LISTE_ARG: OPERANDE LISTE_ARG             {         //arg à l'envers comme le C
                                             struct symbole s =simples();
-                                            s.onstack_reg =1;
+                                            s.onstack_reg_label =1;
                                             s.name = malloc(5);
                                             if (!s.name ||snprintf(s.name,5,"_%i",cur_sp)<0)
                                             {
@@ -729,7 +729,7 @@ LISTE_ARG: OPERANDE LISTE_ARG             {         //arg à l'envers comme le C
                                         } 
             |OPERANDE                   {
                                             struct symbole s =simples();
-                                            s.onstack_reg =1;
+                                            s.onstack_reg_label =1;
                                             s.name=malloc(5);
                                             if (!s.name ||snprintf(s.name,5,"_%i",cur_sp)<0)
                                             {

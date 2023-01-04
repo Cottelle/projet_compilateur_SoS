@@ -63,7 +63,7 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                 }
                 else
                 {
-                    switch(quad.quadrup[i].zero.s->onstack_reg)
+                    switch(quad.quadrup[i].zero.s->onstack_reg_label)
                     {
                         case 0:
                             fprintf(f,"lw $s0,0x%x\n",quad.quadrup[i].zero.s->memory_place+DATA_SEGMENT);
@@ -97,7 +97,7 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                         if(quad.quadrup[i].one.s==NULL)
                         {
                             fprintf(f,"li $s0,%i\n",quad.quadrup[i].one.value);
-                            switch(quad.quadrup[i].zero.s->onstack_reg)
+                            switch(quad.quadrup[i].zero.s->onstack_reg_label)
                             {
                                 case 0:
                                     fprintf(f,"sw $s0,0x%x\n",quad.quadrup[i].zero.s->memory_place+DATA_SEGMENT);
@@ -115,11 +115,11 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                         }
                         else
                         {
-                            switch(quad.quadrup[i].one.s->onstack_reg)
+                            switch(quad.quadrup[i].one.s->onstack_reg_label)
                             {
                                 case 0:
                                     fprintf(f,"lw $s0,0x%x\n",quad.quadrup[i].one.s->memory_place+DATA_SEGMENT);
-                                    switch(quad.quadrup[i].zero.s->onstack_reg)
+                                    switch(quad.quadrup[i].zero.s->onstack_reg_label)
                                     {
                                         case 0:
                                             fprintf(f,"sw $s0,0x%x\n",quad.quadrup[i].zero.s->memory_place+DATA_SEGMENT);
@@ -138,7 +138,7 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                                     break;
                                 case 1:
                                     fprintf(f,"lw $s0,%i($sp)\n",quad.quadrup[i].one.s->memory_place);
-                                    switch(quad.quadrup[i].zero.s->onstack_reg)
+                                    switch(quad.quadrup[i].zero.s->onstack_reg_label)
                                     {
                                         case 0:
                                             fprintf(f,"sw $s0,0x%x\n",quad.quadrup[i].zero.s->memory_place+DATA_SEGMENT);
@@ -160,7 +160,7 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                                     break;
                                 case 3:
                                     fprintf(f,"la $s0,la%i\n",quad.quadrup[i].one.s->memory_place);
-                                    switch(quad.quadrup[i].zero.s->onstack_reg)
+                                    switch(quad.quadrup[i].zero.s->onstack_reg_label)
                                     {
                                         case 0:
                                             fprintf(f,"sw $s0,0x%x\n",quad.quadrup[i].zero.s->memory_place+DATA_SEGMENT);

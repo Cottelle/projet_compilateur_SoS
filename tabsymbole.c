@@ -39,7 +39,7 @@ struct symbole *findtable(char *id, int create)
             }
 
             tabsymbole.tab[i]->name = id;
-            tabsymbole.tab[i]->onstack_reg = 0;
+            tabsymbole.tab[i]->onstack_reg_label = 0;
             tabsymbole.tab[i]->memory_place = writememory((char *)&bidon, CELLSIZE); // reserved the place
             tabsymbole.tab[i]->nb = 1;
             tabsymbole.tab[i]->isint = 0;
@@ -73,7 +73,7 @@ struct symbole *findtable(char *id, int create)
 
         tabsymbole.size = new_size;
         tabsymbole.tab[place]->name = id;
-        tabsymbole.tab[place]->onstack_reg = 0;
+        tabsymbole.tab[place]->onstack_reg_label = 0;
         tabsymbole.tab[place]->nb = 1;
         tabsymbole.tab[place]->isint = 0;
         tabsymbole.tab[place]->memory_place = writememory((char *)&bidon, CELLSIZE); // reserved the place
@@ -88,7 +88,7 @@ struct symbole *createsymbole(struct symbole *s)
     struct symbole *sprime = findtable(s->name, 1);
     sprime->isint = s->isint;
     sprime->nb = s->nb;
-    sprime->onstack_reg = s->onstack_reg;
+    sprime->onstack_reg_label = s->onstack_reg_label;
     for (unsigned int i = 1; i < s->nb; i++)
         sprime->memory_place = writememory((char *)&i, CELLSIZE);
     // cur_memory += (s->nb - 1) * CELLSIZE; // alocate the place for the tab
@@ -101,7 +101,7 @@ struct symbole simples(void)
     struct symbole s;
     s.name = NULL;
     s.nb = 1;
-    s.onstack_reg = 0;
+    s.onstack_reg_label = 0;
     s.isint = 0;
     return s;
 }
@@ -140,7 +140,7 @@ struct symbole *clabel(char *buf)
         fprintf(stderr, "Error malloc\n");
         exit(2);
     }
-    s->onstack_reg = 3;
+    s->onstack_reg_label = 3;
 
     if (labels.size <= labels.cur_place)
     {
@@ -224,7 +224,7 @@ struct symbole *spfindtable(char *id, int create)
             }
 
             tabsp->tab[i]->name = id;
-            tabsp->tab[i]->onstack_reg = 1;
+            tabsp->tab[i]->onstack_reg_label = 1;
             tabsp->tab[i]->isint = 0;
             tabsp->tab[i]->nb = 1;   // always 1
 
@@ -261,7 +261,7 @@ struct symbole *spfindtable(char *id, int create)
 
         tabsp->size = new_size;
         tabsp->tab[place]->name = id;
-        tabsp->tab[place]->onstack_reg = 1;
+        tabsp->tab[place]->onstack_reg_label = 1;
         tabsp->tab[place]->nb = 1;   // always 1
         tabsp->tab[place]->isint = 0;
         tabsp->tab[place]->memory_place = writesp((char *)&bidon, CELLSIZE); // reserved the place
@@ -276,7 +276,7 @@ struct symbole *spcreatesymbole(struct symbole *s)
     struct symbole *sprime = spfindtable(s->name, 1);
     sprime->isint = s->isint;
     sprime->nb = 1;
-    sprime->onstack_reg = 1;
+    sprime->onstack_reg_label = 1;
 
     return sprime;
 }
@@ -286,7 +286,7 @@ struct symbole spsimples(void)
     struct symbole s;
     s.name = NULL;
     s.nb = 1;
-    s.onstack_reg = 1;
+    s.onstack_reg_label = 1;
     s.isint = 0;
     return s;
 }
@@ -326,7 +326,7 @@ struct symbole *reg(int value)
         exit(1);
     }
 
-    s->onstack_reg = 2;
+    s->onstack_reg_label = 2;
     s->isint = value;
     s->memory_place = value;
     s->name = "Registre";

@@ -16,8 +16,8 @@ struct symbole
     char *name;
     unsigned int nb;
     int memory_place;
-    char isint;       // if the isint the memory_place direct contained the value else contained the addr to the string. Also if the onstack_reg=2 contain the number of register
-    char onstack_reg; // 1 is int the stack 2 if is register (can't be on the stack and a register) 3 if is a label ... 
+    char isint;       // if the isint the memory_place direct contained the value else contained the addr to the string. Also if the onstack_reg_label=2 contain the number of register
+    char onstack_reg_label; // 1 is int the stack 2 if is register (can't be on the stack and a register) 3 if is a label ... 
 };
 
 struct tabsymbole

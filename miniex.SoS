@@ -1,2 +1,2 @@
-a= aaaaaaaaaaaaaaaa;
-b=bbbbbbbbbbbbbb
+a=aaaaaaaaaaaaaaa;
+exit (${a} + 3 * 1)
