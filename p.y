@@ -177,7 +177,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
             |read_ ID                                                                                                                       {           // faudra utiliser le label la-1 de 32
                                                                                                                                                 $$ = NULL;
                                                                                                                                                 printf(">Read \n");
-                                                                                                                                                struct symbole *id = findtable($2,1), *buf_read = malloc(sizeof());
+                                                                                                                                                struct symbole *id = findtable($2,1), *buf_read = malloc(sizeof(struct symbole));
                                                                                                                                                 gencode(AFF,avc(reg(4),-1),avc(buf_read,-1),avc(NULL,-1),0); 
                                                                                                                                                 gencode(AFF,avc(reg(5),-1),avc(NULL,SIZEREAD),avc(NULL,-1),0); 
                                                                                                                                                 gencode(SYS,avc(NULL,4),avc(NULL,-1),avc(NULL,-1),0);

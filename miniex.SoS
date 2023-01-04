@@ -1,11 +1,2 @@
-fun(1)
-{
-    local a =zzzzz;
-    a=$1;
-    b=$1
-};
-
-
-fun a ;
-
-exit 
+a= aaaaaaaaaaaaaaaa;
+b=bbbbbbbbbbbbbb
