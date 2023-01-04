@@ -700,8 +700,11 @@ APPEL_FONCTION: ID                                                              
                                                                                                     fprintf(stderr,"Error %s not declared\n",$1);
                                                                                                     exit(3);
                                                                                                 }
+                                                                                                struct symbole *s=spfindtable("_store$31",1);
+                                                                                                gencode(AFF, avc(s,-1),avc(reg(31),-1),avc(NULL,-1),0);     //store the current return value
                                                                                                 gencode(GOTO,avc(NULL,f->place),avc(NULL,-1),avc(NULL,-1),1);
-                                                                                            }
+                                                                                                gencode(AFF, avc(reg(31),-1),avc(s,-1),avc(NULL,-1),0);       //restore the current return
+                                                                                                }
             |ID                                                                     {
                                                                                         struct function *f;
                                                                                         if (!(f=findfun($1,0)))
@@ -709,7 +712,10 @@ APPEL_FONCTION: ID                                                              
                                                                                             fprintf(stderr,"Error %s not declared\n",$1);
                                                                                             exit(3);
                                                                                         }
-                                                                                        gencode(GOTO,avc(NULL,f->place),avc(NULL,-1),avc(NULL,-1),0);
+                                                                                        struct symbole *s=spfindtable("_store$31",1);               //sur la mauvaise pil a voire
+                                                                                        gencode(AFF, avc(s,-1),avc(reg(31),-1),avc(NULL,-1),0);     //store the current return value
+                                                                                        gencode(GOTO,avc(NULL,f->place),avc(NULL,-1),avc(NULL,-1),1);
+                                                                                        gencode(AFF, avc(reg(31),-1),avc(s,-1),avc(NULL,-1),0);       //restore the current return
                                                                                     }
             ;
 
