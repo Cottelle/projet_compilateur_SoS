@@ -488,9 +488,21 @@ OPERANDE:'$''{'ID'}'                          {
                                                 $$.s = findtable($3,0);
                                                 $$.addr = -1;
                                                 }
-            |'$''{'ID'['OPERANDE_ENTIER']''}' {
-                                                $$.s=NULL;
-                                                $$.addr= findtable($3,0)->memory_place;              //pb ici
+            |'$''{'ID'['OPERATEUR_ENTIER']''}' {
+                                                    struct symbole *s =findtable("_tab_temp",1);  //variable pour pouvoir manipuler les tableaux 
+                                                    struct symbole *id = findtable($3,0);
+                                                    if(!id)
+                                                    {
+                                                        fprintf(stderr,"Error ligne %i: %s is not declared \n",nligne,$3);
+                                                        exit(1);
+                                                    }
+
+                                                    gencode(AFF,avc(reg(23),-1),avc(reg(23),-1),avc(NULL,4),3);
+                                                    gencode(AFF,avc(reg(22),-1),avc(NULL,id->memory_place +DATA_SEGMENT ),avc(reg(23),-1),1);
+                                                    gencode(AFF,avc(s,-1),avc(reg(22),-1),avc(NULL,-1),-1);
+
+                                                    $$.s = s;
+                                                    $$.addr =-1;
                                                 }
             |mot                              {
                                                 $$.s=clabel($1);

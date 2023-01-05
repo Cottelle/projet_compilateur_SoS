@@ -1,7 +1,8 @@
 .data
- .space 40   #place pour les symboles
+ .space 44   #place pour les symboles
  #place pour les lables de chaine de charactere
-la1 : .asciiz "salut"
+la1 : .asciiz "bonjour"
+la2 : .asciiz " a vous"
 la0: .space 32         #the buffer for the read buffer of siez 32
   
 
@@ -22,15 +23,73 @@ add $s0,$s0,$s1
 move $22,$s0
 a3:
 move $s0,$22
-lw $s1,la1
+la $s1,la1
 sw $s1,($s0)
 a4:
-li $s0,0
-move $4,$s0
+li $s0,2
+move $23,$s0
 a5:
+move $s0,$23
+li $s1,4
+mult $s0,$s1
+mflo $s0
+move $23,$s0
+a6:
+li $s0,268500992
+move $s1,$23
+add $s0,$s0,$s1
+move $22,$s0
+a7:
+move $s0,$22
+la $s1,la2
+sw $s1,($s0)
+a8:
+li $s0,1
+move $23,$s0
+a9:
+move $s0,$23
+li $s1,4
+mult $s0,$s1
+mflo $s0
+move $23,$s0
+a10:
+li $s0,268500992
+move $s1,$23
+add $s0,$s0,$s1
+move $22,$s0
+a11:
+lw,$s0,($22)
+sw $s0,0x10010028
+a12:
+lw $s0,0x10010028
+move $4,$s0
+a13:
 li $v0,4
 syscall
-a6:
+a14:
+li $s0,2
+move $23,$s0
+a15:
+move $s0,$23
+li $s1,4
+mult $s0,$s1
+mflo $s0
+move $23,$s0
+a16:
+li $s0,268500992
+move $s1,$23
+add $s0,$s0,$s1
+move $22,$s0
+a17:
+lw,$s0,($22)
+sw $s0,0x10010028
+a18:
+lw $s0,0x10010028
+move $4,$s0
+a19:
+li $v0,4
+syscall
+a20:
 li $v0,10
 syscall
 

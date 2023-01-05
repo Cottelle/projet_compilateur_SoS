@@ -1,4 +1,5 @@
 declare a[10];
-a[ 1 ] = salut;
+a[ 1 ] = bonjour;
+a[ 2 ] = " a vous";
 
-echo ${a[ 1 ]}
+echo ${a[ 1 ]} ${a[ 2 ]}
