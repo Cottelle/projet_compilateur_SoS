@@ -36,7 +36,8 @@ void MIPSstrtoint(FILE *f)
     fprintf(f,"mult $t3,$t0\n");//on multiplie le caractere par la puissance
     fprintf(f,"mflo $t3\n");//on met le resultat dans $t3
     fprintf(f,"add $t1,$t1,$t3\n");//on ajoute le resultat a la valeur
-    fprintf(f,"mult $t0,10\n");//on multiplie la puissance par 10
+    fprintf(f,"addi $s0,$0,10\n");//on met 10 dans $s0
+    fprintf(f,"mult $t0,$s0\n");//on multiplie la puissance par 10
     fprintf(f,"mflo $t0\n");//on met le resultat dans $t0
     fprintf(f,"addi $t4,$t4,-1\n");//on decremente l'adresse de la chaine de caractere
     fprintf(f,"j strtointboucle\n");//on recommence
@@ -50,9 +51,7 @@ void MIPSstrtoint(FILE *f)
     fprintf(f,"j strtointfin\n");//on va à la fin
 
     fprintf(f,"\nerror:\n");
-    fprintf(f,"li $v0,4\n");
-    fprintf(f,"la $a0,erreur\n");
-    fprintf(f,"syscall\n");
+    fprintf(f,"li $t1,0\n");//si erreur on met retourne 0
     fprintf(f,"li $v0,10\n");
     fprintf(f,"syscall\n");
 

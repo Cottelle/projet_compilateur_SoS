@@ -312,7 +312,8 @@ addi $t3,$t3,-48
 mult $t3,$t0
 mflo $t3
 add $t1,$t1,$t3
-mult $t0,10
+addi $s0,$0,10
+mult $t0,$s0
 mflo $t0
 addi $t4,$t4,-1
 j strtointboucle
@@ -326,9 +327,7 @@ addi $t2,$t2,1
 j strtointfin
 
 error:
-li $v0,4
-la $a0,erreur
-syscall
+li $t1,0
 li $v0,10
 syscall
 
