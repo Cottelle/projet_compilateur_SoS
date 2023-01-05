@@ -1,1 +1,3 @@
-read a
+for i in aze qsd d do 
+echo ${i}
+done

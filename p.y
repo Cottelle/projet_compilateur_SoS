@@ -85,7 +85,7 @@ unsigned int nbfor;
 %%
 
                                                                                                                                                 
-PROGRAMME : {clabel("Bidon: C'est pour read");} LISTE_INTRSUCTIONS      {gencode(SYS,avc(NULL,10),avc(NULL,-1),avc(NULL,-1),0); }     //On ecrit l'endroit de la mémoire ici pour pouvoir dans le code generer acceder a cette memoire ( par ex dans read)
+PROGRAMME : {clabel("Bidon: C'est pour read"); } LISTE_INTRSUCTIONS      {gencode(SYS,avc(NULL,10),avc(NULL,-1),avc(NULL,-1),0); }     //On ecrit l'endroit de la mémoire ici pour pouvoir dans le code generer acceder a cette memoire ( par ex dans read)
             ;
 
 LISTE_INTRSUCTIONS: LISTE_INTRSUCTIONS ';'INSTRUCTION   {
@@ -152,7 +152,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                     gencode(CALL,avc((struct symbole *)(createbuf("a%i",quad.next+1)),-1),avc(NULL,-1),avc(NULL,-1),1);
 
 
-                                                                                                                                                    gencode(AFF,avc(findtable(createbuf("_for%i",++nbfor),1),-1),avc(reg(31),-1),avc(NULL,-1),0);
+                                                                                                                                                    gencode(AFF,avc(findtable(createbuf("_for%i",++nbfor),1),-1),avc(reg(31),-1),avc(NULL,7*4),1);  //regarder sur le code mips generer
                                                                                                                                                     gencode(AFF,avc(reg(31),-1),avc(reg(22),-1),avc(NULL,-1),0);
                                                                                                                                                 }
                  M LISTE_OPERANDES do_ M                                                                                                            {
@@ -161,7 +161,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                         complete($6.value, avc(findtable($2,1),-1));
 
                                                                                                                                                         complete($6.start,avc(NULL,quad.next));
-                                                                                                                                                        gencode(AFF,avc(findtable(buf,0),-1),avc(findtable(buf,0),-1),avc(NULL,2),1);
+                                                                                                                                                        gencode(AFF,avc(findtable(buf,0),-1),avc(findtable(buf,0),-1),avc(NULL,5*4),1);
                                                                                                                                                       free(buf);
 
                                                                                                                                                      } 
