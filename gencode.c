@@ -229,27 +229,6 @@ struct addval casetop(void)
     return ret;
 }
 
-lpos *arggencode(lpos **start)
-{
-    struct lpos *value = NULL;
-    *start = NULL;
-
-    for (unsigned int i = 0; i < nbarg; i++)
-    {
-        char buf[4];
-        if (snprintf(buf, 4, "$%i", i + 1) < 0)
-        {
-            fprintf(stderr, "Error snprintf\n");
-            exit(1);
-        }
-        value = concat(value, crelist(quad.next));
-        gencode(AFF, avc(NULL, -1), avc(findtable(buf, 0), -1), avc(NULL, -1), 0); // les argument sont quelque part je sais pas où 's' 'p' à la place
-        *start = concat(*start, crelist(quad.next));
-        gencode(GOTO, avc(NULL, -1), avc(NULL, -1), avc(NULL, -1), 0);
-    }
-
-    return value;
-}
 
 /* struct symbole *stackpush(char *name,int value)
 {

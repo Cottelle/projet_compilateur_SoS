@@ -20,6 +20,7 @@ unsigned int infun;
 extern unsigned int cur_sp, cur_memory;             //cur_sp utilisé dans appel fonction
 void yyerror(const char *msg);
 void aff_foc_pc(int);
+lpos *arggencode(lpos **start);
 
 unsigned int nbfor;
 
@@ -134,10 +135,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                 $$ = concat($$ , $8);
                                                                                                                                             }
             |for_ ID                                                                                                                        {
-                                                                                                                                                gencode(AFF,avc(reg(22),-1),avc(reg(31),-1),avc(NULL,-1),0);
-                                                                                                                                                gencode(CALL,avc((struct symbole *)(createbuf("a%i",quad.next+1)),-1),avc(NULL,-1),avc(NULL,-1),1);
-                                                                                                                                                gencode(AFF,avc(findtable(createbuf("_for%i",++nbfor),1),-1),avc(reg(31),-1),avc(NULL,7*4),1);  // 7-> regarder sur le code mips generer
-                                                                                                                                                gencode(AFF,avc(reg(31),-1),avc(reg(22),-1),avc(NULL,-1),0);
+                                                                                                                                                nbfor++;
                                                                                                                                             }  
                 do_ M                                                                                                                        <next>{
                                                                                                                                                     lpos *start;
@@ -147,12 +145,11 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                     gencode(GOTO,avc(NULL,-1),avc(NULL,-1),avc(NULL,-1),0);
                                                                                                                                                     complete(value, avc(findtable($2,1),-1));
                                                                                                                                                     complete(start,avc(NULL,quad.next));
-                                                                                                                                                    gencode(AFF,avc(findtable(buf,0),-1),avc(findtable(buf,0),-1),avc(NULL,7*4),1);
                                                                                                                                                  } 
                 LISTE_INTRSUCTIONS done                                                                                                         {
                                                                                                                                                         printf(">for in (%i)\n",findtable($2,1)->memory_place); 
                                                                                                                                                         $$ =$6; 
-                                                                                                                                                        gencode(GOTO,avc(findtable(createbuf("_for%i",nbfor--),0),-1),avc(NULL,-1),avc(NULL,-1),0); 
+                                                                                                                                                        gencode(GOTO,avc(findtable(createbuf("_for%i",nbfor--),1),-1),avc(NULL,-1),avc(NULL,-1),0); 
                                                                                                                                                 }
             |for_ ID in                                                                                                                         {
                                                                                                                                                     nbfor++;
@@ -213,6 +210,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                     fprintf(stderr,"Error %s is not declared (use decalre %s[int])\n",$2,$2);
                                                                                                                                                     exit(1);
                                                                                                                                                 }
+                                                                                                                                                gencode(AFF,avc(reg(23),-1) ,avc(reg(23),-1),avc(NULL,4),3);         
                                                                                                                                                 gencode(AFF,avc(reg(22),-1) ,avc(NULL,s->memory_place*4 +DATA_SEGMENT),avc(reg(23),-1),1);          //addr ds reg(22)
 
                                                                                                                                                 struct symbole *s31=spfindtable("_store$31",1);
@@ -800,4 +798,30 @@ void aff_foc_pc(int off)                // _fori = pc+off*4
     gencode(CALL,avc((struct symbole *)(createbuf("a%i",quad.next+1)),-1),avc(NULL,-1),avc(NULL,-1),1);
     gencode(AFF,avc(findtable(createbuf("_for%i",nbfor),1),-1),avc(reg(31),-1),avc(NULL,off*4+4),1);  
     gencode(AFF,avc(reg(31),-1),avc(reg(22),-1),avc(NULL,-1),0);
+}
+
+
+
+
+lpos *arggencode(lpos **start)
+{
+    struct lpos *value = NULL;
+    *start = NULL;
+
+    for (unsigned int i = 0; i < nbarg; i++)
+    {
+        char buf[4];
+        if (snprintf(buf, 4, "$%i", i + 1) < 0)
+        {
+            fprintf(stderr, "Error snprintf\n");
+            exit(1);
+        }
+        value = concat(value, crelist(quad.next));
+        gencode(AFF, avc(NULL, -1), avc(findtable(buf, 0), -1), avc(NULL, -1), 0); // les argument sont quelque part je sais pas où 's' 'p' à la place
+        aff_foc_pc(7);
+        *start = concat(*start, crelist(quad.next));
+        gencode(GOTO, avc(NULL, -1), avc(NULL, -1), avc(NULL, -1), 0);
+    }
+
+    return value;
 }
