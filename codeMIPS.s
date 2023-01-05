@@ -1,95 +1,79 @@
 .data
- .space 12   #place pour les symboles
+ .space 8   #place pour les symboles
  #place pour les lables de chaine de charactere
-la1 : .asciiz "blabla"
-la2 : .asciiz "blabla"
-la3 : .asciiz "i"
-la4 : .asciiz "ab"
+la1 : .asciiz "Hello"
+la2 : .asciiz " "
+la3 : .asciiz "World"
 la0: .space 32         #the buffer for the read buffer of siez 32
   
 
  .text
 a0:
-j a17
-a1:
 la $s0,la1
-sw $s0,0x10010000
+sw $s0,0x10010004
+a1:
+move $s0,$31
+move $22,$s0
 a2:
-j a3
+jal a3
 a3:
+move $s0,$31
+li $s1,32
+add $s0,$s0,$s1
+sw $s0,0x10010000
+a4:
+move $s0,$22
+move $31,$s0
+a5:
+j a19
+a6:
 la $s0,la2
 sw $s0,0x10010004
-a4:
-j a5
-a5:
-li $s0,0
-sw $s0,0x10010008
-a6:
-lw $s0,8($sp)
-move $4,$s0
 a7:
-li $v0,4
-syscall
+move $s0,$31
+move $22,$s0
 a8:
-move $s0,$29
-sw $s0,12($sp)
+jal a9
 a9:
 move $s0,$31
-sw $s0,16($sp)
-a10:
-move $s0,$29
-li $s1,20
+li $s1,32
 add $s0,$s0,$s1
-move $29,$s0
+sw $s0,0x10010000
+a10:
+move $s0,$22
+move $31,$s0
 a11:
-la $s0,la2
-sw $s0,0($sp)
+j a19
 a12:
 la $s0,la3
-sw $s0,4($sp)
+sw $s0,0x10010004
 a13:
-jal a1
+move $s0,$31
+move $22,$s0
 a14:
-lw $s0,-4($sp)
-move $31,$s0
+jal a15
 a15:
-lw $s0,-8($sp)
-move $29,$s0
-a16:
 move $s0,$31
-jr $s0
-a17:
-move $s0,$29
-sw $s0,0($sp)
-a18:
-move $s0,$31
-sw $s0,4($sp)
-a19:
-move $s0,$29
-li $s1,8
+li $s1,32
 add $s0,$s0,$s1
-move $29,$s0
-a10:
-la $s0,la3
-sw $s0,0($sp)
-a11:
-la $s0,la4
-sw $s0,4($sp)
-a22:
-jal a1
-a23:
-lw $s0,-4($sp)
+sw $s0,0x10010000
+a16:
+move $s0,$22
 move $31,$s0
-a24:
-lw $s0,-8($sp)
-move $29,$s0
-a15:
+a17:
+j a19
+a18:
+j a22
+a19:
 lw $s0,0x10010004
 move $4,$s0
-a16:
+a20:
 li $v0,4
 syscall
-a17:
+a21:
+lw $s0,0x10010000
+jr $s0
+a22:
 li $v0,10
 syscall
 
@@ -129,6 +113,11 @@ jr $31					#resulat ds $11
 #the value allocated is in $11
 
 strconcat:
+jal strlen
+jal strlen2
+add $t0,$t0,$t3
+li $v0,9
+syscall
 
 strconcatboucle:
 lb $t1,0($a0)
@@ -162,4 +151,17 @@ addi $t0,$t0,1
 j strlenboucle
 
 strlenfin:
+jr $ra
+
+strlen2:
+li $t3,0
+
+strlen2boucle:
+lb $t1,0($a1)
+beq $t1,$zero,strlen2fin
+addi $a1,$a1,1
+addi $t3,$t3,1
+j strlen2boucle
+
+strlen2fin:
 jr $ra

@@ -89,11 +89,28 @@ struct symbole *createsymbole(struct symbole *s)
     sprime->isint = s->isint;
     sprime->nb = s->nb;
     sprime->onstack_reg_label = s->onstack_reg_label;
+    sprime->memory_place = writememory("sos", CELLSIZE);
     for (unsigned int i = 1; i < s->nb; i++)
-        sprime->memory_place = writememory((char *)&i, CELLSIZE);
+        writememory((char *)&i, CELLSIZE);
     // cur_memory += (s->nb - 1) * CELLSIZE; // alocate the place for the tab
 
     return sprime;
+}
+
+
+struct symbole *createtab(char *name,int size)
+{
+    struct symbole *s = findtable(name,0);
+    if(s)
+        s->name[0]='_';                 //destruction du precedent symbole
+
+    s =findtable(name,1);  //le creer
+    s->nb =size;
+    s->isint = 0;
+    s->onstack_reg_label =0;
+    for (unsigned int i = 1; i < s->nb; i++)
+        writememory((char *)&i, CELLSIZE);
+    return s;
 }
 
 struct symbole simples(void)
@@ -340,11 +357,10 @@ unsigned int stack_off(void)
     struct tabsymbolesp *tabsp = &tabsymbolesp;
     while (tabsp->next != NULL) // find the last
         tabsp = tabsp->next;
-    int i=0;
-    while (i <tabsp->size && tabsp->tab[i])
+    int i = 0;
+    while (i < tabsp->size && tabsp->tab[i])
         i++;
     return i;
-    
 }
 
 struct symbole *stack(int off)
