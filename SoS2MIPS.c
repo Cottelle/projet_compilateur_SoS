@@ -251,6 +251,42 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                 }
                 switch(quad.quadrup[i].type)
                 {
+                    case -2://affectation indirecte de type lw a,$i
+                        fprintf(f,"move $s0,$%i\n",quad.quadrup[i].one.s->isint);
+                        switch(quad.quadrup[i].zero.s->onstack_reg_label)
+                        {
+                            case 0:
+                                fprintf(f,"sw $s0,0x%x\n",quad.quadrup[i].zero.s->memory_place+DATA_SEGMENT);
+                                break;
+                            case 1:
+                                fprintf(f,"sw $s0,%i($sp)\n",quad.quadrup[i].zero.s->memory_place);
+                                break;
+                            case 2:
+                                fprintf(f,"move $%i,$s0\n",quad.quadrup[i].zero.s->isint);
+                                break;
+                            default:
+                                printf("Error: variable not found");
+                                exit(1);
+                        }
+                        break;
+                    case -1://affectation indirecte de type sw $i,a
+                        switch(quad.quadrup[i].one.s->onstack_reg_label)
+                        {
+                            case 0:
+                                fprintf(f,"lw $s0,0x%x\n",quad.quadrup[i].one.s->memory_place+DATA_SEGMENT);
+                                break;
+                            case 1:
+                                fprintf(f,"lw $s0,%i($sp)\n",quad.quadrup[i].one.s->memory_place);
+                                break;
+                            case 2:
+                                fprintf(f,"move $s0,$%i\n",quad.quadrup[i].one.s->isint);
+                                break;
+                            default:
+                                printf("Error: variable not found");
+                                exit(1);
+                        }
+                        fprintf(f,"move $%i,$s0\n",quad.quadrup[i].zero.s->isint);
+                        break;
                     case 0://affectation simple
                         if(quad.quadrup[i].one.s==NULL)
                         {
