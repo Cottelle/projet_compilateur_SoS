@@ -8,9 +8,9 @@ void MIPSstrtoint(FILE *f)
     //on se place au dernier caractere
     fprintf(f,"\ninitboucle:\n");
     fprintf(f,"lb $t1,0($a0)\n");//on charge le caractere dans $t1
-    fprintf(f,"beq $t1,$zero,strlenfin\n");//si le caractere est nul on sort de la boucle
+    fprintf(f,"beq $t1,$zero,initfin\n");//si le caractere est nul on sort de la boucle
     fprintf(f,"addi $a0,$a0,1\n");//on incremente l'adresse de la chaine de caractere
-    fprintf(f,"j strlenboucle\n");//on recommence
+    fprintf(f,"j initboucle\n");//on recommence
 
     fprintf(f,"\ninitfin:\n");//on a fini de se placer au dernier caractere
     fprintf(f,"addi $a0,$a0,-1\n");//on decremente l'adresse de la chaine de caractere
