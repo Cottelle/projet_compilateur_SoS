@@ -19,6 +19,7 @@ unsigned int infun;
 
 extern unsigned int cur_sp, cur_memory;             //cur_sp utilisé dans appel fonction
 void yyerror(const char *msg);
+void aff_foc_pc(int);
 
 unsigned int nbfor;
 
@@ -154,19 +155,13 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                         gencode(GOTO,avc(findtable(createbuf("_for%i",nbfor--),0),-1),avc(NULL,-1),avc(NULL,-1),0); 
                                                                                                                                                 }
             |for_ ID in                                                                                                                         {
-                                                                                                                                                    gencode(AFF,avc(reg(22),-1),avc(reg(31),-1),avc(NULL,-1),0);
-                                                                                                                                                    gencode(CALL,avc((struct symbole *)(createbuf("a%i",quad.next+1)),-1),avc(NULL,-1),avc(NULL,-1),1);
-                                                                                                                                                    gencode(AFF,avc(findtable(createbuf("_for%i",++nbfor),1),-1),avc(reg(31),-1),avc(NULL,7*4),1);  //7->regarder sur le code mips generer
-                                                                                                                                                    gencode(AFF,avc(reg(31),-1),avc(reg(22),-1),avc(NULL,-1),0);
+                                                                                                                                                    nbfor++;
                                                                                                                                                 }
                  M LISTE_OPERANDES do_ M                                                                                                            {
-                                                                                                                                                        char *buf = createbuf("_for%i",nbfor);
                                                                                                                                                         gencode(GOTO,avc(NULL,-1),avc(NULL,-1),avc(NULL,-1),0);
                                                                                                                                                         complete($6.value, avc(findtable($2,1),-1));
 
                                                                                                                                                         complete($6.start,avc(NULL,quad.next));
-                                                                                                                                                        gencode(AFF,avc(findtable(buf,0),-1),avc(findtable(buf,0),-1),avc(NULL,5*4),1);
-                                                                                                                                                      free(buf);
 
                                                                                                                                                      } 
                 LISTE_INTRSUCTIONS done                                                                                                         {
@@ -353,31 +348,41 @@ FILTRE: ID                          {
 
 
 LISTE_OPERANDES:LISTE_OPERANDES OPERANDE {
-                                            $$.start = concat($1.start,crelist(quad.next+1)); 
                                             $$.value = concat($1.value, crelist(quad.next));
-                                             gencode(AFF,avc(NULL,-1),avc($2.s,$2.addr),avc(NULL,-1),0); 
+                                             gencode(AFF,avc(NULL,-1),avc($2.s,$2.addr),avc(NULL,-1),0);
+                                             aff_foc_pc(7);                         //aff va renvoyer apres ce goto
+                                            $$.start = concat($1.start,crelist(quad.next)); 
                                              gencode(GOTO,avc(NULL,-1),avc(NULL,-1),avc(NULL,-1),0);
+                                            
                                         } 
             |OPERANDE                   {
-                                            $$.start = crelist(quad.next+1) ;
                                             $$.value = crelist(quad.next);
                                             gencode(AFF,avc(NULL,-1),avc($1.s,$1.addr),avc(NULL,-1),0);
+                                            aff_foc_pc(7);
+                                            $$.start = crelist(quad.next) ;
                                             gencode(GOTO,avc(NULL,-1),avc(NULL,-1),avc(NULL,-1),0);
                                         }
             |'$''{'ID'[''*'']''}'        { 
                                             struct symbole *id= findtable($3,0); 
                                             if(!id) 
                                             {
-                                                fprintf(stderr,"Error %s is Unknow \n",$3); 
+                                                fprintf(stderr,"Error %s is Unknow declare it \n",$3); 
                                                 exit(2); 
                                             } 
                                             $$.start=NULL;
                                             $$.value= NULL;
                                             for(int i=0 ;i<id->nb ; i++)
                                             {
-                                                $$.start = concat($$.start,crelist(quad.next+1));
                                                 $$.value = concat($$.value, crelist(quad.next));
-                                                gencode(AFF,avc(NULL,-1),avc(NULL,id->memory_place+i*CELLSIZE),avc(NULL,-1),0);      //pb car c'est une addr et pas direct ... a mediter quand les tab seront elusider
+                                                struct symbole *s = malloc(sizeof(*s));
+                                                s->memory_place = id->memory_place + i*4;
+                                                s->isint = id->isint;
+                                                s->nb=1;
+                                                s->name="_for_for";
+                                                s->onstack_reg_label =0;
+                                                gencode(AFF,avc(NULL,-1),avc(s,-1),avc(NULL,-1),0);
+                                                aff_foc_pc(7);
+                                                $$.start = concat($$.start,crelist(quad.next));
                                                 gencode(GOTO,avc(NULL,-1),avc(NULL,-1),avc(NULL,-1),0);
                                             }
                                         } 
@@ -785,4 +790,14 @@ M: %empty { $$ = quad.next;}
 void yyerror(const char *msg)
 {
     fprintf(stderr,"%s ligne %i\n",msg,nligne+1);
+}
+
+
+
+void aff_foc_pc(int off)                // _fori = pc+off*4
+{
+    gencode(AFF,avc(reg(22),-1),avc(reg(31),-1),avc(NULL,-1),0);
+    gencode(CALL,avc((struct symbole *)(createbuf("a%i",quad.next+1)),-1),avc(NULL,-1),avc(NULL,-1),1);
+    gencode(AFF,avc(findtable(createbuf("_for%i",nbfor),1),-1),avc(reg(31),-1),avc(NULL,off*4+4),1);  
+    gencode(AFF,avc(reg(31),-1),avc(reg(22),-1),avc(NULL,-1),0);
 }
