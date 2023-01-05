@@ -1,4 +1,4 @@
 declare a[10];
-a[ 2 * 1 ] = salut;
+a[ 1 ] = salut;
 
-read a[1]
+echo ${a[ 1 ]}

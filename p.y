@@ -7,6 +7,7 @@
 
 #define SIZEREAD 32
 #define CELLSIZE 4
+#define DATA_SEGMENT 0x10010000
 
 extern int yylex(void);
 extern struct quad quad;
@@ -114,8 +115,9 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                     fprintf(stderr,"Error %s is not declared (use decalre %s[int])\n",$1,$1);
                                                                                                                                                     exit(1);
                                                                                                                                                 }
-                                                                                                                                                gencode(AFF,avc(reg(22),-1) ,avc(NULL,s->memory_place),avc(reg(23),-1),1);          //addr ds reg(22)
-                                                                                                                                                gencode(AFF,avc(reg(22),-1),avc($3.s,$3.addr) ,avc(NULL,-1), -1);   //STORE indirect sw CONCAT, ($22)
+                                                                                                                                                gencode(AFF,avc(reg(23),-1),avc(reg(23),-1),avc(NULL,4),3);
+                                                                                                                                                gencode(AFF,avc(reg(22),-1) ,avc(NULL,s->memory_place + DATA_SEGMENT),avc(reg(23),-1),1);          //addr ds reg(22)
+                                                                                                                                                gencode(AFF,avc(reg(22),-1),avc($6.s,$6.addr) ,avc(NULL,-1), -2);   //STORE indirect sw CONCAT, ($22)
                                                                                                                                             } 
             |declare ID'['entier']'                                                                                                                     {
                                                                                                                                                 $$= NULL;
@@ -216,14 +218,14 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                     fprintf(stderr,"Error %s is not declared (use decalre %s[int])\n",$2,$2);
                                                                                                                                                     exit(1);
                                                                                                                                                 }
-                                                                                                                                                gencode(AFF,avc(reg(22),-1) ,avc(NULL,s->memory_place),avc(reg(23),-1),1);          //addr ds reg(22)
+                                                                                                                                                gencode(AFF,avc(reg(22),-1) ,avc(NULL,s->memory_place*4 +DATA_SEGMENT),avc(reg(23),-1),1);          //addr ds reg(22)
 
                                                                                                                                                 struct symbole *s31=spfindtable("_store$31",1);
 
                                                                                                                                                 gencode(AFF, avc(s31,-1),avc(reg(31),-1),avc(NULL,-1),0);
                                                                                                                                                 
                                                                                                                                                 gencode(CALL,avc((struct symbole *)"_read",-1),avc(NULL,-1),avc(NULL,-1),0);
-                                                                                                                                                gencode(AFF,avc(reg(22),-1),avc(reg(11),-1),avc(NULL,-1),-1);    // dans $11 il y a le char lu et aloué
+                                                                                                                                                gencode(AFF,avc(reg(22),-1),avc(reg(11),-1),avc(NULL,-1),-2);    // dans $11 il y a le char lu et aloué
                                                                                                                                                 gencode(AFF, avc(reg(31),-1),avc(s31,-1),avc(NULL,-1),0);
                                                                                                                                             }
             |DECLARATION_FONTION                                                                                                            {

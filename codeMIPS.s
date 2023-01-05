@@ -7,38 +7,30 @@ la0: .space 32         #the buffer for the read buffer of siez 32
 
  .text
 a0:
-li $s0,2
+li $s0,1
 move $23,$s0
 a1:
 move $s0,$23
-li $s1,1
+li $s1,4
 mult $s0,$s1
 mflo $s0
 move $23,$s0
 a2:
-li $s0,0
+li $s0,268500992
 move $s1,$23
 add $s0,$s0,$s1
 move $22,$s0
 a3:
+move $s0,$22
+lw $s1,la1
+sw $s1,($s0)
 a4:
-li $s0,1
-move $23,$s0
-a5:
 li $s0,0
-move $s1,$23
-add $s0,$s0,$s1
-move $22,$s0
+move $4,$s0
+a5:
+li $v0,4
+syscall
 a6:
-move $s0,$31
-sw $s0,0($sp)
-a7:
-jal _read
-a8:
-a9:
-lw $s0,0($sp)
-move $31,$s0
-a10:
 li $v0,10
 syscall
 
@@ -78,26 +70,31 @@ jr $31					#resulat ds $11
 #the value allocated is in $11
 
 strconcat:
+jal strlen
+jal strlen2
+add $t0,$t0,$t3
+li $v0,9
+syscall
 
 strconcatboucle:
 lb $t1,0($a0)
 beq $t1,$zero,boucledeuxiemechaine
-sb $t1,0($a2)
+sb $t1,0($v0)
 addi $a0,$a0,1
-addi $a2,$a2,1
+addi $v0,$v0,1
 j strconcatboucle
 
 boucledeuxiemechaine:
 lb $t1,0($a1)
 beq $t1,$zero,strconcatfin
-sb $t1,0($a2)
+sb $t1,0($v0)
 addi $a1,$a1,1
-addi $a2,$a2,1
+addi $v0,$v0,1
 j boucledeuxiemechaine
 
 strconcatfin:
 li $t1,0
-sb $t1,0($a2)
+sb $t1,0($v0)
 jr $ra
 
 strlen:
@@ -111,4 +108,17 @@ addi $t0,$t0,1
 j strlenboucle
 
 strlenfin:
+jr $ra
+
+strlen2:
+li $t3,0
+
+strlen2boucle:
+lb $t1,0($a1)
+beq $t1,$zero,strlen2fin
+addi $a1,$a1,1
+addi $t3,$t3,1
+j strlen2boucle
+
+strlen2fin:
 jr $ra

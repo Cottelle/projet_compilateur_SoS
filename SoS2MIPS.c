@@ -17,6 +17,23 @@ void MIPSstrlen(FILE *f)
     fprintf(f,"jr $ra\n");//on retourne
 }
 
+void MIPSstrlen2(FILE *f)
+{
+    fprintf(f,"\nstrlen2:\n");
+
+    fprintf(f,"li $t3,0\n");// compteur de caractere
+
+    fprintf(f,"\nstrlen2boucle:\n");
+    fprintf(f,"lb $t1,0($a1)\n");//on charge le caractere dans $t1
+    fprintf(f,"beq $t1,$zero,strlen2fin\n");//si le caractere est nul on sort de la boucle
+    fprintf(f,"addi $a1,$a1,1\n");//on incremente l'adresse de la chaine de caractere
+    fprintf(f,"addi $t3,$t3,1\n");//on incremente le compteur de caractere
+    fprintf(f,"j strlen2boucle\n");//on recommence
+
+    fprintf(f,"\nstrlen2fin:\n");//on a fini de compter
+    fprintf(f,"jr $ra\n");//on retourne
+}
+
 void MIPSstrcompare(FILE *f)
 {
     fprintf(f,"\nstrcompare:\n");
@@ -48,27 +65,33 @@ void MIPSstrcompare(FILE *f)
 void MIPSstrconcat(FILE *f)
 {
     fprintf(f,"\nstrconcat:\n");
+    fprintf(f,"jal strlen\n");//on calcule la taille de la 1ere chaine de caractere dans $t0
+    fprintf(f,"jal strlen2\n");//on calcule la taille de la 2eme chaine de caractere dans $t3
+    fprintf(f,"add $t0,$t0,$t3\n");//on additionne les 2 tailles
+    
+    fprintf(f,"li $v0,9\n");//on charge 9 dans $v0 pour allouer de la memoire
+    fprintf(f,"syscall\n");//on alloue de la memoire pour la chaine de caractere concatenee
 
     fprintf(f,"\nstrconcatboucle:\n");
     fprintf(f,"lb $t1,0($a0)\n");//on charge le caractere dans $t1
     fprintf(f,"beq $t1,$zero,boucledeuxiemechaine\n");//si le caractere est nul on sort de la boucle
-    fprintf(f,"sb $t1,0($a2)\n");//on ecrit le caractere dans la chaine de caractere concatenee
+    fprintf(f,"sb $t1,0($v0)\n");//on ecrit le caractere dans la chaine de caractere concatenee
     fprintf(f,"addi $a0,$a0,1\n");//on incremente l'adresse de la 1ere chaine de caractere
-    fprintf(f,"addi $a2,$a2,1\n");//on incremente l'adresse de la chaine de caractere concatene
+    fprintf(f,"addi $v0,$v0,1\n");//on incremente l'adresse de la chaine de caractere concatene
     fprintf(f,"j strconcatboucle\n");//on recommence
 
     fprintf(f,"\nboucledeuxiemechaine:\n");
     fprintf(f,"lb $t1,0($a1)\n");//on charge le caractere dans $t1
     fprintf(f,"beq $t1,$zero,strconcatfin\n");//si le caractere est nul on sort de la boucle
-    fprintf(f,"sb $t1,0($a2)\n");//on ecrit le caractere dans la chaine de caractere concatenee
+    fprintf(f,"sb $t1,0($v0)\n");//on ecrit le caractere dans la chaine de caractere concatenee
     fprintf(f,"addi $a1,$a1,1\n");//on incremente l'adresse de la 2eme chaine de caractere
-    fprintf(f,"addi $a2,$a2,1\n");//on incremente l'adresse de la chaine de caractere concatene
+    fprintf(f,"addi $v0,$v0,1\n");//on incremente l'adresse de la chaine de caractere concatene
     fprintf(f,"j boucledeuxiemechaine\n");//on recommence
 
 
     fprintf(f,"\nstrconcatfin:\n");
     fprintf(f,"li $t1,0\n");//on met 0 dans $t1 pour dire que le caractere est nul
-    fprintf(f,"sb $t1,0($a2)\n");//on ecrit le caractere nul dans la chaine de caractere concatenee
+    fprintf(f,"sb $t1,0($v0)\n");//on ecrit le caractere nul dans la chaine de caractere concatenee
     fprintf(f,"jr $ra\n");//on retourne
 }
 
@@ -223,11 +246,57 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
             case AFF:
                 if(quad.quadrup[i].zero.s==NULL)
                 {
-                    printf("Error: variable not found");
+                    printf("Error: variable not found \n");
                     exit(1);
                 }
                 switch(quad.quadrup[i].type)
                 {
+                    case -2://affectation indirecte de type lw a,$i
+                        fprintf(f,"move $s0,$%i\n",quad.quadrup[i].zero.s->isint);          //zero forcement un registre
+                        if(!quad.quadrup[i].one.s)
+                                fprintf(f,"lw $s1,0x%x\n",quad.quadrup[i].one.value+DATA_SEGMENT);
+
+                        else
+                        {
+                            switch(quad.quadrup[i].one.s->onstack_reg_label)
+                            {
+                                case 0:
+                                    fprintf(f,"lw $s1,0x%x\n",quad.quadrup[i].one.s->memory_place+DATA_SEGMENT);
+                                    break;
+                                case 1:
+                                    fprintf(f,"lw $s1,%i($sp)\n",quad.quadrup[i].one.s->memory_place);
+                                    break;
+                                case 2:
+                                    fprintf(f,"move $s1,$s%i\n",quad.quadrup[i].one.s->isint);
+                                    break;
+                                case 3:
+                                    fprintf(f,"lw $s1,la%i\n",quad.quadrup[i].one.s->isint);
+                                    break;
+                                default:
+                                    printf("Error: variable not found \n");
+                                    exit(1);
+                            }
+                        }
+                        fprintf(f,"sw $s1,($s0)\n");
+                        break;
+                    case -1://affectation indirecte de type sw $i,a
+                        switch(quad.quadrup[i].one.s->onstack_reg_label)
+                        {
+                            case 0:
+                                fprintf(f,"lw $s0,0x%x\n",quad.quadrup[i].one.s->memory_place+DATA_SEGMENT);
+                                break;
+                            case 1:
+                                fprintf(f,"lw $s0,%i($sp)\n",quad.quadrup[i].one.s->memory_place);
+                                break;
+                            case 2:
+                                fprintf(f,"move $s0,$%i\n",quad.quadrup[i].one.s->isint);
+                                break;
+                            default:
+                                printf("Error: variable not found");
+                                exit(1);
+                        }
+                        fprintf(f,"move $%i,$s0\n",quad.quadrup[i].zero.s->isint);
+                        break;
                     case 0://affectation simple
                         if(quad.quadrup[i].one.s==NULL)
                         {
@@ -711,4 +780,5 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
         MIPSstrcompare(f);
     MIPSstrconcat(f);
     MIPSstrlen(f);
+    MIPSstrlen2(f);
 }//fin fonction
