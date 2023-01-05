@@ -9,166 +9,190 @@ a0:
 li $s0,0
 move $23,$s0
 a1:
+move $s0,$23
+li $s1,4
+mult $s0,$s1
+mflo $s0
+move $23,$s0
+a2:
 li $s0,268500992
 move $s1,$23
 add $s0,$s0,$s1
 move $22,$s0
-a2:
+a3:
 move $s0,$31
 sw $s0,0($sp)
-a3:
-jal _read
 a4:
-move $s0,$22
-move $s1,$s11
-sw $s1,($s0)
+jal _read
 a5:
+move $s0,$22
+move $s1,$11
+sw $s1,($s0)
+a6:
 lw $s0,0($sp)
 move $31,$s0
-a6:
+a7:
 li $s0,1
 move $23,$s0
-a7:
+a8:
+move $s0,$23
+li $s1,4
+mult $s0,$s1
+mflo $s0
+move $23,$s0
+a9:
 li $s0,268500992
 move $s1,$23
 add $s0,$s0,$s1
 move $22,$s0
-a8:
+a10:
 move $s0,$31
 sw $s0,0($sp)
-a9:
-jal _read
-a10:
-move $s0,$22
-move $s1,$s11
-sw $s1,($s0)
 a11:
+jal _read
+a12:
+move $s0,$22
+move $s1,$11
+sw $s1,($s0)
+a13:
 lw $s0,0($sp)
 move $31,$s0
-a12:
+a14:
 li $s0,2
 move $23,$s0
-a13:
+a15:
+move $s0,$23
+li $s1,4
+mult $s0,$s1
+mflo $s0
+move $23,$s0
+a16:
 li $s0,268500992
 move $s1,$23
 add $s0,$s0,$s1
 move $22,$s0
-a14:
+a17:
 move $s0,$31
 sw $s0,0($sp)
-a15:
+a18:
 jal _read
-a16:
+a19:
 move $s0,$22
-move $s1,$s11
+move $s1,$11
 sw $s1,($s0)
-a17:
+a20:
 lw $s0,0($sp)
 move $31,$s0
-a18:
+a21:
 li $s0,3
 move $23,$s0
-a19:
+a22:
+move $s0,$23
+li $s1,4
+mult $s0,$s1
+mflo $s0
+move $23,$s0
+a23:
 li $s0,268500992
 move $s1,$23
 add $s0,$s0,$s1
 move $22,$s0
-a20:
+a24:
 move $s0,$31
 sw $s0,0($sp)
-a21:
+a25:
 jal _read
-a22:
+a26:
 move $s0,$22
-move $s1,$s11
+move $s1,$11
 sw $s1,($s0)
-a23:
+a27:
 lw $s0,0($sp)
 move $31,$s0
-a24:
+a28:
 lw $s0,0x10010000
 sw $s0,0x10010014
-a25:
+a29:
 move $s0,$31
 move $22,$s0
-a26:
-jal a27
-a27:
-move $s0,$31
-li $s1,32
-add $s0,$s0,$s1
-sw $s0,0x10010010
-a28:
-move $s0,$22
-move $31,$s0
-a29:
-j a49
 a30:
-lw $s0,0x10010004
-sw $s0,0x10010014
+jal a31
 a31:
 move $s0,$31
-move $22,$s0
-a32:
-jal a33
-a33:
-move $s0,$31
 li $s1,32
 add $s0,$s0,$s1
 sw $s0,0x10010010
-a34:
+a32:
 move $s0,$22
 move $31,$s0
-a35:
-j a49
-a36:
-lw $s0,0x10010008
+a33:
+j a53
+a34:
+lw $s0,0x10010004
 sw $s0,0x10010014
+a35:
+move $s0,$31
+move $22,$s0
+a36:
+jal a37
 a37:
 move $s0,$31
-move $22,$s0
-a38:
-jal a39
-a39:
-move $s0,$31
 li $s1,32
 add $s0,$s0,$s1
 sw $s0,0x10010010
-a40:
+a38:
 move $s0,$22
 move $31,$s0
-a41:
-j a49
-a42:
-lw $s0,0x1001000c
+a39:
+j a53
+a40:
+lw $s0,0x10010008
 sw $s0,0x10010014
+a41:
+move $s0,$31
+move $22,$s0
+a42:
+jal a43
 a43:
 move $s0,$31
-move $22,$s0
+li $s1,32
+add $s0,$s0,$s1
+sw $s0,0x10010010
 a44:
-jal a45
+move $s0,$22
+move $31,$s0
 a45:
+j a53
+a46:
+lw $s0,0x1001000c
+sw $s0,0x10010014
+a47:
+move $s0,$31
+move $22,$s0
+a48:
+jal a49
+a49:
 move $s0,$31
 li $s1,32
 add $s0,$s0,$s1
 sw $s0,0x10010010
-a46:
+a50:
 move $s0,$22
 move $31,$s0
-a47:
-j a49
-a48:
-j a52
-a49:
+a51:
+j a53
+a52:
+j a56
+a53:
 lw $s0,0x10010014
 move $4,$s0
-a50:
+a54:
 li $v0,4
 syscall
-a51:
+a55:
 lw $s0,0x10010010
 jr $s0
-a52:
+a56:
 li $v0,10
 syscall
 

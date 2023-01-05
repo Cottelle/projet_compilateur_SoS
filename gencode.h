@@ -82,7 +82,6 @@ struct addval casepop(void);
 
 struct addval casetop(void);
 
-lpos *arggencode(lpos **);
 
 struct symbole *stackpush(char *name,int value);
 

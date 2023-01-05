@@ -333,7 +333,7 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                                     fprintf(f,"lw $s1,%i($sp)\n",quad.quadrup[i].one.s->memory_place);
                                     break;
                                 case 2:
-                                    fprintf(f,"move $s1,$s%i\n",quad.quadrup[i].one.s->isint);
+                                    fprintf(f,"move $s1,$%i\n",quad.quadrup[i].one.s->isint);
                                     break;
                                 case 3:
                                     fprintf(f,"la $s1,la%i\n",quad.quadrup[i].one.s->isint);
