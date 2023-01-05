@@ -15,7 +15,7 @@ struct symbole
 {
     char *name;
     unsigned int nb;
-    unsigned int memory_place;
+    int memory_place;
     char isint;       // if the isint the memory_place direct contained the value else contained the addr to the string. Also if the onstack_reg_label=2 contain the number of register
     char onstack_reg_label; // 1 is int the stack 2 if is register (can't be on the stack and a register) 3 if is a label ... 
 };
@@ -133,6 +133,18 @@ void insp(unsigned int place, char *buf, int sizebuf);
  * return an allocated symbole of registre $value
  */
 struct symbole *reg(int value);
+
+
+/**
+ * number of local variable in the current context ($1 $2 ... include) 
+*/
+unsigned int stack_off(void);
+
+
+/**
+ * return a symbole who refere at a stack symbole (with off offset). Not create un sptablesymbole
+*/
+struct symbole *stack(int off);
 
 /**
  * reserch the function "name" and return it, create it if create !=0 and not found  

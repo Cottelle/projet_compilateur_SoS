@@ -226,7 +226,7 @@ struct symbole *spfindtable(char *id, int create)
             tabsp->tab[i]->name = id;
             tabsp->tab[i]->onstack_reg_label = 1;
             tabsp->tab[i]->isint = 0;
-            tabsp->tab[i]->nb = 1;   // always 1
+            tabsp->tab[i]->nb = 1; // always 1
 
             tabsp->tab[i]->memory_place = writesp((char *)&bidon, CELLSIZE); // reserved the place
             return tabsp->tab[i];
@@ -262,7 +262,7 @@ struct symbole *spfindtable(char *id, int create)
         tabsp->size = new_size;
         tabsp->tab[place]->name = id;
         tabsp->tab[place]->onstack_reg_label = 1;
-        tabsp->tab[place]->nb = 1;   // always 1
+        tabsp->tab[place]->nb = 1; // always 1
         tabsp->tab[place]->isint = 0;
         tabsp->tab[place]->memory_place = writesp((char *)&bidon, CELLSIZE); // reserved the place
 
@@ -335,6 +335,35 @@ struct symbole *reg(int value)
     return s;
 }
 
+unsigned int stack_off(void)
+{
+    struct tabsymbolesp *tabsp = &tabsymbolesp;
+    while (tabsp->next != NULL) // find the last
+        tabsp = tabsp->next;
+    int i=0;
+    while (i <tabsp->size && tabsp->tab[i])
+        i++;
+    return i;
+    
+}
+
+struct symbole *stack(int off)
+{
+    struct symbole *s = malloc(sizeof(*s));
+    if (!s)
+    {
+        fprintf(stderr, "Error malloc\n ");
+        exit(2);
+    }
+
+    s->onstack_reg_label = 1;
+    s->memory_place = off;
+    s->isint = off;
+    s->nb = 1;
+    s->name = "_stack";
+    return s;
+}
+
 struct function *findfun(char *name, int create)
 {
     if (!create)
@@ -365,8 +394,8 @@ struct function *findfun(char *name, int create)
         exit(2);
     }
     funtab.cur++;
-    funtab.ftab[funtab.cur-1]->name = name;
-    return funtab.ftab[funtab.cur-1];
+    funtab.ftab[funtab.cur - 1]->name = name;
+    return funtab.ftab[funtab.cur - 1];
 }
 
 void printtabsymbole(void)
