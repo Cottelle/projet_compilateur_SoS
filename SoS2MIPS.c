@@ -734,4 +734,5 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
         MIPSstrcompare(f);
     MIPSstrconcat(f);
     MIPSstrlen(f);
+    MIPSstrlen2(f);
 }//fin fonction
