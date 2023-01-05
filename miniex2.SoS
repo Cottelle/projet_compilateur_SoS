@@ -1,4 +1,9 @@
 fun(2){
-    bla=blabla
+    bla=blabla;
+    if test mm then
+    b=blabla
+    fi
 };
-fun i a
+fun i ab;
+
+echo${b}

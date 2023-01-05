@@ -17,6 +17,23 @@ void MIPSstrlen(FILE *f)
     fprintf(f,"jr $ra\n");//on retourne
 }
 
+void MIPSstrlen2(FILE *f)
+{
+    fprintf(f,"\nstrlen2:\n");
+
+    fprintf(f,"li $t3,0\n");// compteur de caractere
+
+    fprintf(f,"\nstrlen2boucle:\n");
+    fprintf(f,"lb $t1,0($a1)\n");//on charge le caractere dans $t1
+    fprintf(f,"beq $t1,$zero,strlen2fin\n");//si le caractere est nul on sort de la boucle
+    fprintf(f,"addi $a1,$a1,1\n");//on incremente l'adresse de la chaine de caractere
+    fprintf(f,"addi $t3,$t3,1\n");//on incremente le compteur de caractere
+    fprintf(f,"j strlen2boucle\n");//on recommence
+
+    fprintf(f,"\nstrlen2fin:\n");//on a fini de compter
+    fprintf(f,"jr $ra\n");//on retourne
+}
+
 void MIPSstrcompare(FILE *f)
 {
     fprintf(f,"\nstrcompare:\n");
@@ -48,6 +65,12 @@ void MIPSstrcompare(FILE *f)
 void MIPSstrconcat(FILE *f)
 {
     fprintf(f,"\nstrconcat:\n");
+    fprintf(f,"jal strlen\n");//on calcule la taille de la 1ere chaine de caractere dans $t0
+    fprintf(f,"jal strlen2\n");//on calcule la taille de la 2eme chaine de caractere dans $t3
+    fprintf(f,"add $t0,$t0,$t3\n");//on additionne les 2 tailles
+    
+    fprintf(f,"li $v0,9\n");//on charge 9 dans $v0 pour allouer de la memoire
+    fprintf(f,"syscall\n");//on alloue de la memoire pour la chaine de caractere concatenee
 
     fprintf(f,"\nstrconcatboucle:\n");
     fprintf(f,"lb $t1,0($a0)\n");//on charge le caractere dans $t1
