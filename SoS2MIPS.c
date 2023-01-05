@@ -52,23 +52,23 @@ void MIPSstrconcat(FILE *f)
     fprintf(f,"\nstrconcatboucle:\n");
     fprintf(f,"lb $t1,0($a0)\n");//on charge le caractere dans $t1
     fprintf(f,"beq $t1,$zero,boucledeuxiemechaine\n");//si le caractere est nul on sort de la boucle
-    fprintf(f,"sb $t1,0($a2)\n");//on ecrit le caractere dans la chaine de caractere concatenee
+    fprintf(f,"sb $t1,0($v0)\n");//on ecrit le caractere dans la chaine de caractere concatenee
     fprintf(f,"addi $a0,$a0,1\n");//on incremente l'adresse de la 1ere chaine de caractere
-    fprintf(f,"addi $a2,$a2,1\n");//on incremente l'adresse de la chaine de caractere concatene
+    fprintf(f,"addi $v0,$v0,1\n");//on incremente l'adresse de la chaine de caractere concatene
     fprintf(f,"j strconcatboucle\n");//on recommence
 
     fprintf(f,"\nboucledeuxiemechaine:\n");
     fprintf(f,"lb $t1,0($a1)\n");//on charge le caractere dans $t1
     fprintf(f,"beq $t1,$zero,strconcatfin\n");//si le caractere est nul on sort de la boucle
-    fprintf(f,"sb $t1,0($a2)\n");//on ecrit le caractere dans la chaine de caractere concatenee
+    fprintf(f,"sb $t1,0($v0)\n");//on ecrit le caractere dans la chaine de caractere concatenee
     fprintf(f,"addi $a1,$a1,1\n");//on incremente l'adresse de la 2eme chaine de caractere
-    fprintf(f,"addi $a2,$a2,1\n");//on incremente l'adresse de la chaine de caractere concatene
+    fprintf(f,"addi $v0,$v0,1\n");//on incremente l'adresse de la chaine de caractere concatene
     fprintf(f,"j boucledeuxiemechaine\n");//on recommence
 
 
     fprintf(f,"\nstrconcatfin:\n");
     fprintf(f,"li $t1,0\n");//on met 0 dans $t1 pour dire que le caractere est nul
-    fprintf(f,"sb $t1,0($a2)\n");//on ecrit le caractere nul dans la chaine de caractere concatenee
+    fprintf(f,"sb $t1,0($v0)\n");//on ecrit le caractere nul dans la chaine de caractere concatenee
     fprintf(f,"jr $ra\n");//on retourne
 }
 
