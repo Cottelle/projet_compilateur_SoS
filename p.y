@@ -57,6 +57,11 @@ unsigned int nbfor;
         unsigned int addr;
     } operande;
 
+    struct {
+        int quad;
+        int arg;
+    }quad_arg;
+
 
 }
 
@@ -631,11 +636,13 @@ OPERANDE_ENTIER:'$''{'ID'}' {
             ;
 
 
-DECLARATION_FONTION: ID '(' entier ')'                                              <entier>{       //chagement de la grammaire (ajout entier) car sinon valeur inconue à la compilation (nb d'argument) ce qui pose nottament probleme sur for i do ...
+DECLARATION_FONTION: ID '(' entier ')'                                              <quad_arg>{  //chagement de la grammaire (ajout entier) car sinon valeur inconue à la compilation (nb d'argument) ce qui pose nottament probleme sur for i do ...
+                                                                                        $$.quad = quad.next;
+                                                                                        gencode(GOTO,avc(NULL,-1),avc(NULL,-1),avc(NULL,-1),0);
                                                                                         infun++;
                                                                                         struct function *f = findfun($1,1);                 //peut ecraser une autre function
                                                                                         f->nbarg = $3;
-                                                                                        $$ = nbarg;
+                                                                                        $$.arg = nbarg;
                                                                                         nbarg = $3;
 
                                                                                         nextstackcreate();              //the local variable space is create
@@ -661,12 +668,13 @@ DECLARATION_FONTION: ID '(' entier ')'                                          
 
                                                                                     }
                 '{'DECL_LOC LISTE_INTRSUCTIONS '}'                                  {
-                                                                                        nbarg = $5;                                     // On resature le nb d'arg d'avant
+                                                                                        nbarg = $5.arg;                                     // On resature le nb d'arg d'avant
                                                                                         complete($8,avc(reg(31),-1));  // -3 --> valeur de retour de la fonction (:pas encore implementé)
                                                                                         gencode(AFF,avc(findtable("_ret_val",1),-1),avc(NULL,0),avc(NULL,-1),0);
                                                                                         gencode(GOTO,avc(reg(31),-1),avc(NULL,-1),avc(NULL,-1),0);
                                                                                         popstacknext();                  //the local variable space is delete
                                                                                         infun--;
+                                                                                        complete(crelist($5.quad),avc(NULL,quad.next));
                                                                                     }
             ;
 

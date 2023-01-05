@@ -1,3 +1,8 @@
+fun(3){
+    f=fffffffff
+};
+
+
 if test !(mm) then 
 a= aaaaaaaaaaaaaaaaaaa
 else
@@ -5,3 +10,4 @@ a=bbbbbbbbbbbbbbbbbbbb
 fi;
 
 read b
+
