@@ -247,7 +247,6 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                     exit(1);
                                                                                                                                                 }
 
-                                                                                                                                                gencode(AFF,avc(findtable("_ret_val",1),-1) ,avc(NULL,0),avc(NULL,-1),0);
                                                                                                                                                 gencode(GOTO,avc(reg(31),-1) ,avc(NULL,-1),avc(NULL,-1),0);
                                                                                                                                             }
             |return_ '(' OPERATEUR_ENTIER ')'                                                                                                        {
@@ -259,7 +258,6 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                     exit(1);
                                                                                                                                                 }
 
-                                                                                                                                                gencode(AFF,avc(findtable("_ret_val",1),-1) ,avc(reg(23),-1),avc(NULL,-1),0);
                                                                                                                                                 gencode(GOTO,avc(reg(31),-1) ,avc(NULL,-1),avc(NULL,-1),0);
                                                                                                                                             }
             |APPEL_FONCTION                                                                                                                 {
@@ -677,7 +675,6 @@ DECLARATION_FONTION: ID '(' entier ')'                                          
                 '{'DECL_LOC LISTE_INTRSUCTIONS '}'                                  {
                                                                                         nbarg = $5.arg;                                     // On resature le nb d'arg d'avant
                                                                                         complete($8,avc(reg(31),-1));  // -3 --> valeur de retour de la fonction (:pas encore implementé)
-                                                                                        gencode(AFF,avc(findtable("_ret_val",1),-1),avc(NULL,0),avc(NULL,-1),0);
                                                                                         gencode(GOTO,avc(reg(31),-1),avc(NULL,-1),avc(NULL,-1),0);
                                                                                         popstacknext();                  //the local variable space is delete
                                                                                         infun--;
@@ -702,9 +699,8 @@ DECL_LOC: DECL_LOC  local ID '=' CONCATENATION ';'                              
 
 APPEL_FONCTION: ID                                                                      {    
                                                                                                 unsigned int stackoff = stack_off();
-                                                                                                printf("CUR off = %i\n",stackoff);
-                                                                                                gencode(AFF,avc(stack(stackoff),-1),avc(reg(29),-1),avc(NULL,-1),0);             //on empile l'emplacement de l'anciennet pile 
-                                                                                                gencode(AFF,avc(stack(stackoff+4),-1),avc(reg(31),-1),avc(NULL,-1),0);             //on stocke notre valeur de retoure car jal
+                                                                                                gencode(AFF,avc(stack(stackoff*4),-1),avc(reg(29),-1),avc(NULL,-1),0);             //on empile l'emplacement de l'anciennet pile 
+                                                                                                gencode(AFF,avc(stack(stackoff*4+4),-1),avc(reg(31),-1),avc(NULL,-1),0);             //on stocke notre valeur de retoure car jal
                                                                                                 gencode(AFF,avc(reg(29),-1),avc(reg(29),-1),avc(NULL,stackoff*4 +8),1);             //"nouvelle" pile pour la fonction
                                                                                         }
                 LISTE_ARG                                                                   {
@@ -714,6 +710,8 @@ APPEL_FONCTION: ID                                                              
                                                                                                     fprintf(stderr,"Error %s not declared\n",$1);
                                                                                                     exit(3);
                                                                                                 }
+                                                                                                for(int i =$3; i<f->nbarg; i++)                                     //push other arg at 0 if don't pass
+                                                                                                    gencode(AFF,avc(stack(i*4),-1),avc(NULL,0),avc(NULL,-1),0);
                                                                             
                                                                                                 gencode(GOTO,avc(NULL,f->place),avc(NULL,-1),avc(NULL,-1),1);                       //jal
                                                                                                 gencode(AFF,avc(reg(31),-1 ),avc(stack(-4),-1),avc(NULL,-1),0);
@@ -721,20 +719,27 @@ APPEL_FONCTION: ID                                                              
                                                                                                 
                                                                                             }
             |ID                                                                     {
+                                                                                        unsigned int stackoff = stack_off();
+                                                                                        gencode(AFF,avc(stack(stackoff*4),-1),avc(reg(29),-1),avc(NULL,-1),0);             //on empile l'emplacement de l'anciennet pile 
+                                                                                        gencode(AFF,avc(stack(stackoff*4+4),-1),avc(reg(31),-1),avc(NULL,-1),0);             //on stocke notre valeur de retoure car jal
+                                                                                        gencode(AFF,avc(reg(29),-1),avc(reg(29),-1),avc(NULL,stackoff*4 +8),1); 
+                                                                                        
                                                                                         struct function *f;
                                                                                         if (!(f=findfun($1,0)))
                                                                                         {
                                                                                             fprintf(stderr,"Error %s not declared\n",$1);
                                                                                             exit(3);
                                                                                         }
-                                                                                        struct symbole *s=spfindtable("_store$31",1);               //sur la mauvaise pil a voire
-                                                                                        gencode(AFF, avc(s,-1),avc(reg(31),-1),avc(NULL,-1),0);     //store the current return value
-                                                                                        gencode(GOTO,avc(NULL,f->place),avc(NULL,-1),avc(NULL,-1),1);
-                                                                                        gencode(AFF, avc(reg(31),-1),avc(s,-1),avc(NULL,-1),0);       //restore the current return
+                                                                                        for(int i =0; i<f->nbarg; i++)
+                                                                                            gencode(AFF,avc(stack(i*4),-1),avc(NULL,0),avc(NULL,-1),0);
+                                                                            
+                                                                                        gencode(GOTO,avc(NULL,f->place),avc(NULL,-1),avc(NULL,-1),1);                       //jal
+                                                                                        gencode(AFF,avc(reg(31),-1 ),avc(stack(-4),-1),avc(NULL,-1),0);
+                                                                                        gencode(AFF,avc(reg(29),-1 ),avc(stack(-8),-1),avc(NULL,-1),0);
                                                                                     }
             ;
 
-LISTE_ARG: LISTE_ARG OPERANDE              {        
+LISTE_ARG: LISTE_ARG OPERANDE              {                            //Si il y a trop d'argument c'est pas grave car il ne seront pas interpreter par le code      
                                             $$ = $1+1;
                                             gencode(AFF,avc(stack($1*4),-1),avc($2.s,$2.addr),avc(NULL,-1),0);     
                                         } 

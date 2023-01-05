@@ -1,5 +1,7 @@
 fun(2){
-    echo $1 $2
+    local a= " bien";
+    echo $1 $2 ${a}; 
+    fun "\n tres bien meme" dab
 };
 
-fun "la pile " marche
+fun "la pile " marche 

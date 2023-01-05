@@ -10,7 +10,7 @@ la0: .space 32         #the buffer for the read buffer of siez 32
 
  .text
 a0:
-j a7
+j a17
 a1:
 la $s0,la1
 sw $s0,0x10010000
@@ -25,15 +25,46 @@ a5:
 li $s0,0
 sw $s0,0x10010008
 a6:
+lw $s0,8($sp)
+move $4,$s0
+a7:
+li $v0,4
+syscall
+a8:
+move $s0,$29
+sw $s0,12($sp)
+a9:
+move $s0,$31
+sw $s0,16($sp)
+a10:
+move $s0,$29
+li $s1,20
+add $s0,$s0,$s1
+move $29,$s0
+a11:
+la $s0,la2
+sw $s0,0($sp)
+a12:
+la $s0,la3
+sw $s0,4($sp)
+a13:
+jal a1
+a14:
+lw $s0,-4($sp)
+move $31,$s0
+a15:
+lw $s0,-8($sp)
+move $29,$s0
+a16:
 move $s0,$31
 jr $s0
-a7:
+a17:
 move $s0,$29
 sw $s0,0($sp)
-a8:
+a18:
 move $s0,$31
 sw $s0,4($sp)
-a9:
+a19:
 move $s0,$29
 li $s1,8
 add $s0,$s0,$s1
@@ -44,12 +75,12 @@ sw $s0,0($sp)
 a11:
 la $s0,la4
 sw $s0,4($sp)
-a12:
+a22:
 jal a1
-a13:
+a23:
 lw $s0,-4($sp)
 move $31,$s0
-a14:
+a24:
 lw $s0,-8($sp)
 move $29,$s0
 a15:
