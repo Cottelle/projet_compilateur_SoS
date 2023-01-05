@@ -77,12 +77,12 @@ void MIPSread(FILE *f)
     fprintf(f,"\n_read:\n");
     fprintf(f,"li $v0,8\n");
     fprintf(f,"li $a1,31\n");
-    fprintf(f,"la $a0, la0\n");
+    fprintf(f,"la $a0, l0\n");
     fprintf(f,"syscall\n"); 
 
 
     fprintf(f,"li $t0,0\n");
-    fprintf(f,"la $9,la0\n");
+    fprintf(f,"la $9,l0\n");
 
     fprintf(f,"\nloop: 			#taille du buffer lu \n");
     fprintf(f,"lb $t2 , ($9)\n");
@@ -96,7 +96,7 @@ void MIPSread(FILE *f)
     fprintf(f,"move $a0 , $t0			#alloue\n");
     fprintf(f,"syscall\n");
 
-    fprintf(f,"la $9,la0\n");
+    fprintf(f,"la $9,l0\n");
     fprintf(f,"move $11, $v0\n");
 
     fprintf(f,"\nloop2 :\n");
@@ -119,10 +119,10 @@ void MIPSread(FILE *f)
 void labelprint(struct labels l, int size_symb,FILE *f)
 {
     fprintf(f, ".data\n .space %i   #place pour les symboles\n #place pour les lables de chaine de charactere\n", size_symb*4);
-    for (int i = 1; i < l.cur_place; i++)
+    for (int i = 0; i < l.cur_place; i++)
         fprintf(f, "la%i : .asciiz \"%s\"\n", i, l.tab[i]);
 
-    fprintf(f, "la0: .space 32         #the buffer for the read buffer of siez 32\n  \n\n .text\n");
+    fprintf(f, "la-1: .space 32         #the buffer for the read buffer of siez 32\n  \n\n .text\n");
 }
 
 
@@ -682,9 +682,6 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
             case SYS:
                 fprintf(f,"li $v0,%i\n",quad.quadrup[i].zero.value);
                 fprintf(f,"syscall\n");
-                break;
-            case CALL:
-                fprintf(f,"jal %s\n",(char *)quad.quadrup[i].zero.s);
                 break;
         }//fin switch instruction
     }//fin for quad
