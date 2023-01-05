@@ -1,58 +1,62 @@
 .data
- .space 8   #place pour les symboles
+ .space 16   #place pour les symboles
  #place pour les lables de chaine de charactere
-la1 : .asciiz "aze"
-la2 : .asciiz "qsd"
-la3 : .asciiz "d"
+la1 : .asciiz "aaaa"
 la0: .space 32         #the buffer for the read buffer of siez 32
   
 
  .text
 a0:
+j a17
+a1:
 move $s0,$31
 move $22,$s0
-a1:
-jal a2
 a2:
+jal a3
+a3:
 move $s0,$31
 li $s1,28
 add $s0,$s0,$s1
 sw $s0,0x10010000
-a3:
+a4:
 move $s0,$22
 move $31,$s0
-a4:
-la $s0,la1
-sw $s0,0x10010004
 a5:
-j a11
+lw $s0,0($sp)
+sw $s0,0x10010004
 a6:
-la $s0,la2
-sw $s0,0x10010004
+j a12
 a7:
-j a11
-a8:
-la $s0,la3
+lw $s0,4($sp)
 sw $s0,0x10010004
+a8:
+j a12
 a9:
-j a11
+lw $s0,8($sp)
+sw $s0,0x10010004
 a10:
-j a15
+j a12
 a11:
+move $s0,$31
+jr $s0
+a12:
 lw $s0,0x10010000
-li $s1,20
+li $s1,28
 add $s0,$s0,$s1
 sw $s0,0x10010000
-a12:
-lw $s0,0x10010004
-move $4,$s0
 a13:
-li $v0,4
-syscall
+la $s0,la1
+sw $s0,0x10010008
 a14:
 lw $s0,0x10010000
 jr $s0
 a15:
+li $s0,0
+sw $s0,0x1001000c
+a16:
+move $s0,$31
+jr $s0
+a17:
 li $v0,10
 syscall
 

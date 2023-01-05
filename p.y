@@ -130,7 +130,10 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                 $$ = concat($$ , $8);
                                                                                                                                             }
             |for_ ID                                                                                                                        {
-                                                                                                                                                gencode(AFF,avc(findtable(createbuf("_for%i",++nbfor),1),-1),avc(NULL,quad.next+1),avc(NULL,-1),0);
+                                                                                                                                                gencode(AFF,avc(reg(22),-1),avc(reg(31),-1),avc(NULL,-1),0);
+                                                                                                                                                gencode(CALL,avc((struct symbole *)(createbuf("a%i",quad.next+1)),-1),avc(NULL,-1),avc(NULL,-1),1);
+                                                                                                                                                gencode(AFF,avc(findtable(createbuf("_for%i",++nbfor),1),-1),avc(reg(31),-1),avc(NULL,7*4),1);  // 7-> regarder sur le code mips generer
+                                                                                                                                                gencode(AFF,avc(reg(31),-1),avc(reg(22),-1),avc(NULL,-1),0);
                                                                                                                                             }  
                 do_ M                                                                                                                        <next>{
                                                                                                                                                     lpos *start;
@@ -140,7 +143,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                     gencode(GOTO,avc(NULL,-1),avc(NULL,-1),avc(NULL,-1),0);
                                                                                                                                                     complete(value, avc(findtable($2,1),-1));
                                                                                                                                                     complete(start,avc(NULL,quad.next));
-                                                                                                                                                    gencode(AFF,avc(findtable(buf,0),-1),avc(findtable(buf,0),-1),avc(NULL,3),1);
+                                                                                                                                                    gencode(AFF,avc(findtable(buf,0),-1),avc(findtable(buf,0),-1),avc(NULL,7*4),1);
                                                                                                                                                  } 
                 LISTE_INTRSUCTIONS done                                                                                                         {
                                                                                                                                                         printf(">for in (%i)\n",findtable($2,1)->memory_place); 
@@ -150,9 +153,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
             |for_ ID in                                                                                                                         {
                                                                                                                                                     gencode(AFF,avc(reg(22),-1),avc(reg(31),-1),avc(NULL,-1),0);
                                                                                                                                                     gencode(CALL,avc((struct symbole *)(createbuf("a%i",quad.next+1)),-1),avc(NULL,-1),avc(NULL,-1),1);
-
-
-                                                                                                                                                    gencode(AFF,avc(findtable(createbuf("_for%i",++nbfor),1),-1),avc(reg(31),-1),avc(NULL,7*4),1);  //regarder sur le code mips generer
+                                                                                                                                                    gencode(AFF,avc(findtable(createbuf("_for%i",++nbfor),1),-1),avc(reg(31),-1),avc(NULL,7*4),1);  //7->regarder sur le code mips generer
                                                                                                                                                     gencode(AFF,avc(reg(31),-1),avc(reg(22),-1),avc(NULL,-1),0);
                                                                                                                                                 }
                  M LISTE_OPERANDES do_ M                                                                                                            {
