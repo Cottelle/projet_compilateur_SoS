@@ -1,79 +1,61 @@
 .data
  .space 8   #place pour les symboles
  #place pour les lables de chaine de charactere
-la1 : .asciiz "Hello"
-la2 : .asciiz " "
-la3 : .asciiz "World"
+la1 : .asciiz "clafin"
+la2 : .asciiz "itworks"
+la3 : .asciiz "i"
+la4 : .asciiz "ab"
 la0: .space 32         #the buffer for the read buffer of siez 32
   
 
  .text
 a0:
-la $s0,la1
-sw $s0,0x10010004
+j a6
 a1:
-move $s0,$31
-move $22,$s0
-a2:
-jal a3
-a3:
-move $s0,$31
-li $s1,32
-add $s0,$s0,$s1
+la $s0,la1
 sw $s0,0x10010000
-a4:
-move $s0,$22
-move $31,$s0
-a5:
-j a19
-a6:
+a2:
+j a3
+a3:
 la $s0,la2
 sw $s0,0x10010004
+a4:
+j a5
+a5:
+move $s0,$31
+jr $s0
+a6:
+move $s0,$29
+sw $s0,0($sp)
 a7:
 move $s0,$31
-move $22,$s0
+sw $s0,4($sp)
 a8:
-jal a9
+move $s0,$29
+li $s1,8
+add $s0,$s0,$s1
+move $29,$s0
 a9:
-move $s0,$31
-li $s1,32
-add $s0,$s0,$s1
-sw $s0,0x10010000
-a10:
-move $s0,$22
-move $31,$s0
-a11:
-j a19
-a12:
 la $s0,la3
-sw $s0,0x10010004
-a13:
-move $s0,$31
-move $22,$s0
-a14:
-jal a15
-a15:
-move $s0,$31
-li $s1,32
-add $s0,$s0,$s1
-sw $s0,0x10010000
-a16:
-move $s0,$22
+sw $s0,0($sp)
+a10:
+la $s0,la4
+sw $s0,4($sp)
+a11:
+jal a1
+a12:
+lw $s0,-4($sp)
 move $31,$s0
-a17:
-j a19
-a18:
-j a22
-a19:
+a13:
+lw $s0,-8($sp)
+move $29,$s0
+a14:
 lw $s0,0x10010004
 move $4,$s0
-a20:
+a15:
 li $v0,4
 syscall
-a21:
-lw $s0,0x10010000
-jr $s0
-a22:
+a16:
 li $v0,10
 syscall
 
