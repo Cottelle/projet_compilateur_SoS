@@ -1,3 +1,4 @@
 -le binaire
 -le truc pour recuper la veleur de pc (ds les for)
--changement de la grammaire fun(entier)
+-changement de la grammaire fun(entier)   --> aurait pu faire avec en pushant le nb d'arg et en commancant une fonction avec sp =0 et arg est en -1($sp)
+- appel fonction dans foction -> dynamique 
