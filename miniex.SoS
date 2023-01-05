@@ -1,7 +1,4 @@
-fun(2){
-    local a= " bien";
-    echo $1 $2 ${a}; 
-    fun "\n tres bien meme" dab
-};
+declare a[10];
+a[ 2 * 1 ] = salut;
 
-fun "la pile " marche 
+read a[1]

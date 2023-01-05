@@ -104,21 +104,27 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                 $$= NULL;
                                                                                                                                                 struct symbole *s =findtable($1,1);
                                                                                                                                                 s->nb= 1;                   //idem tableau 
-                                                                                                                                                //s->isint ???
                                                                                                                                                 gencode(AFF, avc(s,-1),avc($3.s,$3.addr),avc(NULL,-1),0);
                                                                                                                                             } 
-            |ID'['OPERANDE_ENTIER']' '=' CONCATENATION                                                                                      {
+            |ID'['OPERATEUR_ENTIER']' '=' CONCATENATION                                                                                      {                                   //peut prende n'importe quelle valeur opêaarnde entier > s.nb
                                                                                                                                                 $$= NULL;
-                                                                                                                                                printf(">ID[]= %s(%i)\n",$1,findtable($1,1)->memory_place);
+                                                                                                                                                struct symbole *s = findtable($1,0);
+                                                                                                                                                if(!s)
+                                                                                                                                                {
+                                                                                                                                                    fprintf(stderr,"Error %s is not declared (use decalre %s[int])\n",$1,$1);
+                                                                                                                                                    exit(1);
+                                                                                                                                                }
+                                                                                                                                                gencode(AFF,avc(reg(22),-1) ,avc(NULL,s->memory_place),avc(reg(23),-1),1);          //addr ds reg(22)
+                                                                                                                                                gencode(AFF,avc(reg(22),-1),avc($3.s,$3.addr) ,avc(NULL,-1), -1);   //STORE indirect sw CONCAT, ($22)
                                                                                                                                             } 
             |declare ID'['entier']'                                                                                                                     {
                                                                                                                                                 $$= NULL;
-                                                                                                                                                struct symbole s = simples();
+                                                                                                                                                struct symbole s;
                                                                                                                                                 s.nb = $4; //test si $4>0?
                                                                                                                                                 s.name = $2;
                                                                                                                                                 s.onstack_reg_label =0;
+                                                                                                                                                s.isint = 0; 
                                                                                                                                                 int a = createsymbole(&s)->memory_place;
-                                                                                                                                                printf(">declare %s[%i] : %i\n",$2,$4,a);
                                                                                                                                                  
                                                                                                                                             }
             |if_ TEST_BLOC then {complete($2.true, avc(NULL,quad.next));} LISTE_INTRSUCTIONS M {
@@ -126,7 +132,6 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                         complete($2.false, avc(NULL,quad.next));
                                                                                     }  
                 ELSE_PART fi                                                                                                                {
-                                                                                                                                                printf(">if \n"); 
                                                                                                                                                 $$ = concat($5, crelist($6) ); 
                                                                                                                                                 $$ = concat($$ , $8);
                                                                                                                                             }
@@ -210,29 +215,21 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                             }
             |read_ ID'['OPERATEUR_ENTIER']'                                                                                                  {
                                                                                                                                                 $$ = NULL;
-                                                                                                                                                printf(">Read \n");
-                                                                                                                                                struct symbole *mem = findtable("-mem",1), *id =findtable($2,0), *stemp =findtable("_read_id_tab",1);
-                                                                                                                                                if (!id)
+                                                                                                                                                struct symbole *s = findtable($2,0);
+                                                                                                                                                if(!s)
                                                                                                                                                 {
-                                                                                                                                                    // fprintf(stderr,"Error %s is not declared (declare %s[%i] before) \n",$2,$2,$4);
-                                                                                                                                                    exit(2);
+                                                                                                                                                    fprintf(stderr,"Error %s is not declared (use decalre %s[int])\n",$2,$2);
+                                                                                                                                                    exit(1);
                                                                                                                                                 }
+                                                                                                                                                gencode(AFF,avc(reg(22),-1) ,avc(NULL,s->memory_place),avc(reg(23),-1),1);          //addr ds reg(22)
 
-                                                                                                                                                stemp->isint =1;
-                                                                                                                                                stemp->nb =1;
-                                                                                                                                                stemp->onstack_reg_label =0;
+                                                                                                                                                struct symbole *s31=spfindtable("_store$31",1);
 
-
-
+                                                                                                                                                gencode(AFF, avc(s31,-1),avc(reg(31),-1),avc(NULL,-1),0);
                                                                                                                                                 
-                                                                                                                                                gencode(AFF,avc(stemp,-1),avc(NULL,id->memory_place),avc($4.s,$4.addr),0);           //--> pb de double  indirection
-
-                                                                                                                                                gencode(AFF,avc(stemp,-1),avc(mem,-1),avc(NULL,SIZEREAD),1);
-
-                                                                                                                                                gencode(AFF,avc(reg(4),-1),avc(mem,-1),avc(NULL,-1),0);
-                                                                                                                                                gencode(AFF,avc(reg(5),-1),avc(NULL,SIZEREAD),avc(NULL,-1),0);
-                                                                                                                                                gencode(AFF,avc(NULL,-8),avc(NULL,-1),avc(NULL,-1),0);                                                                                                                                            
-                                                                                                                                                gencode(AFF,avc(mem,-1),avc(mem,-1),avc(NULL,SIZEREAD),1);
+                                                                                                                                                gencode(CALL,avc((struct symbole *)"_read",-1),avc(NULL,-1),avc(NULL,-1),0);
+                                                                                                                                                gencode(AFF,avc(reg(22),-1),avc(reg(11),-1),avc(NULL,-1),-1);    // dans $11 il y a le char lu et aloué
+                                                                                                                                                gencode(AFF, avc(reg(31),-1),avc(s31,-1),avc(NULL,-1),0);
                                                                                                                                             }
             |DECLARATION_FONTION                                                                                                            {
                                                                                                                                                 printf(">declaration fonction \n");
@@ -778,5 +775,5 @@ M: %empty { $$ = quad.next;}
 
 void yyerror(const char *msg)
 {
-    fprintf(stderr,"%s ligne %i\n",msg,nligne);
+    fprintf(stderr,"%s ligne %i\n",msg,nligne+1);
 }
