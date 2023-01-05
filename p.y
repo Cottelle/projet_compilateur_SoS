@@ -114,7 +114,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                 struct symbole *s = findtable($1,0);
                                                                                                                                                 if(!s)
                                                                                                                                                 {
-                                                                                                                                                    fprintf(stderr,"Error %s is not declared (use decalre %s[int])\n",$1,$1);
+                                                                                                                                                    fprintf(stderr,"Error ligne %i: %s is not declared (use decalre %s[int])\n",nligne+1,$1,$1);
                                                                                                                                                     exit(1);
                                                                                                                                                 }
                                                                                                                                                 gencode(AFF,avc(reg(23),-1),avc(reg(23),-1),avc(NULL,4),3);
@@ -207,7 +207,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                 struct symbole *s = findtable($2,0);
                                                                                                                                                 if(!s)
                                                                                                                                                 {
-                                                                                                                                                    fprintf(stderr,"Error %s is not declared (use decalre %s[int])\n",$2,$2);
+                                                                                                                                                    fprintf(stderr,"Error ligne %i: %s is not declared (use decalre %s[int])\n",nligne+1,$2,$2);
                                                                                                                                                     exit(1);
                                                                                                                                                 }
                                                                                                                                                 gencode(AFF,avc(reg(23),-1) ,avc(reg(23),-1),avc(NULL,4),3);         
@@ -230,7 +230,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                 printf(">return \n");
                                                                                                                                                 if(!infun)
                                                                                                                                                 {
-                                                                                                                                                    fprintf(stderr,"Error you are not in a function you can't return (use exit to exit the programme)\n");
+                                                                                                                                                    fprintf(stderr,"Error ligne %i:  you are not in a function you can't return (use exit to exit the programme)\n",1+nligne);
                                                                                                                                                     exit(1);
                                                                                                                                                 }
 
@@ -241,7 +241,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                 printf(">return entier \n");
                                                                                                                                                 if(!infun)
                                                                                                                                                 {
-                                                                                                                                                    fprintf(stderr,"Error you are not in a function you can't return (use exit to exit the programme)\n");
+                                                                                                                                                    fprintf(stderr,"Error ligne %i: you are not in a function you can't return (use exit to exit the programme)\n",1+nligne);
                                                                                                                                                     exit(1);
                                                                                                                                                 }
 
@@ -364,7 +364,7 @@ LISTE_OPERANDES:LISTE_OPERANDES OPERANDE {
                                             struct symbole *id= findtable($3,0); 
                                             if(!id) 
                                             {
-                                                fprintf(stderr,"Error %s is Unknow declare it \n",$3); 
+                                                fprintf(stderr,"Error ligne %i : %s is Unknow declare it \n",1+nligne,$3); 
                                                 exit(2); 
                                             } 
                                             $$.start=NULL;
@@ -404,7 +404,7 @@ LISTE_ECHO:LISTE_ECHO OPERANDE {
                                             struct symbole *id= findtable($3,0); 
                                             if(!id) 
                                             {
-                                                fprintf(stderr,"Error %s is Unknow \n",$3); 
+                                                fprintf(stderr,"Error ligne %i : %s is Unknow \n",1+nligne,$3); 
                                                 exit(2); 
                                             } 
                                             struct symbole *s;
@@ -496,7 +496,7 @@ OPERANDE:'$''{'ID'}'                          {
                                                     struct symbole *id = findtable($3,0);
                                                     if(!id)
                                                     {
-                                                        fprintf(stderr,"Error ligne %i: %s is not declared \n",nligne,$3);
+                                                        fprintf(stderr,"Error ligne %i: %s is not declared \n",nligne+1,$3);
                                                         exit(1);
                                                     }
 
@@ -515,7 +515,7 @@ OPERANDE:'$''{'ID'}'                          {
                                                 char *mal = malloc(32);
                                                  if (!mal)
                                                  {
-                                                    fprintf(stderr,"Error malloc qs");
+                                                    fprintf(stderr,"Error malloc \n");
                                                     exit(1);
                                                  } 
                                                  snprintf(mal,32,"%i",$1);
@@ -533,7 +533,7 @@ OPERANDE:'$''{'ID'}'                          {
             |'$'entier                         { 
                                                 if($2>nbarg)
                                                 {
-                                                    fprintf(stderr,"Error $%i doesn't exit (there is %i arg) \n",$2,nbarg);
+                                                    fprintf(stderr,"Error ligne %i : $%i doesn't exit (there is %i arg) \n",1+nligne,$2,nbarg);
                                                     exit(3);
                                                 }
                                                 char buf[4];
@@ -716,7 +716,7 @@ APPEL_FONCTION: ID                                                              
                                                                                                 struct function *f;
                                                                                                 if (!(f = findfun($1,0)))
                                                                                                 {
-                                                                                                    fprintf(stderr,"Error %s not declared\n",$1);
+                                                                                                    fprintf(stderr,"Error ligne %i: %s not declared\n",1+nligne,$1);
                                                                                                     exit(3);
                                                                                                 }
                                                                                                 for(int i =$3; i<f->nbarg; i++)                                     //push other arg at 0 if don't pass
@@ -736,7 +736,7 @@ APPEL_FONCTION: ID                                                              
                                                                                         struct function *f;
                                                                                         if (!(f=findfun($1,0)))
                                                                                         {
-                                                                                            fprintf(stderr,"Error %s not declared\n",$1);
+                                                                                            fprintf(stderr,"Error ligne %i: %s not declared\n",1+nligne,$1);
                                                                                             exit(3);
                                                                                         }
                                                                                         for(int i =0; i<f->nbarg; i++)
@@ -762,7 +762,7 @@ LISTE_ARG: LISTE_ARG OPERANDE              {                            //Si il 
                                           struct  symbole *id= findtable($3,0); 
                                             if(!id) 
                                             {
-                                                fprintf(stderr,"Error %s is Unknow \n",$3); 
+                                                fprintf(stderr,"Error ligne %i: %s is Unknow \n",1+nligne,$3); 
                                                 exit(2); 
                                             } 
                                             for(int i=0 ;i<id->nb ; i++)
