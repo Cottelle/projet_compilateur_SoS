@@ -57,6 +57,11 @@ unsigned int nbfor;
         unsigned int addr;
     } operande;
 
+    struct {
+        int quad;
+        int arg;
+    }quad_arg;
+
 
 }
 
@@ -122,6 +127,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                 ELSE_PART fi                                                                                                                {
                                                                                                                                                 printf(">if \n"); 
                                                                                                                                                 $$ = concat($5, crelist($6) ); 
+                                                                                                                                                $$ = concat($$ , $8);
                                                                                                                                             }
             |for_ ID                                                                                                                        {
                                                                                                                                                 gencode(AFF,avc(findtable(createbuf("_for%i",++nbfor),1),-1),avc(NULL,quad.next+1),avc(NULL,-1),0);
@@ -380,20 +386,13 @@ LISTE_OPERANDES:LISTE_OPERANDES OPERANDE {
 
 LISTE_ECHO:LISTE_ECHO OPERANDE {
                                              gencode(AFF,avc(reg(4),-1),avc($2.s,$2.addr),avc(NULL,-1),0); 
+                                             if ($2.s && $2.s->isint)
+                                                 gencode(SYS,avc(NULL,1),avc(NULL,-1),avc(NULL,-1),0);
+                                            else
                                              gencode(SYS,avc(NULL,4),avc(NULL,-1),avc(NULL,-1),0);
                                         } 
             |OPERANDE                   {
-                                            struct symbole *s = malloc(sizeof(struct symbole));
-                                            if (!s)
-                                            {
-                                                fprintf(stderr,"Error malloc\n");
-                                                exit(1);
-                                            }
-                                            s->name = "BIDON";
-                                            s->memory_place = 4;
-                                            s->onstack_reg_label =2;
-                                            s->isint =4;
-                                             gencode(AFF,avc(s,-1),avc($1.s,$1.addr),avc(NULL,-1),0);
+                                             gencode(AFF,avc(reg(4),-1),avc($1.s,$1.addr),avc(NULL,-1),0);
                                              if ($1.s && $1.s->isint)
                                                  gencode(SYS,avc(NULL,1),avc(NULL,-1),avc(NULL,-1),0);
                                             else
@@ -488,6 +487,7 @@ TEST_INSTRUCTION :CONCATENATION '=' CONCATENATION       // Si operande entier co
 
 OPERANDE:'$''{'ID'}'                          {
                                                 $$.s = findtable($3,0);
+                                                $$.addr = -1;
                                                 }
             |'$''{'ID'['OPERANDE_ENTIER']''}' {
                                                 $$.s=NULL;
@@ -636,11 +636,13 @@ OPERANDE_ENTIER:'$''{'ID'}' {
             ;
 
 
-DECLARATION_FONTION: ID '(' entier ')'                                              <entier>{       //chagement de la grammaire (ajout entier) car sinon valeur inconue à la compilation (nb d'argument) ce qui pose nottament probleme sur for i do ...
+DECLARATION_FONTION: ID '(' entier ')'                                              <quad_arg>{  //chagement de la grammaire (ajout entier) car sinon valeur inconue à la compilation (nb d'argument) ce qui pose nottament probleme sur for i do ...
+                                                                                        $$.quad = quad.next;
+                                                                                        gencode(GOTO,avc(NULL,-1),avc(NULL,-1),avc(NULL,-1),0);
                                                                                         infun++;
                                                                                         struct function *f = findfun($1,1);                 //peut ecraser une autre function
                                                                                         f->nbarg = $3;
-                                                                                        $$ = nbarg;
+                                                                                        $$.arg = nbarg;
                                                                                         nbarg = $3;
 
                                                                                         nextstackcreate();              //the local variable space is create
@@ -666,12 +668,13 @@ DECLARATION_FONTION: ID '(' entier ')'                                          
 
                                                                                     }
                 '{'DECL_LOC LISTE_INTRSUCTIONS '}'                                  {
-                                                                                        nbarg = $5;                                     // On resature le nb d'arg d'avant
+                                                                                        nbarg = $5.arg;                                     // On resature le nb d'arg d'avant
                                                                                         complete($8,avc(reg(31),-1));  // -3 --> valeur de retour de la fonction (:pas encore implementé)
                                                                                         gencode(AFF,avc(findtable("_ret_val",1),-1),avc(NULL,0),avc(NULL,-1),0);
                                                                                         gencode(GOTO,avc(reg(31),-1),avc(NULL,-1),avc(NULL,-1),0);
                                                                                         popstacknext();                  //the local variable space is delete
                                                                                         infun--;
+                                                                                        complete(crelist($5.quad),avc(NULL,quad.next));
                                                                                     }
             ;
 

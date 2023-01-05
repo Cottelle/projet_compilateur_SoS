@@ -77,12 +77,12 @@ void MIPSread(FILE *f)
     fprintf(f,"\n_read:\n");
     fprintf(f,"li $v0,8\n");
     fprintf(f,"li $a1,31\n");
-    fprintf(f,"la $a0, l0\n");
+    fprintf(f,"la $a0, la0\n");
     fprintf(f,"syscall\n"); 
 
 
     fprintf(f,"li $t0,0\n");
-    fprintf(f,"la $9,l0\n");
+    fprintf(f,"la $9,la0\n");
 
     fprintf(f,"\nloop: 			#taille du buffer lu \n");
     fprintf(f,"lb $t2 , ($9)\n");
@@ -96,7 +96,7 @@ void MIPSread(FILE *f)
     fprintf(f,"move $a0 , $t0			#alloue\n");
     fprintf(f,"syscall\n");
 
-    fprintf(f,"la $9,l0\n");
+    fprintf(f,"la $9,la0\n");
     fprintf(f,"move $11, $v0\n");
 
     fprintf(f,"\nloop2 :\n");
