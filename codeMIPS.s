@@ -1,61 +1,30 @@
 .data
- .space 12   #place pour les symboles
+ .space 4   #place pour les symboles
  #place pour les lables de chaine de charactere
-la1 : .asciiz "qsd"
-la2 : .asciiz "xwc"
-la3 : .asciiz "zae"
-la4 : .asciiz "a"
-la0: .space 32         #the buffer for the read buffer of siez 32
+la0 : .asciiz "Bidon: C'est pour read"
+la-1: .space 32         #the buffer for the read buffer of siez 32
   
 
  .text
 a0:
 move $s0,$31
 a1:
-jal a2
 a2:
-move $s0,$31
+move $s0,$11
 a3:
-move $s0,$22
+lw $s0,0($sp)
+move $31,$s0
 a4:
-la $s0,la1
-sw $s0,0x10010004
-a5:
-j a11
-a6:
-la $s0,la2
-sw $s0,0x10010004
-a7:
-j a11
-a8:
-la $s0,la3
-sw $s0,0x10010004
-a9:
-j a11
-a10:
-j a14
-a11:
-lw $s0,0x10010000
-li $s1,2
-add $s0,$s0,$s1
-sw $s0,0x10010000
-a12:
-la $s0,la4
-sw $s0,0x10010008
-a13:
-lw $s0,0x400000
-jr $s0
-a14:
 li $v0,10
 syscall
 
 _read:
 li $v0,8
 li $a1,31
-la $a0, la0
+la $a0, l0
 syscall
 li $t0,0
-la $9,la0
+la $9,l0
 
 loop: 			#taille du buffer lu 
 lb $t2 , ($9)
@@ -68,7 +37,7 @@ exit :
 li $v0, 9
 move $a0 , $t0			#alloue
 syscall
-la $9,la0
+la $9,l0
 move $11, $v0
 
 loop2 :
