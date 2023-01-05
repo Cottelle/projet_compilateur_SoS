@@ -72,6 +72,7 @@ unsigned int nbfor;
 %token <entier> entier
 %token <name> id mot chaine
 %token declare if_ then elif else_ fi for_ do_ done in while_ until case_ esac echo read_ return_ exit_  test expr local to ta teq tne tgt tge tlt tle magic
+%type <entier> LISTE_ARG
 %type <name> ID  
 %type <operande> OPERANDE CONCATENATION OPERANDE_ENTIER OPERATEUR_ENTIER
 %type <list_ope> LISTE_OPERANDES
@@ -699,8 +700,12 @@ DECL_LOC: DECL_LOC  local ID '=' CONCATENATION ';'                              
             ;
 
 
-APPEL_FONCTION: ID                                                                      {
-                                                                                            
+APPEL_FONCTION: ID                                                                      {    
+                                                                                                unsigned int stackoff = stack_off();
+                                                                                                printf("CUR off = %i\n",stackoff);
+                                                                                                gencode(AFF,avc(stack(stackoff),-1),avc(reg(29),-1),avc(NULL,-1),0);             //on empile l'emplacement de l'anciennet pile 
+                                                                                                gencode(AFF,avc(stack(stackoff+4),-1),avc(reg(31),-1),avc(NULL,-1),0);             //on stocke notre valeur de retoure car jal
+                                                                                                gencode(AFF,avc(reg(29),-1),avc(reg(29),-1),avc(NULL,stackoff*4 +8),1);             //"nouvelle" pile pour la fonction
                                                                                         }
                 LISTE_ARG                                                                   {
                                                                                                 struct function *f;
@@ -709,11 +714,12 @@ APPEL_FONCTION: ID                                                              
                                                                                                     fprintf(stderr,"Error %s not declared\n",$1);
                                                                                                     exit(3);
                                                                                                 }
-                                                                                                struct symbole *s=spfindtable("_store$31",1);
-                                                                                                gencode(AFF, avc(s,-1),avc(reg(31),-1),avc(NULL,-1),0);     //store the current return value
-                                                                                                gencode(GOTO,avc(NULL,f->place),avc(NULL,-1),avc(NULL,-1),1);
-                                                                                                gencode(AFF, avc(reg(31),-1),avc(s,-1),avc(NULL,-1),0);       //restore the current return
-                                                                                                }
+                                                                            
+                                                                                                gencode(GOTO,avc(NULL,f->place),avc(NULL,-1),avc(NULL,-1),1);                       //jal
+                                                                                                gencode(AFF,avc(reg(31),-1 ),avc(stack(-4),-1),avc(NULL,-1),0);
+                                                                                                gencode(AFF,avc(reg(29),-1 ),avc(stack(-8),-1),avc(NULL,-1),0);
+                                                                                                
+                                                                                            }
             |ID                                                                     {
                                                                                         struct function *f;
                                                                                         if (!(f=findfun($1,0)))
@@ -728,29 +734,13 @@ APPEL_FONCTION: ID                                                              
                                                                                     }
             ;
 
-LISTE_ARG: OPERANDE LISTE_ARG             {         //arg à l'envers comme le C
-                                            struct symbole s =simples();
-                                            s.onstack_reg_label =1;
-                                            s.name = malloc(5);
-                                            if (!s.name ||snprintf(s.name,5,"_%i",cur_sp)<0)
-                                            {
-                                                fprintf(stderr,"Error malloc or snprintf\n");
-                                                exit(2);
-                                            }
-                                            struct symbole *sb=spcreatesymbole(&s);
-                                            gencode(AFF,avc(sb,-1),avc($1.s,$1.addr),avc(NULL,-1),0);     //même pb que pour for ${id[*]}, cela revient a push sur la pile 
+LISTE_ARG: LISTE_ARG OPERANDE              {        
+                                            $$ = $1+1;
+                                            gencode(AFF,avc(stack($1*4),-1),avc($2.s,$2.addr),avc(NULL,-1),0);     
                                         } 
             |OPERANDE                   {
-                                            struct symbole s =simples();
-                                            s.onstack_reg_label =1;
-                                            s.name=malloc(5);
-                                            if (!s.name ||snprintf(s.name,5,"_%i",cur_sp)<0)
-                                            {
-                                                fprintf(stderr,"Error malloc or snprintf\n");
-                                                exit(2);
-                                            }
-                                            struct symbole *sb=spcreatesymbole(&s);
-                                            gencode(AFF,avc(sb,-1),avc($1.s,$1.addr),avc(NULL,-1),0);
+                                            $$=1;
+                                            gencode(AFF,avc(stack(0),-1),avc($1.s,$1.addr),avc(NULL,-1),0);
 
                                             
                                         }

@@ -1,3 +1,5 @@
-for i in aze qsd d do 
-echo ${i}
-done
+fun(2){
+    echo $1 $2
+};
+
+fun "la pile " marche
