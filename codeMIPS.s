@@ -16,7 +16,7 @@ mult $s0,$s1
 mflo $s0
 move $23,$s0
 a2:
-li $s0,36
+li $s0,0
 move $s1,$23
 add $s0,$s0,$s1
 move $22,$s0
@@ -25,7 +25,7 @@ a4:
 li $s0,1
 move $23,$s0
 a5:
-li $s0,36
+li $s0,0
 move $s1,$23
 add $s0,$s0,$s1
 move $22,$s0

@@ -64,6 +64,11 @@ struct symbole *findtable(char *id, int create);
 struct symbole *createsymbole(struct symbole *s);
 
 /**
+ * Create a symbole who is a tab (nb>1) un tabsymbole
+*/
+struct symbole *createtab(char *name,int size);
+
+/**
  * return a classique symbole isint =0, fun =-1, name = NULL, nb=1,
  */
 struct symbole simples(void);

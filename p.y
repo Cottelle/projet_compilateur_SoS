@@ -119,12 +119,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                             } 
             |declare ID'['entier']'                                                                                                                     {
                                                                                                                                                 $$= NULL;
-                                                                                                                                                struct symbole s;
-                                                                                                                                                s.nb = $4; //test si $4>0?
-                                                                                                                                                s.name = $2;
-                                                                                                                                                s.onstack_reg_label =0;
-                                                                                                                                                s.isint = 0; 
-                                                                                                                                                int a = createsymbole(&s)->memory_place;
+                                                                                                                                                createtab($2,$4);
                                                                                                                                                  
                                                                                                                                             }
             |if_ TEST_BLOC then {complete($2.true, avc(NULL,quad.next));} LISTE_INTRSUCTIONS M {
