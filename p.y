@@ -77,7 +77,7 @@ unsigned int nbfor;
 %token declare if_ then elif else_ fi for_ do_ done in while_ until case_ esac echo read_ return_ exit_  test expr local to ta teq tne tgt tge tlt tle magic
 %type <entier> LISTE_ARG
 %type <name> ID  
-%type <operande> OPERANDE CONCATENATION OPERANDE_ENTIER OPERATEUR_ENTIER
+%type <operande> OPERANDE CONCATENATION OPERANDE_ENTIER OPERATEUR_ENTIER SETUP_OPERATEUR_ENTIER
 %type <list_ope> LISTE_OPERANDES
 %type <filtre> FILTRE
 %type <cond> TEST_EXPR TEST_EXPR2 TEST_EXPR3 TEST_INSTRUCTION TEST_BLOC
@@ -118,8 +118,8 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                     exit(1);
                                                                                                                                                 }
                                                                                                                                                 gencode(AFF,avc(reg(23),-1),avc(reg(23),-1),avc(NULL,4),3);
-                                                                                                                                                gencode(AFF,avc(reg(22),-1) ,avc(NULL,s->memory_place + DATA_SEGMENT),avc(reg(23),-1),1);          //addr ds reg(22)
-                                                                                                                                                gencode(AFF,avc(reg(22),-1),avc($6.s,$6.addr) ,avc(NULL,-1), -2);   //STORE indirect sw CONCAT, ($22)
+                                                                                                                                                gencode(AFF,avc(reg(20),-1) ,avc(NULL,s->memory_place + DATA_SEGMENT),avc(reg(23),-1),1);          //addr ds reg(20)
+                                                                                                                                                gencode(AFF,avc(reg(20),-1),avc($6.s,$6.addr) ,avc(NULL,-1), -2);   //STORE indirect sw CONCAT, ($22)
                                                                                                                                             } 
             |declare ID'['entier']'                                                                                                                     {
                                                                                                                                                 $$= NULL;
@@ -211,14 +211,14 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                     exit(1);
                                                                                                                                                 }
                                                                                                                                                 gencode(AFF,avc(reg(23),-1) ,avc(reg(23),-1),avc(NULL,4),3);         
-                                                                                                                                                gencode(AFF,avc(reg(22),-1) ,avc(NULL,s->memory_place*4 +DATA_SEGMENT),avc(reg(23),-1),1);          //addr ds reg(22)
+                                                                                                                                                gencode(AFF,avc(reg(20),-1) ,avc(NULL,s->memory_place*4 +DATA_SEGMENT),avc(reg(23),-1),1);          //addr ds reg(20)
 
                                                                                                                                                 struct symbole *s31=spfindtable("_store$31",1);
 
                                                                                                                                                 gencode(AFF, avc(s31,-1),avc(reg(31),-1),avc(NULL,-1),0);
                                                                                                                                                 
                                                                                                                                                 gencode(CALL,avc((struct symbole *)"_read",-1),avc(NULL,-1),avc(NULL,-1),0);
-                                                                                                                                                gencode(AFF,avc(reg(22),-1),avc(reg(11),-1),avc(NULL,-1),-2);    // dans $11 il y a le char lu et aloué
+                                                                                                                                                gencode(AFF,avc(reg(20),-1),avc(reg(11),-1),avc(NULL,-1),-2);    // dans $11 il y a le char lu et aloué
                                                                                                                                                 gencode(AFF, avc(reg(31),-1),avc(s31,-1),avc(NULL,-1),0);
                                                                                                                                             }
             |DECLARATION_FONTION                                                                                                            {
@@ -503,8 +503,8 @@ OPERANDE:'$''{'ID'}'                          {
                                                     }
 
                                                     gencode(AFF,avc(reg(23),-1),avc(reg(23),-1),avc(NULL,4),3);
-                                                    gencode(AFF,avc(reg(22),-1),avc(NULL,id->memory_place +DATA_SEGMENT ),avc(reg(23),-1),1);
-                                                    gencode(AFF,avc(s,-1),avc(reg(22),-1),avc(NULL,-1),-1);
+                                                    gencode(AFF,avc(reg(20),-1),avc(NULL,id->memory_place +DATA_SEGMENT ),avc(reg(23),-1),1);
+                                                    gencode(AFF,avc(s,-1),avc(reg(20),-1),avc(NULL,-1),-1);
 
                                                     $$.s = s;
                                                     $$.addr =-1;
@@ -569,7 +569,7 @@ OPERANDE:'$''{'ID'}'                          {
                                                     s.isint = 15;               //prend la valeur du registre
                                                     struct symbole *sb=createsymbole(&s);      */                 //the symbole $? ????????
                                                 }
-            |'$''('expr OPERATEUR_ENTIER ')' 
+            |'$''('expr SETUP_OPERATEUR_ENTIER ')' 
             |'$' '('APPEL_FONCTION ')'          {
                                                     //Il faut store $? puis appeler la fonction voire le nouveau $? puis remettre l'ancient ou pas, je ne sais pas 
                                                 }
@@ -590,59 +590,86 @@ OPERATEUR2: teq
             |tle
             ;
 
-//possible error if weird calcls
-OPERATEUR_ENTIER:OPERATEUR_ENTIER '*' OPERANDE_ENTIER   {
-                                                            //create buffer to store result
-                                                            gencode(AFF, avc(reg(23), -1), avc(reg(23), -1), avc($3.s, $3.addr), 3);
-                                                        }
-                |OPERATEUR_ENTIER '/' OPERANDE_ENTIER   {
+SETUP_OPERATEUR_ENTIER:{/*save pile*/ } OPERATEUR_ENTIER {
+                                            /* 
+                                                restorer la pile normale
+                                            */
+                                        }
 
-                                                            gencode(AFF, avc(reg(23), -1), avc(reg(23), -1), avc($3.s, $3.addr), 4);
+OPERATEUR_ENTIER:OPERATEUR_ENTIER {/*store rg 23 sur pile, sp++*/} '*' OPERATEUR_ENTIER  {
+                                                            gencode(AFF, avc(reg(23), -1), avc(stack(-1), -1), avc(reg(23), -1), 3);
+                                                            //sp--
                                                         }
-                |OPERATEUR_ENTIER '%' OPERANDE_ENTIER   {
-
-                                                            gencode(AFF, avc(reg(23), -1), avc(reg(23), -1), avc($3.s, $3.addr), 42);
+                |OPERATEUR_ENTIER {/*store rg 23 sur pile, sp++*/} '/' OPERATEUR_ENTIER  {
+                                                            gencode(AFF, avc(reg(23), -1), avc(stack(-1), -1), avc(reg(23), -1), 4);
+                                                            //sp--
                                                         }
-                |OPERATEUR_ENTIER '+' OPERANDE_ENTIER   {
-
-                                                            gencode(AFF, avc(reg(23), -1), avc(reg(23), -1), avc($3.s, $3.addr), 1);
+                |OPERATEUR_ENTIER {/*store rg 23 sur pile, sp++*/} '%' OPERATEUR_ENTIER  {
+                                                            gencode(AFF, avc(reg(23), -1), avc(stack(-1), -1), avc(reg(23), -1), 42);
+                                                            //sp--
                                                         }
-                |OPERATEUR_ENTIER '-' OPERANDE_ENTIER   {
-
-                                                            gencode(AFF, avc(reg(23), -1), avc(reg(23), -1), avc($3.s, $3.addr), 2);
+                |OPERATEUR_ENTIER {/*store rg 23 sur pile, sp++*/} '+' OPERATEUR_ENTIER  {
+                                                            gencode(AFF, avc(reg(23), -1), avc(stack(-1), -1), avc(reg(23), -1), 1);
+                                                            //sp--
+                                                        }
+                |OPERATEUR_ENTIER {/*store rg 23 sur pile, sp++*/} '-' OPERATEUR_ENTIER  {
+                                                            gencode(AFF, avc(reg(23), -1), avc(stack(-1), -1), avc(reg(23), -1), 2);
+                                                            //sp--
                                                         }
                 |'(' OPERATEUR_ENTIER ')'               {
 
                                                         }
                 |OPERANDE_ENTIER                        {
                                                             gencode(AFF, avc(reg(23), -1), avc($1.s, $1.addr), avc(NULL, -1), 0);
+                                                            //sp--
                                                         }
                 |'+' OPERANDE_ENTIER                    {
                                                             gencode(AFF, avc(reg(23), -1), avc($2.s, $2.addr), avc(NULL, -1), 0);
+                                                            //sp--
                                                         }
                 |'-' OPERANDE_ENTIER                    {
                                                             gencode(AFF, avc(reg(23), -1), avc($2.s, $2.addr), avc(NULL, -1), 3);
+                                                            //sp--
                                                         }
 
 
 
 
-OPERANDE_ENTIER:'$''{'ID'}' {
-                                if ( ($$.s=findtable($3, 0)) == NULL ) {
-                                    //erreur
+OPERANDE_ENTIER:'$''{'ID'}' {   struct symbole *s;
+                                if ( (s=findtable($3, 0)) == NULL ) {
+                                    snprintf(stderr, "Error line %i : %s doesn't exit\n", nligne+1, $3);
+                                    exit(1);
                                 }
-                                $$.s->isint = 1;
+
+                                $$.s = reg(9);
+
+                                //save val de retour
+                                gencode(AFF, avc(reg(4), -1), avc(s, -1), avc(NULL, -1), 0);
+                                gencode(CALL, avc((struct symbole *)"strtoint", -1), avc(NULL, -1), avc(NULL, -1), 0);
+
                                 $$.addr=-1;
                             }
             |'$''{'ID'['OPERANDE_ENTIER']''}'   {
                                                     $$.s=NULL;
                                                     $$.addr=-1;
                                                 }
-            |'$' entier { 
+            |'$' entier {   
+                            //on connait sp et le décalage on peut retrouver où il se trouve
+                            
                             if($2 > nbarg) {
-                                //erreur
+                                snprintf(stderr, "Error line %i : arg %i is too big\n", nligne+1, $2);
+                                exit(1);
                             }
-                            $$.s=spfindtable(createbuf("$%i", $2), 0);
+
+                            struct symbole *s;
+                            
+                            s=spfindtable(createbuf("$%i", $2), 0);
+
+                            $$.s = reg(9);
+                            //save val de retour
+                            gencode(AFF, avc(reg(4), -1), avc(s, -1), avc(NULL, -1), 0);
+                            gencode(CALL, avc((struct symbole *)"strtoint", -1), avc(NULL, -1), avc(NULL, -1), 0);
+                            
                             $$.addr=-1;
                         }
             |entier {                      
@@ -797,10 +824,10 @@ void yyerror(const char *msg)
 
 void aff_foc_pc(int off)                // _fori = pc+off*4
 {
-    gencode(AFF,avc(reg(22),-1),avc(reg(31),-1),avc(NULL,-1),0);
+    gencode(AFF,avc(reg(20),-1),avc(reg(31),-1),avc(NULL,-1),0);
     gencode(CALL,avc((struct symbole *)(createbuf("a%i",quad.next+1)),-1),avc(NULL,-1),avc(NULL,-1),1);
     gencode(AFF,avc(findtable(createbuf("_for%i",nbfor),1),-1),avc(reg(31),-1),avc(NULL,off*4+4),1);  
-    gencode(AFF,avc(reg(31),-1),avc(reg(22),-1),avc(NULL,-1),0);
+    gencode(AFF,avc(reg(31),-1),avc(reg(20),-1),avc(NULL,-1),0);
 }
 
 
