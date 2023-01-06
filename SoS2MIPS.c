@@ -52,6 +52,8 @@ void MIPSstrtoint(FILE *f)
 
     fprintf(f,"\nerror:\n");
     fprintf(f,"li $t1,0\n");//si erreur on met retourne 0
+    fprintf(f,"la $a0,errorstrtoint\n");
+    fprintf(f,"li $v0,4\n");
     fprintf(f,"li $v0,10\n");
     fprintf(f,"syscall          #la fonction échoue, on veut convertir des strings non compatibles\n");
 
@@ -134,7 +136,8 @@ void MIPSstrconcat(FILE *f)
     fprintf(f,"jal strlen2\n");//on calcule la taille de la 2eme chaine de caractere dans $t3
     fprintf(f,"add $t0,$t0,$t3\n");//on additionne les 2 tailles
     
-    fprintf(f,"li $a0,9\n");//on charge 9 dans $a0 pour allouer de la memoire
+    fprintf(f,"move $a0,$t0\n");//on met la taille dans $a0
+    fprintf(f,"li $v0,9\n");//on met 9 dans $v0 pour allouer de la memoire
     fprintf(f,"syscall\n");//on alloue de la memoire pour la chaine de caractere concatenee
 
     fprintf(f,"\nstrconcatboucle:\n");
@@ -155,6 +158,52 @@ void MIPSstrconcat(FILE *f)
 
 
     fprintf(f,"\nstrconcatfin:\n");
+    fprintf(f,"li $t1,0\n");//on met 0 dans $t1 pour dire que le caractere est nul
+    fprintf(f,"sb $t1,0($v0)\n");//on ecrit le caractere nul dans la chaine de caractere concatenee
+    fprintf(f,"jr $ra\n");//on retourne
+}
+
+void MIPSintostr(FILE *f)
+{
+    fprintf(f,"\nintostr:\n");
+    fprintf(f,"jal strlen\n");//on calcule la taille de la chaine de caractere dans $t0
+    fprintf(f,"move $a0,$t0\n");//on met la taille dans $a0
+    fprintf(f,"li $v0,9\n");//on met 9 dans $v0 pour allouer de la memoire
+    fprintf(f,"syscall\n");//on alloue de la memoire pour la chaine de caractere concatenee
+
+    fprintf(f,"bnez $a1,loopnonzero     #cas spécifique du zero\n");//si la valeur est nulle on sort de la boucle
+    fprintf(f,"li $t1,48\n");//on met le caractere '0' dans $t1
+    fprintf(f,"sb $t1,0($v0)\n");//on ecrit le caractere '0' dans la chaine de caractere concatenee
+    fprintf(f,"sb $zero,1($v0)\n");//on ecrit le caractere nul dans la chaine de caractere concatenee
+    fprintf(f,"jr $ra\n");//on retourne
+
+    //cas spécifiques
+    fprintf(f,"\nloopnonzero:\n");
+    fprintf(f,"move $t1,$a1\n");//on charge la valeur dans $t1
+    fprintf(f,"beq $t1,$zero,intostrfin\n");//si la valeur est nulle on sort de la boucle
+    fprintf(f,"blt $t1,$zero,intostrnegatif\n");//si la valeur est negative on va dans la boucle negative
+
+    //calcul de l'entier à écrire
+    fprintf(f,"li $t2,10\n");//on met 10 dans $t2
+    fprintf(f,"div $t1,$t2\n");//on divise la valeur par 10
+    fprintf(f,"mfhi $t3\n");//on met le reste dans $t3
+    fprintf(f,"mflo $t1\n");//on met le quotient dans $t1
+    
+    //écriture dans le buffer
+    fprintf(f,"addi $t3,$t3,48\n");//on ajoute 48 au reste pour avoir le caractere correspondant
+    fprintf(f,"sb $t3,0($v0)\n");//on ecrit le caractere dans la chaine de caractere concatenee
+    fprintf(f,"addi $v0,$v0,1\n");//on incremente l'adresse de la chaine de caractere concatene
+    fprintf(f,"j loopnonzero\n");//on recommence
+
+    //cas négatif
+    fprintf(f,"\nintostrnegatif:        #if the number is <0\n");
+    fprintf(f,"li $t2,45\n");//on met le caractere '-' dans $t2
+    fprintf(f,"sb $t2,0($v0)\n");//on ecrit le caractere '-' dans la chaine de caractere concatenee
+    fprintf(f,"addi $v0,$v0,1\n");//on incremente l'adresse de la chaine de caractere concatene
+    fprintf(f,"j loopnonzero\n");//on recommence
+
+    //fin
+    fprintf(f,"\nintostrfin:\n");
     fprintf(f,"li $t1,0\n");//on met 0 dans $t1 pour dire que le caractere est nul
     fprintf(f,"sb $t1,0($v0)\n");//on ecrit le caractere nul dans la chaine de caractere concatenee
     fprintf(f,"jr $ra\n");//on retourne
@@ -207,6 +256,7 @@ void MIPSread(FILE *f)
 void labelprint(struct labels l, int size_symb,FILE *f)
 {
     fprintf(f, ".data\n .space %i   #place pour les symboles\n #place pour les lables de chaine de charactere\n", size_symb*4);
+    fprintf(f,"errorstrtoint : .asiicz \"Ce n'est pas un nombre desolé\" \n");
     for (int i = 1; i < l.cur_place; i++)
         fprintf(f, "la%i : .asciiz \"%s\"\n", i, l.tab[i]);
 
@@ -847,4 +897,5 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
     MIPSstrlen(f);
     MIPSstrlen2(f);
     MIPSstrtoint(f);
+    MIPSinttostr(f);
 }//fin fonction
