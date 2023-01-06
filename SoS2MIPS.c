@@ -1,5 +1,70 @@
 #include "SoS2MIPS.h"
 
+void MIPSstrtoint(FILE *f)
+{
+    //write a string to int converter in MIPS
+    fprintf(f,"\nstrtoint:\n");
+
+    //on se place au dernier caractere
+    fprintf(f,"\ninitboucle:\n");
+    fprintf(f,"lb $t1,0($a0)\n");//on charge le caractere dans $t1
+    fprintf(f,"beq $t1,$zero,initfin\n");//si le caractere est nul on sort de la boucle
+    fprintf(f,"addi $a0,$a0,1\n");//on incremente l'adresse de la chaine de caractere
+    fprintf(f,"j initboucle\n");//on recommence
+
+    fprintf(f,"\ninitfin:\n");//on a fini de se placer au dernier caractere
+    fprintf(f,"addi $a0,$a0,-1\n");//on decremente l'adresse de la chaine de caractere
+    fprintf(f,"move $t4,$a0\n");//on sauvegarde l'adresse du dernier caractere dans $t2
+
+    //initialisation des variables
+    fprintf(f,"\nli $t0,1\n");//on initialise le compteur de puissance a 1
+    fprintf(f,"li $t1,0\n");//on initialise le resultat a 0
+    fprintf(f,"li $t2,1\n");//on initialise le signe a 1
+
+    fprintf(f,"\nstrtointboucle:\n");
+    fprintf(f,"lb $t3,0($t4)\n");//on charge le caractere dans $t3
+
+    //test du caractere
+    fprintf(f,"beq $t3,$zero,strtointfin\n");//si le caractere est nul on sort de la boucle
+    fprintf(f,"beq $t3,45,strtointnegatif\n");//si le caractere est - on met le signe a -1
+    fprintf(f,"beq $t3,43,strtointpositif\n");//si le caractere est + on met le signe a 1
+    fprintf(f,"blt $t3,48,error\n");//si le caractere est inferieur a 0 on affiche une erreur
+    fprintf(f,"bgt $t3,57,error\n");//si le caractere est superieur a 9 on affiche une erreur
+
+    //calcul du resultat
+    fprintf(f,"addi $t3,$t3,-48\n");//on soustrait 48 au caractere pour avoir la valeur numerique
+    fprintf(f,"mult $t3,$t0\n");//on multiplie le caractere par la puissance
+    fprintf(f,"mflo $t3\n");//on met le resultat dans $t3
+    fprintf(f,"add $t1,$t1,$t3\n");//on ajoute le resultat a la valeur
+    fprintf(f,"addi $s0,$0,10\n");//on met 10 dans $s0
+    fprintf(f,"mult $t0,$s0\n");//on multiplie la puissance par 10
+    fprintf(f,"mflo $t0\n");//on met le resultat dans $t0
+    fprintf(f,"addi $t4,$t4,-1\n");//on decremente l'adresse de la chaine de caractere
+    fprintf(f,"j strtointboucle\n");//on recommence
+
+    fprintf(f,"\nstrtointnegatif:\n");
+    fprintf(f,"addi $t2,$t2,-1\n");//on met le signe a -1
+    fprintf(f,"j strtointfin\n");//on va à la fin
+
+    fprintf(f,"\nstrtointpositif:\n");
+    fprintf(f,"addi $t2,$t2,1\n");//on met le signe a 1
+    fprintf(f,"j strtointfin\n");//on va à la fin
+
+    fprintf(f,"\nerror:\n");
+    fprintf(f,"li $t1,0\n");//si erreur on met retourne 0
+    fprintf(f,"li $v0,10\n");
+    fprintf(f,"syscall          #la fonction échoue, on veut convertir des strings non compatibles\n");
+
+    fprintf(f,"\nstrtointfin:\n");//on a fini de compter
+    fprintf(f,"mult $t2,$t1\n");//on multiplie le signe par le compteur de puissance
+    fprintf(f,"mflo $t1\n");//on met le resultat dans $t1
+    fprintf(f,"li $t0,0\n");//on initialise le compteur a 0
+    fprintf(f,"li $t3,0\n");//on initialise le caractere a 0
+    fprintf(f,"li $t4,0\n");//on initialise le nombre a 0
+    //fprintf(f,"move $v0,$t1\n");//on met le resultat dans $v0
+    fprintf(f,"jr $ra       #la fonction a bien terminé\n");//on retourne au programme
+}
+
 void MIPSstrlen(FILE *f)
 {
     fprintf(f,"\nstrlen:\n");
@@ -69,22 +134,22 @@ void MIPSstrconcat(FILE *f)
     fprintf(f,"jal strlen2\n");//on calcule la taille de la 2eme chaine de caractere dans $t3
     fprintf(f,"add $t0,$t0,$t3\n");//on additionne les 2 tailles
     
-    fprintf(f,"li $v0,9\n");//on charge 9 dans $v0 pour allouer de la memoire
+    fprintf(f,"li $a0,9\n");//on charge 9 dans $a0 pour allouer de la memoire
     fprintf(f,"syscall\n");//on alloue de la memoire pour la chaine de caractere concatenee
 
     fprintf(f,"\nstrconcatboucle:\n");
-    fprintf(f,"lb $t1,0($a0)\n");//on charge le caractere dans $t1
+    fprintf(f,"lb $t1,0($a1)\n");//on charge le caractere dans $t1
     fprintf(f,"beq $t1,$zero,boucledeuxiemechaine\n");//si le caractere est nul on sort de la boucle
     fprintf(f,"sb $t1,0($v0)\n");//on ecrit le caractere dans la chaine de caractere concatenee
-    fprintf(f,"addi $a0,$a0,1\n");//on incremente l'adresse de la 1ere chaine de caractere
+    fprintf(f,"addi $a1,$a1,1\n");//on incremente l'adresse de la 1ere chaine de caractere
     fprintf(f,"addi $v0,$v0,1\n");//on incremente l'adresse de la chaine de caractere concatene
     fprintf(f,"j strconcatboucle\n");//on recommence
 
     fprintf(f,"\nboucledeuxiemechaine:\n");
-    fprintf(f,"lb $t1,0($a1)\n");//on charge le caractere dans $t1
+    fprintf(f,"lb $t1,0($a2)\n");//on charge le caractere dans $t1
     fprintf(f,"beq $t1,$zero,strconcatfin\n");//si le caractere est nul on sort de la boucle
     fprintf(f,"sb $t1,0($v0)\n");//on ecrit le caractere dans la chaine de caractere concatenee
-    fprintf(f,"addi $a1,$a1,1\n");//on incremente l'adresse de la 2eme chaine de caractere
+    fprintf(f,"addi $a2,$a2,1\n");//on incremente l'adresse de la 2eme chaine de caractere
     fprintf(f,"addi $v0,$v0,1\n");//on incremente l'adresse de la chaine de caractere concatene
     fprintf(f,"j boucledeuxiemechaine\n");//on recommence
 
@@ -781,4 +846,5 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
     MIPSstrconcat(f);
     MIPSstrlen(f);
     MIPSstrlen2(f);
+    MIPSstrtoint(f);
 }//fin fonction

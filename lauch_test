@@ -1,0 +1,11 @@
+
+
+for i in $(ls test/) 
+do
+    ./main < test/$i >/dev/null
+    echo ""
+    echo ""
+    echo "test"$i
+    echo " "
+    java -jar MARS\ Simulateur\ MIPS\ en\ java-20221117/Mars4_5.jar codeMIPS.s
+done

@@ -41,6 +41,9 @@ doc:
 		$(prefixe).y
 	dot -Tpdf < $(prefixe).dot > $(prefixe).pdf
 
+test: 
+	./lauch_test
+
 clean:
 	rm -f *.o $(prefixe).tab.c $(prefixe).tab.h lex.yy.c main \
 		$(prefixe).output $(prefixe).dot $(prefixe).pdf
