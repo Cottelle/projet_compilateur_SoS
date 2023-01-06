@@ -135,6 +135,7 @@ void MIPSstrconcat(FILE *f)
     fprintf(f,"jal strlen\n");//on calcule la taille de la 1ere chaine de caractere dans $t0
     fprintf(f,"jal strlen2\n");//on calcule la taille de la 2eme chaine de caractere dans $t3
     fprintf(f,"add $t0,$t0,$t3\n");//on additionne les 2 tailles
+    fprintf(f,"addi $t0,$t0,1\n");//on incremente de 1 pour le caractere nul
     
     fprintf(f,"move $a0,$t0\n");//on met la taille dans $a0
     fprintf(f,"li $v0,9\n");//on met 9 dans $v0 pour allouer de la memoire
