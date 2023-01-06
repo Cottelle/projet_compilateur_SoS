@@ -53,7 +53,7 @@ void MIPSstrtoint(FILE *f)
     fprintf(f,"\nerror:\n");
     fprintf(f,"li $t1,0\n");//si erreur on met retourne 0
     fprintf(f,"li $v0,10\n");
-    fprintf(f,"syscall\n");
+    fprintf(f,"syscall          #la fonction échoue, on veut convertir des strings non compatibles\n");
 
     fprintf(f,"\nstrtointfin:\n");//on a fini de compter
     fprintf(f,"mult $t2,$t1\n");//on multiplie le signe par le compteur de puissance
@@ -62,7 +62,7 @@ void MIPSstrtoint(FILE *f)
     fprintf(f,"li $t3,0\n");//on initialise le caractere a 0
     fprintf(f,"li $t4,0\n");//on initialise le nombre a 0
     //fprintf(f,"move $v0,$t1\n");//on met le resultat dans $v0
-    fprintf(f,"jr $ra\n");//on retourne au programme
+    fprintf(f,"jr $ra       #la fonction a bien terminé\n");//on retourne au programme
 }
 
 void MIPSstrlen(FILE *f)
