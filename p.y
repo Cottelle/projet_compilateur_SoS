@@ -563,13 +563,21 @@ OPERANDE:'$''{'ID'}'                          {
                                                 }
             |'$''?'                             {
                                                     $$.s = reg(2);
-                                                    
+                                                    gencode(AFF,avc(reg(25),-1),avc(reg(31),-1),avc(NULL,-1),0);                //strore $31->$25 ($25 pas utilisé dans inttostr et elle n'utilise pas d'autre foction = simplification)
+                                                    gencode(AFF,avc(reg(4),-1),avc(reg(2),-1),avc(NULL,-1),0);
+                                                    gencode(CALL,avc((struct symbole *s)"inttostring",-1 ),avc(NULL,-1),avc(NULL,-1),0);
+                                                    gencode(AFF,avc(reg(31),-1),avc(reg(25),-1),avc(NULL,-1),0);
+
+
                                                     $$.addr = -1; 
                                                 }
             |'$''('expr SETUP_OPERATEUR_ENTIER ')' 
             |'$' '('APPEL_FONCTION ')'          {
-                                                    printf("ICICIC\n");
                                                     $$.s= reg(2);
+                                                    gencode(AFF,avc(reg(25),-1),avc(reg(31),-1),avc(NULL,-1),0);                //strore $31->$25 ($25 pas utilisé dans inttostr et elle n'utilise pas d'autre foction = simplification)
+                                                    gencode(AFF,avc(reg(4),-1),avc(reg(2),-1),avc(NULL,-1),0);
+                                                    gencode(CALL,avc((struct symbole *s)"inttostring",-1 ),avc(NULL,-1),avc(NULL,-1),0);
+                                                    gencode(AFF,avc(reg(31),-1),avc(reg(25),-1),avc(NULL,-1),0);
                                                     $$.addr=-1; 
                                                 }
             ;
