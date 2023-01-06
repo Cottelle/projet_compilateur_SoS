@@ -1,0 +1,4 @@
+case a in
+Pouet)a=a;;
+Vroom)b=b;;
+esac

@@ -789,7 +789,7 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                             fprintf(f,"move $s0,$%i\n",quad.quadrup[i].one.s->isint);
                             break;
                         case 3:
-                            fprintf(f,"la $a0,la%i\n",quad.quadrup[i].one.s->memory_place);
+                            fprintf(f,"la $s0,la%i\n",quad.quadrup[i].one.s->memory_place);
                             break;
                         default:
                             printf("Error: variable not found");
@@ -814,17 +814,35 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                             fprintf(f,"move $s1,$%i\n",quad.quadrup[i].two.s->isint);
                             break;
                         case 3:
-                            fprintf(f,"la $a1,la%i\n",quad.quadrup[i].two.s->memory_place);
+                            fprintf(f,"la $s1,la%i\n",quad.quadrup[i].two.s->memory_place);
                             break;
                         default:
                             printf("Error: variable not found");
                             exit(1);
                     }
-                    fprintf(f,"lw $s1,%i\n",quad.quadrup[i].two.s->memory_place);
                 }
                 else
                 {
                     fprintf(f,"li $s1,%i\n",quad.quadrup[i].two.value);
+                }
+                if(quad.quadrup[i].type>=0)
+                {
+                    if(quad.quadrup[i].one.s && quad.quadrup[i].one.s->onstack_reg_label!=2 && quad.quadrup[i].one.s->isint==0 )
+                    {
+                        fprintf(f,"move $a0,$s0\n");
+                        fprintf(f,"move $t9,$ra\n");
+                        fprintf(f,"jal strtoint\n");
+                        fprintf(f,"move $ra,$t9\n");
+                        fprintf(f,"move $s0,$t1\n");
+                    }
+                    if(quad.quadrup[i].two.s && quad.quadrup[i].two.s->onstack_reg_label!=2 && quad.quadrup[i].two.s->isint==0 )
+                    {
+                        fprintf(f,"move $a0,$s1\n");
+                        fprintf(f,"move $t9,$ra\n");
+                        fprintf(f,"jal strtoint\n");
+                        fprintf(f,"move $ra,$t9\n");
+                        fprintf(f,"move $s1,$t1\n");
+                    }
                 }
                 switch(quad.quadrup[i].type)
                 {
@@ -846,6 +864,22 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                     case 5://>=
                         fprintf(f,"bge $s0,$s1,a%i\n",quad.quadrup[i].zero.value);
                         break;
+                    case -2://=
+                        fprintf(f,"move $a0,$s0\n");
+                        fprintf(f,"move $a1,$s1\n");
+                        fprintf(f,"move $t9,$ra\n");
+                        fprintf(f,"jal strcompare\n");
+                        fprintf(f,"move $ra,$t9\n");
+                        fprintf(f,"beq $t0,$0,a%i\n",quad.quadrup[i].zero.value);
+                        break;
+                    case -1://!=
+                        fprintf(f,"move $a0,$s0\n");
+                        fprintf(f,"move $a1,$s1\n");
+                        fprintf(f,"move $t9,$ra\n");
+                        fprintf(f,"jal strcompare\n");
+                        fprintf(f,"move $ra,$t9\n");
+                        fprintf(f,"bne $t0,$0,a%i\n",quad.quadrup[i].zero.value);
+                        break;
                 }//fin switch type
                 break;
             case SYS:
@@ -857,12 +891,14 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                 break;
         }//fin switch instruction
     }//fin for quad
+
+    //écriture des fonctions auxiliaires
     MIPSread(f);
-    if(isstring1 && isstring2)
-        MIPSstrcompare(f);
+    MIPSstrcompare(f);
     MIPSstrconcat(f);
     MIPSstrlen(f);
     MIPSstrlen2(f);
     MIPSstrtoint(f);
-    MIPSinttostr(f);
+    MIPSintostr(f);
+
 }//fin fonction

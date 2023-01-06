@@ -293,7 +293,7 @@ ELSE_PART: elif TEST_BLOC                                                       
     
 
 LISTE_CAS: LISTE_CAS M FILTRE ')' M                                                                                                         { 
-                                                                                                                                                gencode(IF,avc(NULL,-1),avc(casetop().s,casetop().value),avc(clabel($3.last),-1),1); 
+                                                                                                                                                gencode(IF,avc(NULL,-1),avc(casetop().s,casetop().value),avc(clabel($3.last),-1),-1); 
                                                                                                                                                 complete($3.entrer,avc(NULL,quad.next));
                                                                                                                                             } 
                  LISTE_INTRSUCTIONS ';'';'                                                                                                                      {
@@ -304,7 +304,7 @@ LISTE_CAS: LISTE_CAS M FILTRE ')' M                                             
                                                                                                                                                                     $$.follow = crelist($5) ; 
                                                                                                                                                                 } 
             |M FILTRE ')'M                                                                                                                  {
-                                                                                                                                                 gencode(IF,avc(NULL,-1),avc(casetop().s,casetop().value),avc(clabel($2.last),-1),1); 
+                                                                                                                                                 gencode(IF,avc(NULL,-1),avc(casetop().s,casetop().value),avc(clabel($2.last),-1),-1); 
                                                                                                                                                  complete($2.entrer,avc(NULL,quad.next));
                                                                                                                                             } 
                 LISTE_INTRSUCTIONS ';'';'                                                                                                                       {
