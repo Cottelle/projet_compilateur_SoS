@@ -14,6 +14,7 @@ extern struct quad quad;
 extern unsigned int nbarg;
 extern unsigned int nligne;
 unsigned int infun;
+int operateur_stcak_off;
 
 
 
@@ -562,16 +563,14 @@ OPERANDE:'$''{'ID'}'                          {
                                                 }
             |'$''?'                             {
                                                     $$.s = reg(2);
+                                                    
                                                     $$.addr = -1; 
-                                                    /* struct symbole s =simples();
-                                                    s.onstack_reg_label=2;
-                                                    s.name="$?";
-                                                    s.isint = 15;               //prend la valeur du registre
-                                                    struct symbole *sb=createsymbole(&s);      */                 //the symbole $? ????????
                                                 }
             |'$''('expr SETUP_OPERATEUR_ENTIER ')' 
             |'$' '('APPEL_FONCTION ')'          {
-                                                    //Il faut store $? puis appeler la fonction voire le nouveau $? puis remettre l'ancient ou pas, je ne sais pas 
+                                                    printf("ICICIC\n");
+                                                    $$.s= reg(2);
+                                                    $$.addr=-1; 
                                                 }
             ;
 
@@ -590,46 +589,48 @@ OPERATEUR2: teq
             |tle
             ;
 
-SETUP_OPERATEUR_ENTIER:{/*save pile*/ } OPERATEUR_ENTIER {
-                                            /* 
-                                                restorer la pile normale
-                                            */
-                                        }
+SETUP_OPERATEUR_ENTIER:                                     {
+                                                                operateur_stcak_off= stack_off();
+                                                            }
+                    OPERATEUR_ENTIER                        {
 
-OPERATEUR_ENTIER:OPERATEUR_ENTIER {/*store rg 23 sur pile, sp++*/} '*' OPERATEUR_ENTIER  {
-                                                            gencode(AFF, avc(reg(23), -1), avc(stack(-1), -1), avc(reg(23), -1), 3);
-                                                            //sp--
+                                                                operateur_stcak_off = 0;
+                                                            }
+
+OPERATEUR_ENTIER:OPERATEUR_ENTIER {gencode(AFF,avc(stack(operateur_stcak_off*4),-1),avc(reg(23),-1),avc(NULL,-1),0); operateur_stcak_off++;} '*' OPERATEUR_ENTIER  {
+                                                            operateur_stcak_off--;
+                                                            gencode(AFF, avc(reg(23), -1), avc(stack(operateur_stcak_off*4), -1), avc(reg(23), -1), 3);
                                                         }
-                |OPERATEUR_ENTIER {/*store rg 23 sur pile, sp++*/} '/' OPERATEUR_ENTIER  {
-                                                            gencode(AFF, avc(reg(23), -1), avc(stack(-1), -1), avc(reg(23), -1), 4);
-                                                            //sp--
+                |OPERATEUR_ENTIER {gencode(AFF,avc(stack(operateur_stcak_off*4),-1),avc(reg(23),-1),avc(NULL,-1),0); operateur_stcak_off++;} '/' OPERATEUR_ENTIER  {
+                                                            operateur_stcak_off--;
+                                                            gencode(AFF, avc(reg(23), -1), avc(stack(operateur_stcak_off*4), -1), avc(reg(23), -1), 4);
                                                         }
-                |OPERATEUR_ENTIER {/*store rg 23 sur pile, sp++*/} '%' OPERATEUR_ENTIER  {
-                                                            gencode(AFF, avc(reg(23), -1), avc(stack(-1), -1), avc(reg(23), -1), 42);
-                                                            //sp--
+                |OPERATEUR_ENTIER {gencode(AFF,avc(stack(operateur_stcak_off*4),-1),avc(reg(23),-1),avc(NULL,-1),0); operateur_stcak_off++;} '%' OPERATEUR_ENTIER  {
+                                                            operateur_stcak_off--;
+                                                            gencode(AFF, avc(reg(23), -1), avc(stack(operateur_stcak_off*4), -1), avc(reg(23), -1), 42);
                                                         }
-                |OPERATEUR_ENTIER {/*store rg 23 sur pile, sp++*/} '+' OPERATEUR_ENTIER  {
-                                                            gencode(AFF, avc(reg(23), -1), avc(stack(-1), -1), avc(reg(23), -1), 1);
-                                                            //sp--
+                |OPERATEUR_ENTIER {gencode(AFF,avc(stack(operateur_stcak_off*4),-1),avc(reg(23),-1),avc(NULL,-1),0); operateur_stcak_off++;} '+' OPERATEUR_ENTIER  {
+                                                            operateur_stcak_off--;
+                                                            gencode(AFF, avc(reg(23), -1), avc(stack(operateur_stcak_off*4), -1), avc(reg(23), -1), 1);
                                                         }
-                |OPERATEUR_ENTIER {/*store rg 23 sur pile, sp++*/} '-' OPERATEUR_ENTIER  {
-                                                            gencode(AFF, avc(reg(23), -1), avc(stack(-1), -1), avc(reg(23), -1), 2);
-                                                            //sp--
+                |OPERATEUR_ENTIER {gencode(AFF,avc(stack(operateur_stcak_off*4),-1),avc(reg(23),-1),avc(NULL,-1),0); operateur_stcak_off++;} '-' OPERATEUR_ENTIER  {
+                                                            operateur_stcak_off--;
+                                                            gencode(AFF, avc(reg(23), -1), avc(stack(operateur_stcak_off*4), -1), avc(reg(23), -1), 2);
                                                         }
                 |'(' OPERATEUR_ENTIER ')'               {
 
                                                         }
                 |OPERANDE_ENTIER                        {
                                                             gencode(AFF, avc(reg(23), -1), avc($1.s, $1.addr), avc(NULL, -1), 0);
-                                                            //sp--
+                                                            // operateur_stcak_off--;
                                                         }
                 |'+' OPERANDE_ENTIER                    {
                                                             gencode(AFF, avc(reg(23), -1), avc($2.s, $2.addr), avc(NULL, -1), 0);
-                                                            //sp--
+                                                            // operateur_stcak_off--;
                                                         }
                 |'-' OPERANDE_ENTIER                    {
                                                             gencode(AFF, avc(reg(23), -1), avc($2.s, $2.addr), avc(NULL, -1), 3);
-                                                            //sp--
+                                                            // operateur_stcak_off--;
                                                         }
 
 
@@ -637,19 +638,21 @@ OPERATEUR_ENTIER:OPERATEUR_ENTIER {/*store rg 23 sur pile, sp++*/} '*' OPERATEUR
 
 OPERANDE_ENTIER:'$''{'ID'}' {   struct symbole *s;
                                 if ( (s=findtable($3, 0)) == NULL ) {
-                                    snprintf(stderr, "Error line %i : %s doesn't exit\n", nligne+1, $3);
+                                    fprintf(stderr, "Error line %i : %s doesn't exit\n", nligne+1, $3);
                                     exit(1);
                                 }
 
                                 $$.s = reg(9);
 
-                                //save val de retour
+                                gencode(AFF,avc(reg(25),-1),avc(reg(31),-1),avc(NULL,-1),0);                //strore $31->$25 ($25 pas utilisé dans strtoint et elle n'utilise pas d'autre foction = simplification)
                                 gencode(AFF, avc(reg(4), -1), avc(s, -1), avc(NULL, -1), 0);
                                 gencode(CALL, avc((struct symbole *)"strtoint", -1), avc(NULL, -1), avc(NULL, -1), 0);
+                                gencode(AFF,avc(reg(31),-1),avc(reg(25),-1),avc(NULL,-1),0);
+
 
                                 $$.addr=-1;
                             }
-            |'$''{'ID'['OPERANDE_ENTIER']''}'   {
+            |'$''{'ID'['SETUP_OPERATEUR_ENTIER']''}'   {
                                                     $$.s=NULL;
                                                     $$.addr=-1;
                                                 }
@@ -657,7 +660,7 @@ OPERANDE_ENTIER:'$''{'ID'}' {   struct symbole *s;
                             //on connait sp et le décalage on peut retrouver où il se trouve
                             
                             if($2 > nbarg) {
-                                snprintf(stderr, "Error line %i : arg %i is too big\n", nligne+1, $2);
+                                fprintf(stderr, "Error line %i : arg %i is too big\n", nligne+1, $2);
                                 exit(1);
                             }
 
@@ -666,9 +669,11 @@ OPERANDE_ENTIER:'$''{'ID'}' {   struct symbole *s;
                             s=spfindtable(createbuf("$%i", $2), 0);
 
                             $$.s = reg(9);
-                            //save val de retour
+                            gencode(AFF,avc(reg(25),-1),avc(reg(31),-1),avc(NULL,-1),0);                //strore $31->$25 ($25 pas utilisé dans strtoint et elle n'utilise pas d'autre foction = simplification)
                             gencode(AFF, avc(reg(4), -1), avc(s, -1), avc(NULL, -1), 0);
                             gencode(CALL, avc((struct symbole *)"strtoint", -1), avc(NULL, -1), avc(NULL, -1), 0);
+                            gencode(AFF,avc(reg(31),-1),avc(reg(25),-1),avc(NULL,-1),0);
+
                             
                             $$.addr=-1;
                         }

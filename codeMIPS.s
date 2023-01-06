@@ -1,67 +1,143 @@
 .data
  .space 8   #place pour les symboles
  #place pour les lables de chaine de charactere
-la1 : .asciiz "test1"
-la2 : .asciiz "itwork"
-la3 : .asciiz "i"
-la4 : .asciiz "iab"
+la1 : .asciiz "8"
+la2 : .asciiz "3"
+la3 : .asciiz "dqsf"
+la4 : .asciiz "6"
 la0: .space 32         #the buffer for the read buffer of siez 32
   
 
  .text
 a0:
-j a7
+j a25
 a1:
 la $s0,la1
 sw $s0,0x10010000
 a2:
-j a5
+li $s0,3
+move $23,$s0
 a3:
-la $s0,la2
-sw $s0,0x10010004
+move $s0,$23
+sw $s0,20($sp)
 a4:
-j a5
+li $s0,1
+move $23,$s0
 a5:
+move $s0,$23
+sw $s0,24($sp)
+a6:
+li $s0,5
+move $23,$s0
+a7:
+lw $s0,24($sp)
+move $s1,$23
+mult $s0,$s1
+mflo $s0
+move $23,$s0
+a8:
+move $s0,$23
+sw $s0,24($sp)
+a9:
+li $s0,6
+move $23,$s0
+a10:
+move $s0,$23
+sw $s0,28($sp)
+a11:
+li $s0,7
+move $23,$s0
+a12:
+lw $s0,28($sp)
+move $s1,$23
+div $s0,$s1
+mflo $s0
+move $23,$s0
+a13:
+move $s0,$23
+sw $s0,28($sp)
+a14:
+move $s0,$31
+move $25,$s0
+a15:
+lw $s0,0x10010000
+move $4,$s0
+a16:
+jal strtoint
+a17:
+move $s0,$25
+move $31,$s0
+a18:
+move $s0,$9
+move $23,$s0
+a19:
+lw $s0,28($sp)
+move $s1,$23
+add $s0,$s0,$s1
+move $23,$s0
+a20:
+lw $s0,24($sp)
+move $s1,$23
+add $s0,$s0,$s1
+move $23,$s0
+a21:
+lw $s0,20($sp)
+move $s1,$23
+add $s0,$s0,$s1
+move $23,$s0
+a22:
+lw $s0,0x10010000
+sw $s0,0x10010004
+a23:
 li $s0,0
 move $2,$s0
-a6:
+a24:
 move $s0,$31
 jr $s0
-a7:
+a25:
+move $s0,$2
+sw $s0,0x10010004
+a26:
 move $s0,$29
 sw $s0,0($sp)
-a8:
+a27:
 move $s0,$31
 sw $s0,4($sp)
-a9:
+a28:
 move $s0,$29
 li $s1,8
 add $s0,$s0,$s1
 move $29,$s0
-a10:
-la $s0,la3
+a29:
+la $s0,la2
 sw $s0,0($sp)
-a11:
-la $s0,la4
+a30:
+la $s0,la3
 sw $s0,4($sp)
-a12:
+a31:
+la $s0,la4
+sw $s0,8($sp)
+a32:
+li $s0,0
+sw $s0,12($sp)
+a33:
+li $s0,0
+sw $s0,16($sp)
+a34:
 jal a1
-a13:
+a35:
 lw $s0,-4($sp)
 move $31,$s0
-a14:
+a36:
 lw $s0,-8($sp)
 move $29,$s0
-a15:
-lw $s0,0x10010004
-move $4,$s0
-a16:
-li $v0,4
-syscall
-a17:
+a37:
+move $s0,$2
+sw $s0,0x10010004
+a38:
 li $s0,0
 move $2,$s0
-a18:
+a39:
 li $v0,10
 syscall
 
