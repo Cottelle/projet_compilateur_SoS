@@ -74,9 +74,9 @@ void MIPSstrlen(FILE *f)
     fprintf(f,"li $t0,0\n");// compteur de caractere
 
     fprintf(f,"\nstrlenboucle:\n");
-    fprintf(f,"lb $t1,0($a0)\n");//on charge le caractere dans $t1
+    fprintf(f,"lb $t1,0($a1)\n");//on charge le caractere dans $t1
     fprintf(f,"beq $t1,$zero,strlenfin\n");//si le caractere est nul on sort de la boucle
-    fprintf(f,"addi $a0,$a0,1\n");//on incremente l'adresse de la chaine de caractere
+    fprintf(f,"addi $a1,$a1,1\n");//on incremente l'adresse de la chaine de caractere
     fprintf(f,"addi $t0,$t0,1\n");//on incremente le compteur de caractere
     fprintf(f,"j strlenboucle\n");//on recommence
 
@@ -91,9 +91,9 @@ void MIPSstrlen2(FILE *f)
     fprintf(f,"li $t3,0\n");// compteur de caractere
 
     fprintf(f,"\nstrlen2boucle:\n");
-    fprintf(f,"lb $t1,0($a1)\n");//on charge le caractere dans $t1
+    fprintf(f,"lb $t1,0($a2)\n");//on charge le caractere dans $t1
     fprintf(f,"beq $t1,$zero,strlen2fin\n");//si le caractere est nul on sort de la boucle
-    fprintf(f,"addi $a1,$a1,1\n");//on incremente l'adresse de la chaine de caractere
+    fprintf(f,"addi $a2,$a2,1\n");//on incremente l'adresse de la chaine de caractere
     fprintf(f,"addi $t3,$t3,1\n");//on incremente le compteur de caractere
     fprintf(f,"j strlen2boucle\n");//on recommence
 
@@ -166,22 +166,23 @@ void MIPSstrconcat(FILE *f)
 void MIPSintostr(FILE *f)
 {
     fprintf(f,"\nintostr:\n");
-    fprintf(f,"jal strlen\n");//on calcule la taille de la chaine de caractere dans $t0
-    fprintf(f,"move $a0,$t0\n");//on met la taille dans $a0
+    fprintf(f,"li $a0,11\n");//on met la taille dans $a0
     fprintf(f,"li $v0,9\n");//on met 9 dans $v0 pour allouer de la memoire
     fprintf(f,"syscall\n");//on alloue de la memoire pour la chaine de caractere concatenee
 
-    fprintf(f,"bnez $a1,loopnonzero     #cas spécifique du zero\n");//si la valeur est nulle on sort de la boucle
+    fprintf(f,"bnez $a1,intostrloop     #cas spécifique du zero\n");//si la valeur est nulle on sort de la boucle
     fprintf(f,"li $t1,48\n");//on met le caractere '0' dans $t1
     fprintf(f,"sb $t1,0($v0)\n");//on ecrit le caractere '0' dans la chaine de caractere concatenee
     fprintf(f,"sb $zero,1($v0)\n");//on ecrit le caractere nul dans la chaine de caractere concatenee
     fprintf(f,"jr $ra\n");//on retourne
 
     //cas spécifiques
-    fprintf(f,"\nloopnonzero:\n");
+    fprintf(f,"\nintostrloop:\n");
     fprintf(f,"move $t1,$a1\n");//on charge la valeur dans $t1
-    fprintf(f,"beq $t1,$zero,intostrfin\n");//si la valeur est nulle on sort de la boucle
     fprintf(f,"blt $t1,$zero,intostrnegatif\n");//si la valeur est negative on va dans la boucle negative
+
+    fprintf(f,"\nloopnonzero:\n");
+    fprintf(f,"beq $t1,$zero,intostrfin\n");//si la valeur est nulle on sort de la boucle
 
     //calcul de l'entier à écrire
     fprintf(f,"li $t2,10\n");//on met 10 dans $t2
