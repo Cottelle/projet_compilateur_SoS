@@ -1,7 +1,7 @@
 fun(2)
 {
     a=test1;
-    if test mm then 
+    if test !(mm) then 
     b=itwork
     fi
 };

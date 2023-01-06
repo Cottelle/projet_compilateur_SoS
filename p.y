@@ -89,7 +89,7 @@ unsigned int nbfor;
 %%
 
                                                                                                                                                 
-PROGRAMME : {clabel("Bidon: C'est pour read"); } LISTE_INTRSUCTIONS      {gencode(SYS,avc(NULL,10),avc(NULL,-1),avc(NULL,-1),0); }     //On ecrit l'endroit de la mémoire ici pour pouvoir dans le code generer acceder a cette memoire ( par ex dans read)
+PROGRAMME : {clabel("Bidon: C'est pour read"); } LISTE_INTRSUCTIONS      {  gencode(AFF,avc(reg(2),-1),avc(NULL,0),avc(NULL,-1),0);;gencode(SYS,avc(NULL,10),avc(NULL,-1),avc(NULL,-1),0); }     //On ecrit l'endroit de la mémoire ici pour pouvoir dans le code generer acceder a cette memoire ( par ex dans read)
             ;
 
 LISTE_INTRSUCTIONS: LISTE_INTRSUCTIONS ';'INSTRUCTION   {
@@ -109,7 +109,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                 s->nb= 1;                   //idem tableau 
                                                                                                                                                 gencode(AFF, avc(s,-1),avc($3.s,$3.addr),avc(NULL,-1),0);
                                                                                                                                             } 
-            |ID'['OPERATEUR_ENTIER']' '=' CONCATENATION                                                                                      {                                   //peut prende n'importe quelle valeur opêaarnde entier > s.nb
+            |ID'['OPERANDE_ENTIER']' '=' CONCATENATION                                                                                      {                                   //peut prende n'importe quelle valeur opêaarnde entier > s.nb
                                                                                                                                                 $$= NULL;
                                                                                                                                                 struct symbole *s = findtable($1,0);
                                                                                                                                                 if(!s)
@@ -202,7 +202,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
 
 
                                                                                                                                             }
-            |read_ ID'['OPERATEUR_ENTIER']'                                                                                                  {
+            |read_ ID'['OPERANDE_ENTIER']'                                                                                                  {
                                                                                                                                                 $$ = NULL;
                                                                                                                                                 struct symbole *s = findtable($2,0);
                                                                                                                                                 if(!s)
@@ -234,9 +234,10 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                     exit(1);
                                                                                                                                                 }
 
+                                                                                                                                                gencode(AFF,avc(reg(2),-1),avc(NULL,0),avc(NULL,-1),0);
                                                                                                                                                 gencode(GOTO,avc(reg(31),-1) ,avc(NULL,-1),avc(NULL,-1),0);
                                                                                                                                             }
-            |return_ '(' OPERATEUR_ENTIER ')'                                                                                                        {
+            |return_ '(' OPERANDE_ENTIER ')'                                                                                                        {
                                                                                                                                                 $$ =NULL;
                                                                                                                                                 printf(">return entier \n");
                                                                                                                                                 if(!infun)
@@ -245,6 +246,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                     exit(1);
                                                                                                                                                 }
 
+                                                                                                                                                gencode(AFF,avc(reg(2),-1),avc(reg(23),-1),avc(NULL,-1),0);
                                                                                                                                                 gencode(GOTO,avc(reg(31),-1) ,avc(NULL,-1),avc(NULL,-1),0);
                                                                                                                                             }
             |APPEL_FONCTION                                                                                                                 {
@@ -255,13 +257,13 @@ INSTRUCTION : ID '=' CONCATENATION                                              
             |exit_                                                                                                                          {
                                                                                                                                                 $$ =NULL;
                                                                                                                                                 printf(">exit \n");
-                                                                                                                                                gencode(AFF,avc(reg(31),-1) ,avc(NULL,0),avc(NULL,-1),0);
+                                                                                                                                                gencode(AFF,avc(reg(2),-1) ,avc(NULL,0),avc(NULL,-1),0);
                                                                                                                                                 gencode(SYS,avc(NULL,10) ,avc(NULL,-1),avc(NULL,-1),0);
                                                                                                                                             }
-            |exit_ '(' OPERATEUR_ENTIER ')'                                                                                                          {
+            |exit_ '(' OPERANDE_ENTIER ')'                                                                                                          {
                                                                                                                                                 $$ =NULL;
                                                                                                                                                 printf(">exit entier \n");
-                                                                                                                                                gencode(AFF,avc(reg(31),-1) ,avc(reg(23),-1),avc(NULL,-1),0);
+                                                                                                                                                gencode(AFF,avc(reg(2),-1) ,avc(reg(23),-1),avc(NULL,-1),0);
                                                                                                                                                 gencode(SYS,avc(NULL,10) ,avc(NULL,-1),avc(NULL,-1),0);
                                                                                                                                             }
             ;                                       
@@ -281,7 +283,7 @@ ELSE_PART: elif TEST_BLOC                                                       
                                                                                                                                                         gencode(GOTO,avc(NULL,-1),avc(NULL,-1),avc(NULL,-1),0);
                                                                                                                                                       }
             |else_ LISTE_INTRSUCTIONS                                                                                                        {
-                                                                                                                                                 $$ = $2;
+                                                                                                                                                  $$ = $2;
                                                                                                                                                  $$ = concat($$,crelist(quad.next));
                                                                                                                                                  gencode(GOTO,avc(NULL,-1),avc(NULL,-1),avc(NULL,-1),0);
                                                                                                                                              }
@@ -366,7 +368,7 @@ LISTE_OPERANDES:LISTE_OPERANDES OPERANDE {
                                             {
                                                 fprintf(stderr,"Error ligne %i : %s is Unknow declare it \n",1+nligne,$3); 
                                                 exit(2); 
-                                            } 
+                                            }  
                                             $$.start=NULL;
                                             $$.value= NULL;
                                             for(int i=0 ;i<id->nb ; i++)
@@ -491,7 +493,7 @@ OPERANDE:'$''{'ID'}'                          {
                                                 $$.s = findtable($3,0);
                                                 $$.addr = -1;
                                                 }
-            |'$''{'ID'['OPERATEUR_ENTIER']''}' {
+            |'$''{'ID'['OPERANDE_ENTIER']''}' {
                                                     struct symbole *s =findtable("_tab_temp",1);  //variable pour pouvoir manipuler les tableaux 
                                                     struct symbole *id = findtable($3,0);
                                                     if(!id)
@@ -559,7 +561,7 @@ OPERANDE:'$''{'ID'}'                          {
                                                     }
                                                 }
             |'$''?'                             {
-                                                    $$.s = reg(31);
+                                                    $$.s = reg(2);
                                                     $$.addr = -1; 
                                                     /* struct symbole s =simples();
                                                     s.onstack_reg_label=2;
@@ -683,11 +685,12 @@ DECLARATION_FONTION: ID '(' entier ')'                                          
                                                                                     }
                 '{'DECL_LOC LISTE_INTRSUCTIONS '}'                                  {
                                                                                         nbarg = $5.arg;                                     // On resature le nb d'arg d'avant
-                                                                                        complete($8,avc(reg(31),-1));  // -3 --> valeur de retour de la fonction (:pas encore implementé)
+                                                                                        complete($8,avc(NULL,quad.next));  // -3 --> valeur de retour de la fonction (:pas encore implementé)
+                                                                                        gencode(AFF,avc(reg(2),-1),avc(NULL,0),avc(NULL,-1),0);
                                                                                         gencode(GOTO,avc(reg(31),-1),avc(NULL,-1),avc(NULL,-1),0);
                                                                                         popstacknext();                  //the local variable space is delete
-                                                                                        infun--;
                                                                                         complete(crelist($5.quad),avc(NULL,quad.next));
+                                                                                        infun--;
                                                                                     }
             ;
 
