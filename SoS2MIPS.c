@@ -100,6 +100,7 @@ void MIPSstrlen(FILE *f)
     fprintf(f,"\nstrlen:\n");
 
     fprintf(f,"li $t0,0\n");// compteur de caractere
+    fprintf(f,"move $t4,$a1\n");//on sauvegarde l'adresse de la chaine de caractere dans $t4
 
     fprintf(f,"\nstrlenboucle:\n");
     fprintf(f,"lb $t1,0($a1)\n");//on charge le caractere dans $t1
@@ -109,6 +110,7 @@ void MIPSstrlen(FILE *f)
     fprintf(f,"j strlenboucle\n");//on recommence
 
     fprintf(f,"\nstrlenfin:\n");//on a fini de compter
+    fprintf(f,"move $a1,$t4\n");//on remet l'adresse de la chaine de caractere dans $a1
     fprintf(f,"jr $ra\n");//on retourne
 }
 
@@ -117,6 +119,7 @@ void MIPSstrlen2(FILE *f)
     fprintf(f,"\nstrlen2:\n");
 
     fprintf(f,"li $t3,0\n");// compteur de caractere
+    fprintf(f,"move $t4,$a2\n");//on sauvegarde l'adresse de la chaine de caractere dans $t4
 
     fprintf(f,"\nstrlen2boucle:\n");
     fprintf(f,"lb $t1,0($a2)\n");//on charge le caractere dans $t1
@@ -126,6 +129,7 @@ void MIPSstrlen2(FILE *f)
     fprintf(f,"j strlen2boucle\n");//on recommence
 
     fprintf(f,"\nstrlen2fin:\n");//on a fini de compter
+    fprintf(f,"move $a2,$t4\n");//on remet l'adresse de la chaine de caractere dans $a2
     fprintf(f,"jr $ra\n");//on retourne
 }
 

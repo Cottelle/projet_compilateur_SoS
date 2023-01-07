@@ -3,52 +3,14 @@
  #place pour les lables de chaine de charactere
 errorstrtoint : .asciiz "Ce n'est pas un nombre desolé" 
 la1 : .asciiz "a"
-la2 : .asciiz "a"
+la2 : .asciiz "b"
 la0: .space 32         #the buffer for the read buffer of siez 32
   
 
  .text
-a0:
-move $s0,$31
-sw $s0,0($sp)
-a1:
-jal _read
-a2:
-move $s0,$11
-sw $s0,0x10010000
-a3:
-lw $s0,0($sp)
-move $31,$s0
-a4:
-lw $s0,0x10010000
-la $s1,la1
-move $a0,$s0
-move $a1,$s1
-move $t9,$ra
-jal strcompare
-move $ra,$t9
-beq $t0,$0,a6
-a5:
-j a9
-a6:
-la $s0,la2
-move $4,$s0
-a7:
-li $v0,4
-syscall
-a8:
-j a12
-a9:
-lw $s0,0x10010000
-move $4,$s0
-a10:
-li $v0,4
-syscall
-a11:
-j a12
-a12:
-li $s0,0
-move $2,$s0
+la $a1,la1
+la $a2, la2
+jal strconcat
 a13:
 li $v0,10
 syscall
@@ -57,6 +19,7 @@ _read:
 li $v0,8
 li $a1,31
 la $a0, la0
+
 syscall
 li $t0,0
 la $9,la0
