@@ -171,7 +171,6 @@ void MIPSintostr(FILE *f)
     fprintf(f,"li $a0,11\n");//on met la taille dans $a0
     fprintf(f,"li $v0,9\n");//on met 9 dans $v0 pour allouer de la memoire
     fprintf(f,"syscall\n");//on alloue de la memoire pour la chaine de caractere concatenee
-    fprintf(f,"move $v1,$v0\n");//on met l'adresse de la chaine de caractere concatenee dans $t8
 
     fprintf(f,"bnez $a1,intostrloop     #cas spécifique du zero\n");//si la valeur est nulle on sort de la boucle
     fprintf(f,"li $t1,48\n");//on met le caractere '0' dans $t1
@@ -183,6 +182,12 @@ void MIPSintostr(FILE *f)
     fprintf(f,"\nintostrloop:\n");
     fprintf(f,"move $t1,$a1\n");//on charge la valeur dans $t1
     fprintf(f,"blt $t1,$zero,intostrnegatif\n");//si la valeur est negative on va dans la boucle negative
+
+    fprintf(f,"li $t1,11\n");//on met 11 dans $t1
+    fprintf(f,"\nloopendadd:\n");
+    fprintf(f,"beq $t1,$zero,intostrfin\n");//si la valeur est nulle on sort de la boucle
+    fprintf(f,"addi $t1,$t1,-1\n");//on decremente $t1
+    fprintf(f,"j loopendadd\n");//on recommence
 
     fprintf(f,"\nloopnonzero:\n");
     fprintf(f,"beq $t1,$zero,intostrfin\n");//si la valeur est nulle on sort de la boucle
@@ -196,14 +201,14 @@ void MIPSintostr(FILE *f)
     //écriture dans le buffer
     fprintf(f,"addi $t3,$t3,48\n");//on ajoute 48 au reste pour avoir le caractere correspondant
     fprintf(f,"sb $t3,0($v0)\n");//on ecrit le caractere dans la chaine de caractere concatenee
-    fprintf(f,"addi $v0,$v0,1\n");//on incremente l'adresse de la chaine de caractere concatene
+    fprintf(f,"subi $v0,$v0,1\n");//on incremente l'adresse de la chaine de caractere concatene
     fprintf(f,"j loopnonzero\n");//on recommence
 
     //cas négatif
     fprintf(f,"\nintostrnegatif:        #if the number is <0\n");
     fprintf(f,"li $t2,45\n");//on met le caractere '-' dans $t2
     fprintf(f,"sb $t2,0($v0)\n");//on ecrit le caractere '-' dans la chaine de caractere concatenee
-    fprintf(f,"addi $v0,$v0,1\n");//on incremente l'adresse de la chaine de caractere concatene
+    fprintf(f,"subi $v0,$v0,1\n");//on incremente l'adresse de la chaine de caractere concatene
     fprintf(f,"j loopnonzero\n");//on recommence
 
     //fin
