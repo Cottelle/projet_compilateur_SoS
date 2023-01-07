@@ -60,31 +60,34 @@ la $a0, la0
 syscall
 li $t0,0
 la $9,la0
+li $t3,10
 
-loop: 			#taille du buffer lu 
+_readloop: 			#taille du buffer lu 
 lb $t2 , ($9)
-beq $t2, $0 , exit
+beq $t2, $0 , _readexit
+beq $t2, $t3 , _readNL
 addi $t0, $t0, 1
 addi $9 , $t1, 1
-j loop
-
-exit : 
+j _readloop
+_readNL:
+sb $0,($9)
+_readexit : 
 li $v0, 9
 move $a0 , $t0			#alloue
 syscall
 la $9,la0
 move $11, $v0
 
-loop2 :
-beq $t0,$0 , exit2
+_readloop2 :
+beq $t0,$0 , _readexit2
 lb $t2, ($9)
 sb $t2, ($v0)
 addi $9,$9,1
 addi $v0,$v0,1
 addi $t0,$t0,-1
-j loop2
+j _readloop2
 
-exit2 :
+ _readexit2 :
 jr $31					#resulat ds $11
 #the value allocated is in $11
 
@@ -95,20 +98,10 @@ li $t3,10
 strcompareboucle:
 lb $t1,0($a0)
 lb $t2,0($a1)
-beq $t1,$t3,retour1
-beq $t2,$t3,retour2
 bne $t1,$t2,notequal
 beq $t1,$zero,equal
 beq $t1,$t3,equal
 addi $a0,$a0,1
-addi $a1,$a1,1
-j strcompareboucle
-
-retour1:
-addi $a0,$a0,1
-j strcompareboucle
-
-retour2:
 addi $a1,$a1,1
 j strcompareboucle
 

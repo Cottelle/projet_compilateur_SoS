@@ -139,51 +139,6 @@ void MIPSstrcompare(FILE *f)
     fprintf(f,"\nstrcompareboucle:\n");
     fprintf(f,"lb $t1,0($a0)\n");//on charge le 1er caractere dans $t1
     fprintf(f,"lb $t2,0($a1)\n");//on charge le 2eme caractere dans $t2
-
-    //cas particulier du \n
-    fprintf(f,"beq $t1,$t3,retour1\n");//si le caractere est \n on sort de la boucle
-    fprintf(f,"beq $t2,$t3,retour2\n");//si le caractere est \n on sort de la boucle
-
-    fprintf(f,"bne $t1,$t2,notequal\n");//si les 2 caracteres sont differents on sort de la boucle
-    fprintf(f,"beq $t1,$zero,equal\n");//si le caractere est nul on sort de la boucle
-    fprintf(f,"beq $t1,$t3,equal\n");//si le caractere est \n on sort de la boucle
-    fprintf(f,"addi $a0,$a0,1\n");//on incremente l'adresse de la 1ere chaine de caractere
-    fprintf(f,"addi $a1,$a1,1\n");//on incremente l'adresse de la 2eme chaine de caractere
-    fprintf(f,"j strcompareboucle\n");//on recommence
-
-
-    fprintf(f,"\nretour1:\n");
-    fprintf(f,"addi $a0,$a0,1\n");//on met 1 dans $t0 pour dire que les 2 chaines sont differentes
-    fprintf(f,"j strcompareboucle\n");//on sort de la boucle
-
-    fprintf(f,"\nretour2:\n");
-    fprintf(f,"addi $a1,$a1,1\n");//on met 1 dans $t0 pour dire que les 2 chaines sont differentes
-    fprintf(f,"j strcompareboucle\n");//on sort de la boucle
-    
-
-    fprintf(f,"\nnotequal:\n");
-    fprintf(f,"addi $t0,$t0,1\n");//on met 1 dans $t0 pour dire que les 2 chaines sont differentes
-    fprintf(f,"j strcomparefin\n");//on sort de la boucle
-
-    fprintf(f,"\nequal:\n");
-    fprintf(f,"addi $t0,$t0,0\n");//on met 0 dans $t0 pour dire que les 2 chaines sont egales
-    fprintf(f,"j strcomparefin\n");//on sort de la boucle
-
-
-    fprintf(f,"\nstrcomparefin:\n");//on a fini de comparer
-    fprintf(f,"jr $ra\n");//on retourne
-}
-
-void MIPSstrconcat(FILE *f)
-{
-    fprintf(f,"\nstrcompare:\n");
-
-    fprintf(f,"li $t0,0\n");//renvoie 0 si les 2 chaines sont egales
-    fprintf(f,"li $t3,10\n");//renvoie 1 si les 2 chaines sont differentes
-
-    fprintf(f,"\nstrcompareboucle:\n");
-    fprintf(f,"lb $t1,0($a0)\n");//on charge le 1er caractere dans $t1
-    fprintf(f,"lb $t2,0($a1)\n");//on charge le 2eme caractere dans $t2
     fprintf(f,"bne $t1,$t2,notequal\n");//si les 2 caracteres sont differents on sort de la boucle
     fprintf(f,"beq $t1,$zero,equal\n");//si le caractere est nul on sort de la boucle
     fprintf(f,"beq $t1,$t3,equal\n");//si le caractere est \n
@@ -201,6 +156,42 @@ void MIPSstrconcat(FILE *f)
 
 
     fprintf(f,"\nstrcomparefin:\n");//on a fini de comparer
+    fprintf(f,"jr $ra\n");//on retourne
+}
+
+void MIPSstrconcat(FILE *f)
+{
+    fprintf(f,"\nstrconcat:\n");
+    fprintf(f,"jal strlen\n");//on calcule la taille de la 1ere chaine de caractere dans $t0
+    fprintf(f,"jal strlen2\n");//on calcule la taille de la 2eme chaine de caractere dans $t3
+    fprintf(f,"add $t0,$t0,$t3\n");//on additionne les 2 tailles
+    fprintf(f,"addi $t0,$t0,1\n");//on incremente de 1 pour le caractere nul
+    
+    fprintf(f,"move $a0,$t0\n");//on met la taille dans $a0
+    fprintf(f,"li $v0,9\n");//on met 9 dans $v0 pour allouer de la memoire
+    fprintf(f,"syscall\n");//on alloue de la memoire pour la chaine de caractere concatenee
+    fprintf(f,"move $v1,$v0\n");//on met l'adresse de la chaine de caractere concatenee dans $v1
+
+    fprintf(f,"\nstrconcatboucle:\n");
+    fprintf(f,"lb $t1,0($a1)\n");//on charge le caractere dans $t1
+    fprintf(f,"beq $t1,$zero,boucledeuxiemechaine\n");//si le caractere est nul on sort de la boucle
+    fprintf(f,"sb $t1,0($v0)\n");//on ecrit le caractere dans la chaine de caractere concatenee
+    fprintf(f,"addi $a1,$a1,1\n");//on incremente l'adresse de la 1ere chaine de caractere
+    fprintf(f,"addi $v0,$v0,1\n");//on incremente l'adresse de la chaine de caractere concatene
+    fprintf(f,"j strconcatboucle\n");//on recommence
+
+    fprintf(f,"\nboucledeuxiemechaine:\n");
+    fprintf(f,"lb $t1,0($a2)\n");//on charge le caractere dans $t1
+    fprintf(f,"beq $t1,$zero,strconcatfin\n");//si le caractere est nul on sort de la boucle
+    fprintf(f,"sb $t1,0($v0)\n");//on ecrit le caractere dans la chaine de caractere concatenee
+    fprintf(f,"addi $a2,$a2,1\n");//on incremente l'adresse de la 2eme chaine de caractere
+    fprintf(f,"addi $v0,$v0,1\n");//on incremente l'adresse de la chaine de caractere concatene
+    fprintf(f,"j boucledeuxiemechaine\n");//on recommence
+
+
+    fprintf(f,"\nstrconcatfin:\n");
+    fprintf(f,"li $t1,0\n");//on met 0 dans $t1 pour dire que le caractere est nul
+    fprintf(f,"sb $t1,0($v0)\n");//on ecrit le caractere nul dans la chaine de caractere concatenee
     fprintf(f,"jr $ra\n");//on retourne
 }
 
@@ -290,8 +281,8 @@ void MIPSread(FILE *f)
     fprintf(f,"addi $9 , $t1, 1\n");
     fprintf(f,"j _readloop\n");
 
-    fprintf(f,"_readNL:");
-    fprintf(f,"sw $0,($9)");
+    fprintf(f,"_readNL:\n");
+    fprintf(f,"sb $0,($9)");
     
     fprintf(f,"\n_readexit : \n");
     fprintf(f,"li $v0, 9\n");
@@ -310,7 +301,7 @@ void MIPSread(FILE *f)
     fprintf(f,"addi $t0,$t0,-1\n");
     fprintf(f,"j _readloop2\n");
 
-    fprintf(f,"\n_readnexit2 : \n");
+    fprintf(f,"\n _readexit2 :\n");
 
     fprintf(f,"jr $31					#resulat ds $11\n");
     fprintf(f,"#the value allocated is in $11\n");
