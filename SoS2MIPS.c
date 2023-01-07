@@ -51,7 +51,7 @@ void MIPSstrtoint(FILE *f)
 
     //test du caractere
     fprintf(f,"beq $t3,$zero,strtointfin\n");//si le caractere est nul on sort de la boucle
-    fprintf(f,"li $t5,10");//on met 10 dans $t5
+    fprintf(f,"li $t5,10\n");//on met 10 dans $t5
     fprintf(f,"beq $t3,$t5,strtointfin\n");//si le caractere est un retour a la ligne on sort de la boucle
     fprintf(f,"beq $t3,45,strtointnegatif\n");//si le caractere est - on met le signe a -1
     fprintf(f,"beq $t3,43,strtointpositif\n");//si le caractere est + on met le signe a 1
