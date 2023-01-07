@@ -1,5 +1,6 @@
-if test bla = bla then 
-echo blabla
-else
-echo bloblo
+read a;
+if test ${a} = a then 
+echo a
+else 
+echo ${a}
 fi

@@ -4,12 +4,6 @@
 errorstrtoint : .asciiz "Ce n'est pas un nombre desolé" 
 la1 : .asciiz "a"
 la2 : .asciiz "a"
-la3 : .asciiz "oui"
-la4 : .asciiz "a"
-la5 : .asciiz "a"
-la6 : .asciiz "a"
-la7 : .asciiz "Bidon"
-la8 : .asciiz "rien"
 la0: .space 32         #the buffer for the read buffer of siez 32
   
 
@@ -26,8 +20,8 @@ a3:
 lw $s0,0($sp)
 move $31,$s0
 a4:
-la $s0,la1
-la $s1,la2
+lw $s0,0x10010000
+la $s1,la1
 move $a0,$s0
 move $a1,$s1
 move $t9,$ra
@@ -37,53 +31,25 @@ beq $t0,$0,a6
 a5:
 j a9
 a6:
-la $s0,la3
+la $s0,la2
 move $4,$s0
 a7:
 li $v0,4
 syscall
 a8:
-j a9
+j a12
 a9:
-la $s0,la4
-la $s1,la5
-move $a0,$s0
-move $a1,$s1
-move $t9,$ra
-jal strcompare
-move $ra,$t9
-bne $t0,$0,a13
+lw $s0,0x10010000
+move $4,$s0
 a10:
-la $s0,la6
-move $4,$s0
+li $v0,4
+syscall
 a11:
-li $v0,4
-syscall
+j a12
 a12:
-j a18
-a13:
-j a15
-a14:
-la $s0,la4
-la $s1,la7
-move $a0,$s0
-move $a1,$s1
-move $t9,$ra
-jal strcompare
-move $ra,$t9
-bne $t0,$0,a18
-a15:
-la $s0,la8
-move $4,$s0
-a16:
-li $v0,4
-syscall
-a17:
-j a18
-a18:
 li $s0,0
 move $2,$s0
-a19:
+a13:
 li $v0,10
 syscall
 
@@ -124,13 +90,25 @@ jr $31					#resulat ds $11
 
 strcompare:
 li $t0,0
+li $t3,10
 
 strcompareboucle:
 lb $t1,0($a0)
 lb $t2,0($a1)
+beq $t1,$t3,retour1
+beq $t2,$t3,retour2
 bne $t1,$t2,notequal
 beq $t1,$zero,equal
+beq $t1,$t3,equal
 addi $a0,$a0,1
+addi $a1,$a1,1
+j strcompareboucle
+
+retour1:
+addi $a0,$a0,1
+j strcompareboucle
+
+retour2:
 addi $a1,$a1,1
 j strcompareboucle
 
