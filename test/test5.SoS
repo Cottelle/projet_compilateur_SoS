@@ -1,6 +1,8 @@
+read a;
+if test a = a then 
+echo oui 
+fi;
 case a in               #Ne marche pas
-c)echo c;;
-b) echo b;;
 a) echo a ;;
 *) echo rien;;
 esac

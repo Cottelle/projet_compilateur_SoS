@@ -1,74 +1,89 @@
 .data
- .space 0   #place pour les symboles
+ .space 4   #place pour les symboles
  #place pour les lables de chaine de charactere
 errorstrtoint : .asciiz "Ce n'est pas un nombre desolé" 
 la1 : .asciiz "a"
-la2 : .asciiz "c"
-la3 : .asciiz "c"
-la4 : .asciiz "b"
-la5 : .asciiz "b"
+la2 : .asciiz "a"
+la3 : .asciiz "oui"
+la4 : .asciiz "a"
+la5 : .asciiz "a"
 la6 : .asciiz "a"
-la7 : .asciiz "a"
-la8 : .asciiz "Bidon"
-la9 : .asciiz "rien"
+la7 : .asciiz "Bidon"
+la8 : .asciiz "rien"
 la0: .space 32         #the buffer for the read buffer of siez 32
   
 
  .text
 a0:
-la $s0,la1
-la $s1,la2
-bne $s0,$s1,a4
+move $s0,$31
+sw $s0,0($sp)
 a1:
-la $s0,la3
-move $4,$s0
+jal _read
 a2:
-li $v0,4
-syscall
+move $s0,$11
+sw $s0,0x10010000
 a3:
-j a17
+lw $s0,0($sp)
+move $31,$s0
 a4:
 la $s0,la1
-la $s1,la4
-bne $s0,$s1,a8
+la $s1,la2
+move $a0,$s0
+move $a1,$s1
+move $t9,$ra
+jal strcompare
+move $ra,$t9
+beq $t0,$0,a6
 a5:
-la $s0,la5
-move $4,$s0
+j a9
 a6:
-li $v0,4
-syscall
+la $s0,la3
+move $4,$s0
 a7:
-j a17
+li $v0,4
+syscall
 a8:
-la $s0,la1
-la $s1,la6
-bne $s0,$s1,a12
+j a9
 a9:
-la $s0,la7
-move $4,$s0
+la $s0,la4
+la $s1,la5
+move $a0,$s0
+move $a1,$s1
+move $t9,$ra
+jal strcompare
+move $ra,$t9
+bne $t0,$0,a13
 a10:
-li $v0,4
-syscall
-a11:
-j a17
-a12:
-j a14
-a13:
-la $s0,la1
-la $s1,la8
-bne $s0,$s1,a17
-a14:
-la $s0,la9
+la $s0,la6
 move $4,$s0
-a15:
+a11:
 li $v0,4
 syscall
+a12:
+j a18
+a13:
+j a15
+a14:
+la $s0,la4
+la $s1,la7
+move $a0,$s0
+move $a1,$s1
+move $t9,$ra
+jal strcompare
+move $ra,$t9
+bne $t0,$0,a18
+a15:
+la $s0,la8
+move $4,$s0
 a16:
-j a17
+li $v0,4
+syscall
 a17:
+j a18
+a18:
 li $s0,0
 move $2,$s0
-a18:
+a19:
 li $v0,10
 syscall
 

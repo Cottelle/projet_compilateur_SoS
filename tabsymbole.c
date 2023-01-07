@@ -454,7 +454,7 @@ void printtabsymbole(void)
 
     printf("\nLabel\n");
     for (unsigned int i = 0; i < labels.cur_place; i++)
-        printf("la%i: %s \n", i, labels.tab[i]);
+        printf("la%i: %s (len: %li) \n", i, labels.tab[i],strlen(labels.tab[i]));
 
     printf("\n");
 }
