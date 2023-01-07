@@ -51,6 +51,8 @@ void MIPSstrtoint(FILE *f)
 
     //test du caractere
     fprintf(f,"beq $t3,$zero,strtointfin\n");//si le caractere est nul on sort de la boucle
+    fprintf(f,"li $t5,10");//on met 10 dans $t5
+    fprintf(f,"beq $t3,$t5,strtointfin\n");//si le caractere est un retour a la ligne on sort de la boucle
     fprintf(f,"beq $t3,45,strtointnegatif\n");//si le caractere est - on met le signe a -1
     fprintf(f,"beq $t3,43,strtointpositif\n");//si le caractere est + on met le signe a 1
     fprintf(f,"blt $t3,48,error\n");//si le caractere est inferieur a 0 on affiche une erreur
@@ -79,6 +81,7 @@ void MIPSstrtoint(FILE *f)
     fprintf(f,"li $t1,0\n");//si erreur on met retourne 0
     fprintf(f,"la $a0,errorstrtoint\n");
     fprintf(f,"li $v0,4\n");
+    fprintf(f,"syscall\n");
     fprintf(f,"li $v0,10\n");
     fprintf(f,"syscall          #la fonction échoue, on veut convertir des strings non compatibles\n");
 
