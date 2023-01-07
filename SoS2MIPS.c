@@ -140,7 +140,7 @@ void MIPSstrconcat(FILE *f)
     fprintf(f,"move $a0,$t0\n");//on met la taille dans $a0
     fprintf(f,"li $v0,9\n");//on met 9 dans $v0 pour allouer de la memoire
     fprintf(f,"syscall\n");//on alloue de la memoire pour la chaine de caractere concatenee
-    fprintf(f,"move $t8,$v0\n");//on met l'adresse de la chaine de caractere concatenee dans $t8
+    fprintf(f,"move $v1,$v0\n");//on met l'adresse de la chaine de caractere concatenee dans $v1
 
     fprintf(f,"\nstrconcatboucle:\n");
     fprintf(f,"lb $t1,0($a1)\n");//on charge le caractere dans $t1
@@ -171,7 +171,7 @@ void MIPSintostr(FILE *f)
     fprintf(f,"li $a0,11\n");//on met la taille dans $a0
     fprintf(f,"li $v0,9\n");//on met 9 dans $v0 pour allouer de la memoire
     fprintf(f,"syscall\n");//on alloue de la memoire pour la chaine de caractere concatenee
-    fprintf(f,"move $t8,$v0\n");//on met l'adresse de la chaine de caractere concatenee dans $t8
+    fprintf(f,"move $v1,$v0\n");//on met l'adresse de la chaine de caractere concatenee dans $t8
 
     fprintf(f,"bnez $a1,intostrloop     #cas spécifique du zero\n");//si la valeur est nulle on sort de la boucle
     fprintf(f,"li $t1,48\n");//on met le caractere '0' dans $t1
