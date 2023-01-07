@@ -197,7 +197,7 @@ void MIPSintostr(FILE *f)
     fprintf(f,"li $v0,9\n");//on met 9 dans $v0 pour allouer de la memoire
     fprintf(f,"syscall\n");//on alloue de la memoire pour la chaine de caractere concatenee
 
-    fprintf(f,"bnez $a1,intostrloop     #cas spécifique du zero\n");//si la valeur est nulle on sort de la boucle
+    fprintf(f,"bnez $a1,intostrloop     #cas spécifique du zero\n");//si la valeur est nulle on ne va pas dans la boucle
     fprintf(f,"li $t1,48\n");//on met le caractere '0' dans $t1
     fprintf(f,"sb $t1,0($v0)\n");//on ecrit le caractere '0' dans la chaine de caractere concatenee
     fprintf(f,"sb $zero,1($v0)\n");//on ecrit le caractere nul dans la chaine de caractere concatenee
@@ -209,11 +209,18 @@ void MIPSintostr(FILE *f)
     fprintf(f,"blt $t1,$zero,intostrnegatif\n");//si la valeur est negative on va dans la boucle negative
 
     //boucle pour aller à la fin de la chaine de caractere
-    fprintf(f,"li $t2,11\n");//on met 11 dans $t1
+    fprintf(f,"li $t2,10\n");//on met 10 dans $t1
     fprintf(f,"\nloopendadd:\n");
-    fprintf(f,"beq $t2,$zero,intostrfin\n");//si la valeur est nulle on sort de la boucle
-    fprintf(f,"addi $t2,$t2,-1\n");//on decremente $t1
+    fprintf(f,"beq $t2,$zero,finloopendadd\n");//si la valeur est nulle on sort de la boucle
+    fprintf(f,"addi $v0,$v0,1\n");//on incremente l'adresse de la chaine de caractere concatene
+    fprintf(f,"addi $t2,$t2,-1\n");//on decremente $t2
     fprintf(f,"j loopendadd\n");//on recommence
+
+    fprintf(f,"\nfinloopendadd:\n");
+    fprintf(f,"move $v1,$v0\n");//on met l'adresse de la chaine de caractere concatenee dans $v1
+    fprintf(f,"addi $v1,$v1,1\n");//on incremente l'adresse de la chaine de caractere concatenee
+    fprintf(f,"sb $zero,0($v1)\n");//on met le caractere nul à la fin de la chaine de caractere
+
 
     //boucle pour écrire la chaine de caractere
     fprintf(f,"\nloopnonzero:\n");
@@ -234,14 +241,17 @@ void MIPSintostr(FILE *f)
     //cas négatif
     fprintf(f,"\nintostrnegatif:        #if the number is <0\n");
     fprintf(f,"li $t2,45\n");//on met le caractere '-' dans $t2
-    fprintf(f,"sb $t2,0($v0)\n");//on ecrit le caractere '-' dans la chaine de caractere concatenee
-    fprintf(f,"subi $v0,$v0,1\n");//on incremente l'adresse de la chaine de caractere concatene
     fprintf(f,"j loopnonzero\n");//on recommence
+
+    //fin négatif
+    fprintf(f,"\nnegfin:\n");
+    fprintf(f,"sb $t2,0($v0)\n");
+    fprintf(f,"jr $ra\n");//on retourne
 
     //fin
     fprintf(f,"\nintostrfin:\n");
-    fprintf(f,"li $t1,0\n");//on met 0 dans $t1 pour dire que le caractere est nul
-    fprintf(f,"sb $t1,0($v0)\n");//on ecrit le caractere nul dans la chaine de caractere concatenee
+    fprintf(f,"bne $t2,$zero,negfin\n");//on decremente l'adresse de la chaine de caractere concatenee
+    fprintf(f,"addi $v0,$v0,1\n");//on incremente l'adresse de la chaine de caractere concatenee
     fprintf(f,"jr $ra\n");//on retourne
 }
 
