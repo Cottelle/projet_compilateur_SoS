@@ -2,165 +2,52 @@
  .space 4   #place pour les symboles
  #place pour les lables de chaine de charactere
 errorstrtoint : .asciiz "Ce n'est pas un nombre desolé" 
-la1 : .asciiz "0"
-la2 : .asciiz "0"
 la0: .space 32         #the buffer for the read buffer of siez 32
   
 
  .text
 a0:
-j a35
+li $s0,10
+move $23,$s0
 a1:
-lw $s0,0($sp)
-la $s1,la1
-move $a0,$s0
-move $t9,$ra
-jal strtoint
-move $ra,$t9
-move $s0,$t1
-move $a0,$s1
-move $t9,$ra
-move $s4,$s0
-jal strtoint
-move $s0,$s4
-move $ra,$t9
-move $s1,$t1
-beq $s0,$s1,a3
-a2:
-j a8
-a3:
-la $s0,la2
-move $4,$s0
-a4:
-li $v0,4
-syscall
-a5:
-li $s0,0
-move $2,$s0
-a6:
-move $s0,$31
-jr $s0
-a7:
-j a33
-a8:
-move $s0,$2
-move $24,$s0
-a9:
-move $s0,$31
-move $25,$s0
-a10:
-lw $s0,0($sp)
-move $4,$s0
-a11:
-jal strtoint
-a12:
-move $s0,$25
-move $31,$s0
-a13:
-move $s0,$24
-move $2,$s0
-a14:
-move $s0,$9
-move $23,$s0
-a15:
 move $s0,$23
-sw $s0,4($sp)
-a16:
-li $s0,1
+sw $s0,0($sp)
+a2:
+li $s0,3
 move $23,$s0
-a17:
-lw $s0,4($sp)
+a3:
+lw $s0,0($sp)
 move $s1,$23
-sub $s0,$s0,$s1
+div $s0,$s1
+mfhi $s0
 move $23,$s0
-a18:
+a4:
 move $s0,$31
 move $25,$s0
-a19:
+a5:
 move $s0,$2
 move $24,$s0
-a20:
+a6:
 move $s0,$23
 move $5,$s0
-a21:
+a7:
 jal intostr
-a22:
+a8:
 move $s0,$25
 move $31,$s0
-a23:
+a9:
 move $s0,$2
 sw $s0,0x10010000
-a24:
-move $s0,$29
-sw $s0,4($sp)
-a25:
-move $s0,$31
-sw $s0,8($sp)
-a26:
-move $s0,$29
-li $s1,12
-add $s0,$s0,$s1
-move $29,$s0
-a27:
+a10:
 lw $s0,0x10010000
-sw $s0,0($sp)
-a28:
-jal a1
-a29:
-lw $s0,-4($sp)
-move $31,$s0
-a30:
-lw $s0,-8($sp)
-move $29,$s0
-a31:
-lw $s0,0($sp)
 move $4,$s0
-a32:
+a11:
 li $v0,4
 syscall
-a33:
+a12:
 li $s0,0
 move $2,$s0
-a34:
-move $s0,$31
-jr $s0
-a35:
-move $s0,$31
-sw $s0,0($sp)
-a36:
-jal _read
-a37:
-move $s0,$11
-sw $s0,0x10010000
-a38:
-lw $s0,0($sp)
-move $31,$s0
-a39:
-move $s0,$29
-sw $s0,4($sp)
-a40:
-move $s0,$31
-sw $s0,8($sp)
-a41:
-move $s0,$29
-li $s1,12
-add $s0,$s0,$s1
-move $29,$s0
-a42:
-lw $s0,0x10010000
-sw $s0,0($sp)
-a43:
-jal a1
-a44:
-lw $s0,-4($sp)
-move $31,$s0
-a45:
-lw $s0,-8($sp)
-move $29,$s0
-a46:
-li $s0,0
-move $2,$s0
-a47:
+a13:
 li $v0,10
 syscall
 
@@ -209,10 +96,20 @@ li $t3,10
 strcompareboucle:
 lb $t1,0($a0)
 lb $t2,0($a1)
+beq $t1,$t3,retour1
+beq $t2,$t3,retour2
 bne $t1,$t2,notequal
 beq $t1,$zero,equal
 beq $t1,$t3,equal
 addi $a0,$a0,1
+addi $a1,$a1,1
+j strcompareboucle
+
+retour1:
+addi $a0,$a0,1
+j strcompareboucle
+
+retour2:
 addi $a1,$a1,1
 j strcompareboucle
 

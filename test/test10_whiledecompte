@@ -1,0 +1,6 @@
+
+read a;
+while test ${a} -ne 0 do
+echo ${a};
+a = $(expr ${a} - 1)
+done

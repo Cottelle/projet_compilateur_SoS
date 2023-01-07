@@ -1,4 +1,0 @@
- a= $(expr 4 );
-echo ${a};
-b =$(expr ${a});
-echo qsd ${b}

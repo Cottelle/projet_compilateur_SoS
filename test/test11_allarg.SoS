@@ -1,0 +1,6 @@
+fun(4)
+{
+    echo $*
+};
+
+fun Voici Une Belle Fonction
