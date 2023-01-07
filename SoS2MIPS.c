@@ -139,12 +139,27 @@ void MIPSstrcompare(FILE *f)
     fprintf(f,"\nstrcompareboucle:\n");
     fprintf(f,"lb $t1,0($a0)\n");//on charge le 1er caractere dans $t1
     fprintf(f,"lb $t2,0($a1)\n");//on charge le 2eme caractere dans $t2
+
+    //cas particulier du \n
+    fprintf(f,"beq $t1,$t3,retour1\n");//si le caractere est \n on sort de la boucle
+    fprintf(f,"beq $t2,$t3,retour2\n");//si le caractere est \n on sort de la boucle
+
     fprintf(f,"bne $t1,$t2,notequal\n");//si les 2 caracteres sont differents on sort de la boucle
     fprintf(f,"beq $t1,$zero,equal\n");//si le caractere est nul on sort de la boucle
     fprintf(f,"beq $t1,$t3,equal\n");//si le caractere est \n on sort de la boucle
     fprintf(f,"addi $a0,$a0,1\n");//on incremente l'adresse de la 1ere chaine de caractere
     fprintf(f,"addi $a1,$a1,1\n");//on incremente l'adresse de la 2eme chaine de caractere
     fprintf(f,"j strcompareboucle\n");//on recommence
+
+
+    fprintf(f,"\nretour1:\n");
+    fprintf(f,"addi $a0,$a0,1\n");//on met 1 dans $t0 pour dire que les 2 chaines sont differentes
+    fprintf(f,"j strcompareboucle\n");//on sort de la boucle
+
+    fprintf(f,"\nretour2:\n");
+    fprintf(f,"addi $a1,$a1,1\n");//on met 1 dans $t0 pour dire que les 2 chaines sont differentes
+    fprintf(f,"j strcompareboucle\n");//on sort de la boucle
+    
 
     fprintf(f,"\nnotequal:\n");
     fprintf(f,"addi $t0,$t0,1\n");//on met 1 dans $t0 pour dire que les 2 chaines sont differentes
