@@ -1,3 +1,5 @@
-a=3;
-b=aaaaaaaa${a};
-echo ${b}
+a = 3;
+b= $(expr ${a});
+if test ${a} -eq ${b} then 
+echo Oui
+fi

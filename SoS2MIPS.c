@@ -918,7 +918,10 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                     {
                         fprintf(f,"move $a0,$s1\n");
                         fprintf(f,"move $t9,$ra\n");
+                        fprintf(f,"move $s4,$s0\n");    //save the value of s0 beacause use in strtoint
+                        
                         fprintf(f,"jal strtoint\n");
+                        fprintf(f,"move $s0,$s4\n");    //restore
                         fprintf(f,"move $ra,$t9\n");
                         fprintf(f,"move $s1,$t1\n");
                     }

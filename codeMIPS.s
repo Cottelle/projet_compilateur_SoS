@@ -3,7 +3,7 @@
  #place pour les lables de chaine de charactere
 errorstrtoint : .asciiz "Ce n'est pas un nombre desolé" 
 la1 : .asciiz "3"
-la2 : .asciiz "aaaaaaaa"
+la2 : .asciiz "Oui"
 la0: .space 32         #the buffer for the read buffer of siez 32
   
 
@@ -18,32 +18,66 @@ a2:
 move $s0,$31
 move $25,$s0
 a3:
-la $s0,la2
-move $5,$s0
-a4:
 lw $s0,0x10010000
-move $6,$s0
+move $4,$s0
+a4:
+jal strtoint
 a5:
-jal strconcat
+move $s0,$25
+move $31,$s0
 a6:
 move $s0,$24
 move $2,$s0
 a7:
-move $s0,$25
-move $31,$s0
+move $s0,$9
+move $23,$s0
 a8:
-move $s0,$3
-sw $s0,0x10010004
+move $s0,$31
+move $25,$s0
 a9:
-lw $s0,0x10010004
-move $4,$s0
+move $s0,$2
+move $24,$s0
 a10:
+move $s0,$23
+move $5,$s0
+a11:
+jal intostr
+a12:
+move $s0,$31
+move $25,$s0
+a13:
+move $s0,$2
+sw $s0,0x10010004
+a14:
+lw $s0,0x10010000
+lw $s1,0x10010004
+move $a0,$s0
+move $t9,$ra
+jal strtoint
+move $ra,$t9
+move $s0,$t1
+move $a0,$s1
+move $t9,$ra
+move $s4,$s0
+jal strtoint
+move $s0,$s4
+move $ra,$t9
+move $s1,$t1
+beq $s0,$s1,a16
+a15:
+j a19
+a16:
+la $s0,la2
+move $4,$s0
+a17:
 li $v0,4
 syscall
-a11:
+a18:
+j a19
+a19:
 li $s0,0
 move $2,$s0
-a12:
+a20:
 li $v0,10
 syscall
 
