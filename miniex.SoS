@@ -1,3 +1,5 @@
-a=4;
-b= $(expr 3 * 2 + ${a});
-echo ${b}
+if test bla = bla then 
+echo blabla
+else
+echo bloblo
+fi

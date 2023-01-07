@@ -1,5 +1,30 @@
 #include "SoS2MIPS.h"
 
+/*
+bibliothèques MIPS:
+    strtoint: convertit une chaine de caractere en entier
+        entrée: $a0: adresse de la chaine de caractere
+        retour: $t1: entier
+    strlen: calcule la longueur d'une chaine de caractere mise dans $a1
+        entrée: $a1: adresse de la chaine de caractere
+        retour: $t0: longueur de la chaine de caractere
+    strlen2: calcule la longueur d'une chaine de caractere mise dans $a2
+        entrée: $a2: adresse de la chaine de caractere
+        retour: $t3: longueur de la chaine de caractere
+    strcompare: compare deux chaines de caractere
+        entrée: $a0: adresse de la premiere chaine de caractere
+                $a1: adresse de la deuxieme chaine de caractere
+        retour: $t0: 0 si les chaines sont identiques, 1 sinon
+    strconcat: concatene deux chaines de caractere
+        entrée: $a1: adresse de la premiere chaine de caractere (on commence à a1 pour pouvoir allouer la mémoire)
+                $a2: adresse de la deuxieme chaine de caractere
+        retour: $v1: adresse de la chaine de caractere concatenee
+    intostr: convertit un entier en chaine de caractere
+        entrée: $a1: entier                                     (on commence à a1 pour pouvoir allouer la mémoire)
+        retour: $v1: adresse de la chaine de caractere
+*/
+
+
 void MIPSstrtoint(FILE *f)
 {
     //write a string to int converter in MIPS
@@ -26,6 +51,8 @@ void MIPSstrtoint(FILE *f)
 
     //test du caractere
     fprintf(f,"beq $t3,$zero,strtointfin\n");//si le caractere est nul on sort de la boucle
+    fprintf(f,"li $t5,10\n");//on met 10 dans $t5
+    fprintf(f,"beq $t3,$t5,strtointfin\n");//si le caractere est un retour a la ligne on sort de la boucle
     fprintf(f,"beq $t3,45,strtointnegatif\n");//si le caractere est - on met le signe a -1
     fprintf(f,"beq $t3,43,strtointpositif\n");//si le caractere est + on met le signe a 1
     fprintf(f,"blt $t3,48,error\n");//si le caractere est inferieur a 0 on affiche une erreur
@@ -54,6 +81,7 @@ void MIPSstrtoint(FILE *f)
     fprintf(f,"li $t1,0\n");//si erreur on met retourne 0
     fprintf(f,"la $a0,errorstrtoint\n");
     fprintf(f,"li $v0,4\n");
+    fprintf(f,"syscall\n");
     fprintf(f,"li $v0,10\n");
     fprintf(f,"syscall          #la fonction échoue, on veut convertir des strings non compatibles\n");
 
@@ -140,7 +168,7 @@ void MIPSstrconcat(FILE *f)
     fprintf(f,"move $a0,$t0\n");//on met la taille dans $a0
     fprintf(f,"li $v0,9\n");//on met 9 dans $v0 pour allouer de la memoire
     fprintf(f,"syscall\n");//on alloue de la memoire pour la chaine de caractere concatenee
-    fprintf(f,"move $t8,$v0\n");//on met l'adresse de la chaine de caractere concatenee dans $t8
+    fprintf(f,"move $v1,$v0\n");//on met l'adresse de la chaine de caractere concatenee dans $v1
 
     fprintf(f,"\nstrconcatboucle:\n");
     fprintf(f,"lb $t1,0($a1)\n");//on charge le caractere dans $t1
@@ -171,9 +199,8 @@ void MIPSintostr(FILE *f)
     fprintf(f,"li $a0,11\n");//on met la taille dans $a0
     fprintf(f,"li $v0,9\n");//on met 9 dans $v0 pour allouer de la memoire
     fprintf(f,"syscall\n");//on alloue de la memoire pour la chaine de caractere concatenee
-    fprintf(f,"move $t8,$v0\n");//on met l'adresse de la chaine de caractere concatenee dans $t8
 
-    fprintf(f,"bnez $a1,intostrloop     #cas spécifique du zero\n");//si la valeur est nulle on sort de la boucle
+    fprintf(f,"bnez $a1,intostrloop     #cas spécifique du zero\n");//si la valeur est nulle on ne va pas dans la boucle
     fprintf(f,"li $t1,48\n");//on met le caractere '0' dans $t1
     fprintf(f,"sb $t1,0($v0)\n");//on ecrit le caractere '0' dans la chaine de caractere concatenee
     fprintf(f,"sb $zero,1($v0)\n");//on ecrit le caractere nul dans la chaine de caractere concatenee
@@ -184,6 +211,21 @@ void MIPSintostr(FILE *f)
     fprintf(f,"move $t1,$a1\n");//on charge la valeur dans $t1
     fprintf(f,"blt $t1,$zero,intostrnegatif\n");//si la valeur est negative on va dans la boucle negative
 
+    //boucle pour aller à la fin de la chaine de caractere
+    fprintf(f,"li $t2,10\n");//on met 10 dans $t1
+    fprintf(f,"\nloopendadd:\n");
+    fprintf(f,"beq $t2,$zero,finloopendadd\n");//si la valeur est nulle on sort de la boucle
+    fprintf(f,"addi $v0,$v0,1\n");//on incremente l'adresse de la chaine de caractere concatene
+    fprintf(f,"addi $t2,$t2,-1\n");//on decremente $t2
+    fprintf(f,"j loopendadd\n");//on recommence
+
+    fprintf(f,"\nfinloopendadd:\n");
+    fprintf(f,"move $v1,$v0\n");//on met l'adresse de la chaine de caractere concatenee dans $v1
+    fprintf(f,"addi $v1,$v1,1\n");//on incremente l'adresse de la chaine de caractere concatenee
+    fprintf(f,"sb $zero,0($v1)\n");//on met le caractere nul à la fin de la chaine de caractere
+
+
+    //boucle pour écrire la chaine de caractere
     fprintf(f,"\nloopnonzero:\n");
     fprintf(f,"beq $t1,$zero,intostrfin\n");//si la valeur est nulle on sort de la boucle
 
@@ -196,20 +238,23 @@ void MIPSintostr(FILE *f)
     //écriture dans le buffer
     fprintf(f,"addi $t3,$t3,48\n");//on ajoute 48 au reste pour avoir le caractere correspondant
     fprintf(f,"sb $t3,0($v0)\n");//on ecrit le caractere dans la chaine de caractere concatenee
-    fprintf(f,"addi $v0,$v0,1\n");//on incremente l'adresse de la chaine de caractere concatene
+    fprintf(f,"subi $v0,$v0,1\n");//on incremente l'adresse de la chaine de caractere concatene
     fprintf(f,"j loopnonzero\n");//on recommence
 
     //cas négatif
     fprintf(f,"\nintostrnegatif:        #if the number is <0\n");
     fprintf(f,"li $t2,45\n");//on met le caractere '-' dans $t2
-    fprintf(f,"sb $t2,0($v0)\n");//on ecrit le caractere '-' dans la chaine de caractere concatenee
-    fprintf(f,"addi $v0,$v0,1\n");//on incremente l'adresse de la chaine de caractere concatene
     fprintf(f,"j loopnonzero\n");//on recommence
+
+    //fin négatif
+    fprintf(f,"\nnegfin:\n");
+    fprintf(f,"sb $t2,0($v0)\n");
+    fprintf(f,"jr $ra\n");//on retourne
 
     //fin
     fprintf(f,"\nintostrfin:\n");
-    fprintf(f,"li $t1,0\n");//on met 0 dans $t1 pour dire que le caractere est nul
-    fprintf(f,"sb $t1,0($v0)\n");//on ecrit le caractere nul dans la chaine de caractere concatenee
+    fprintf(f,"bne $t2,$zero,negfin\n");//on decremente l'adresse de la chaine de caractere concatenee
+    fprintf(f,"addi $v0,$v0,1\n");//on incremente l'adresse de la chaine de caractere concatenee
     fprintf(f,"jr $ra\n");//on retourne
 }
 
@@ -255,6 +300,10 @@ void MIPSread(FILE *f)
     fprintf(f,"#the value allocated is in $11\n");
 }
 
+/*
+    FIN DE LA BIBLIOTHEQUE MIPS
+*/
+
 
 //reserver la memoire pour les symboles et pour les labels 
 void labelprint(struct labels l, int size_symb,FILE *f)
@@ -267,6 +316,15 @@ void labelprint(struct labels l, int size_symb,FILE *f)
     fprintf(f, "la0: .space 32         #the buffer for the read buffer of siez 32\n  \n\n .text\n");
 }
 
+/*
+    Fonction qui permet de generer le code MIPS
+    param:
+        quad: la structure qui contient les quadruplets
+        tabsymbole: la structure qui contient les symboles
+        labels: la structure qui contient les labels
+    sortie:
+        codeMIPS.s: le fichier contenant le code MIPS
+*/
 
 void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels labels)
 {
@@ -896,7 +954,7 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
         }//fin switch instruction
     }//fin for quad
 
-    //écriture des fonctions auxiliaires
+    //écriture des fonctions de bibliothèque
     MIPSread(f);
     MIPSstrcompare(f);
     MIPSstrconcat(f);

@@ -90,7 +90,7 @@ void inmemory(unsigned int place, char *buf, int sizebuf);
 
 
 /**
- * Create a new label "si:      .asciiz name
+ * Create a new label "lai:      .asciiz name
 */
 struct symbole *clabel(char *name);
 

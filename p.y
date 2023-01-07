@@ -76,7 +76,7 @@ unsigned int nbfor;
 %token <entier> entier
 %token <name> id mot chaine
 %token declare if_ then elif else_ fi for_ do_ done in while_ until case_ esac echo read_ return_ exit_  test expr local to ta teq tne tgt tge tlt tle magic
-%type <entier> LISTE_ARG
+%type <entier> LISTE_ARG OPERATEUR1 OPERATEUR2
 %type <name> ID  
 %type <operande> OPERANDE CONCATENATION OPERANDE_ENTIER OPERATEUR_ENTIER SETUP_OPERATEUR_ENTIER
 %type <list_ope> LISTE_OPERANDES
@@ -391,16 +391,16 @@ LISTE_OPERANDES:LISTE_OPERANDES OPERANDE {
 
 LISTE_ECHO:LISTE_ECHO OPERANDE {
                                              gencode(AFF,avc(reg(4),-1),avc($2.s,$2.addr),avc(NULL,-1),0); 
-                                             if ($2.s && $2.s->isint)
-                                                 gencode(SYS,avc(NULL,1),avc(NULL,-1),avc(NULL,-1),0);
-                                            else
+                                            //  if ($2.s && $2.s->isint)
+                                                //  gencode(SYS,avc(NULL,1),avc(NULL,-1),avc(NULL,-1),0);
+                                            // else
                                              gencode(SYS,avc(NULL,4),avc(NULL,-1),avc(NULL,-1),0);
                                         } 
             |OPERANDE                   {
                                              gencode(AFF,avc(reg(4),-1),avc($1.s,$1.addr),avc(NULL,-1),0);
-                                             if ($1.s && $1.s->isint)
-                                                 gencode(SYS,avc(NULL,1),avc(NULL,-1),avc(NULL,-1),0);
-                                            else
+                                            //  if ($1.s && $1.s->isint)
+                                                //  gencode(SYS,avc(NULL,1),avc(NULL,-1),avc(NULL,-1),0);
+                                            // else
                                              gencode(SYS,avc(NULL,4),avc(NULL,-1),avc(NULL,-1),0);
                                         }
             |'$''{'ID'[''*'']''}'        { 
@@ -478,10 +478,30 @@ TEST_EXPR3: '(' TEST_EXPR ')'                                           {
             ;
 
 
-TEST_INSTRUCTION :CONCATENATION '=' CONCATENATION       // Si operande entier comparaison impossible -> false 
-            |CONCATENATION '!''=' CONCATENATION         //idem 
-            |OPERATEUR1 CONCATENATION 
-            |OPERANDE OPERATEUR2 OPERANDE 
+TEST_INSTRUCTION :CONCATENATION '=' CONCATENATION    { 
+                                                        $$.true=crelist(quad.next);
+                                                        gencode(IF,avc(NULL,-1),avc($1.s,$1.addr),avc($3.s,$3.addr),-2);
+                                                        $$.false=crelist(quad.next);
+                                                        gencode(GOTO,avc(NULL,-1),avc(NULL,-1),avc(NULL,-1),0);    
+                                                    }   // Si operande entier comparaison impossible -> false 
+            |CONCATENATION '!''=' CONCATENATION      { 
+                                                        $$.true=crelist(quad.next);
+                                                        gencode(IF,avc(NULL,-1),avc($1.s,$1.addr),avc($4.s,$4.addr),-1);
+                                                        $$.false=crelist(quad.next);
+                                                        gencode(GOTO,avc(NULL,-1),avc(NULL,-1),avc(NULL,-1),-1);    
+                                                    }   //idem 
+            |OPERATEUR1 CONCATENATION               {
+                                                        $$.true=crelist(quad.next);
+                                                        gencode(IF,avc(NULL,-1),avc($2.s,$2.addr),avc(clabel(""),-1),$1);
+                                                        $$.false=crelist(quad.next);
+                                                        gencode(GOTO,avc(NULL,-1),avc(NULL,-1),avc(NULL,-1),-1);
+                                                    }
+            |OPERANDE OPERATEUR2 OPERANDE           {
+                                                        $$.true=crelist(quad.next);
+                                                        gencode(IF,avc(NULL,-1),avc($1.s,$1.addr),avc($3.s,$3.addr),$2);
+                                                        $$.false=crelist(quad.next);
+                                                        gencode(GOTO,avc(NULL,-1),avc(NULL,-1),avc(NULL,-1),-1); 
+                                                    }
             |magic {                                                                        //Pour tester
                 $$.true = crelist(quad.next);
                 gencode(GOTO,avc(NULL,-1),avc(NULL,-1),avc(NULL,-1),0);
@@ -578,7 +598,7 @@ OPERANDE:'$''{'ID'}'                          {
                                                     gencode(AFF,avc(reg(5),-1),avc(reg(23),-1),avc(NULL,-1),0);
                                                     gencode(CALL,avc((struct symbole *)"intostr",-1 ),avc(NULL,-1),avc(NULL,-1),0);
                                                     gencode(AFF,avc(reg(25),-1),avc(reg(31),-1),avc(NULL,-1),0);                
-                                                    gencode(AFF,avc(reg(2),-1),avc(reg(24),-1),avc(NULL,-1),0);
+                                                    // gencode(AFF,avc(reg(2),-1),avc(reg(24),-1),avc(NULL,-1),0);
                                                     $$.addr=-1;
 
                                                     }
@@ -595,18 +615,18 @@ OPERANDE:'$''{'ID'}'                          {
             ;
 
 
-OPERATEUR1: '-''n' 
-            |'-''z' 
+OPERATEUR1: '-''n' {$$ = -1;}
+            |'-''z' {$$ = -2;}
             ;
 
 
 
-OPERATEUR2: teq 
-            |tne 
-            | tgt
-            |tge 
-            | tlt
-            |tle
+OPERATEUR2: teq     {$$ = 0 ;}
+            |tne    {$$ = 1 ;}
+            | tgt   {$$ = 3 ;}
+            |tge    {$$ = 5 ;}
+            | tlt   {$$ =  2;}
+            |tle    {$$ =  4;}
             ;
 
 SETUP_OPERATEUR_ENTIER:                                     {
@@ -843,17 +863,18 @@ LISTE_ARG: LISTE_ARG OPERANDE              {                            //Si il 
                                             
                                         }
             |'$''{'ID'[''*'']''}'       { 
-                                          struct  symbole *id= findtable($3,0); 
-                                            if(!id) 
+                                          struct  symbole *fun= findtable($3,0); 
+                                            if(!fun) 
                                             {
                                                 fprintf(stderr,"Error ligne %i: %s is Unknow \n",1+nligne,$3); 
                                                 exit(2); 
                                             } 
-                                            for(int i=0 ;i<id->nb ; i++)
+                                            for(int i=0 ;i<fun->nb ; i++)
                                             {
-                                                gencode(AFF,avc(NULL,-1),avc(NULL,id->memory_place+i*CELLSIZE),avc(NULL,-1),0);      //pb car c'est une addr et pas direct ... a mediter quand les tab seront elusider
+                                                gencode(AFF,avc(NULL,-1),avc(NULL,fun->memory_place+i*CELLSIZE),avc(NULL,-1),0);      //pb car c'est une addr et pas direct ... a mediter quand les tab seront elusider
                                                 cur_sp+=CELLSIZE;
                                             }
+                                            $$ = fun->nb;
                                             
                                         }
                                         

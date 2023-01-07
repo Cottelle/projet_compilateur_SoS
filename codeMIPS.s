@@ -1,88 +1,74 @@
 .data
- .space 8   #place pour les symboles
+ .space 0   #place pour les symboles
  #place pour les lables de chaine de charactere
 errorstrtoint : .asciiz "Ce n'est pas un nombre desolé" 
-la1 : .asciiz "4"
+la1 : .asciiz "a"
+la2 : .asciiz "c"
+la3 : .asciiz "c"
+la4 : .asciiz "b"
+la5 : .asciiz "b"
+la6 : .asciiz "a"
+la7 : .asciiz "a"
+la8 : .asciiz "Bidon"
+la9 : .asciiz "rien"
 la0: .space 32         #the buffer for the read buffer of siez 32
   
 
  .text
 a0:
 la $s0,la1
-sw $s0,0x10010000
+la $s1,la2
+bne $s0,$s1,a4
 a1:
-li $s0,3
-move $23,$s0
+la $s0,la3
+move $4,$s0
 a2:
-move $s0,$23
-sw $s0,0($sp)
-a3:
-li $s0,2
-move $23,$s0
-a4:
-lw $s0,0($sp)
-move $s1,$23
-mult $s0,$s1
-mflo $s0
-move $23,$s0
-a5:
-move $s0,$23
-sw $s0,0($sp)
-a6:
-move $s0,$2
-move $24,$s0
-a7:
-move $s0,$31
-move $25,$s0
-a8:
-lw $s0,0x10010000
-move $4,$s0
-a9:
-jal strtoint
-a10:
-move $s0,$25
-move $31,$s0
-a11:
-move $s0,$24
-move $2,$s0
-a12:
-move $s0,$9
-move $23,$s0
-a13:
-lw $s0,0($sp)
-move $s1,$23
-add $s0,$s0,$s1
-move $23,$s0
-a14:
-move $s0,$31
-move $25,$s0
-a15:
-move $s0,$2
-move $24,$s0
-a16:
-move $s0,$23
-move $5,$s0
-a17:
-jal intostr
-a18:
-move $s0,$31
-move $25,$s0
-a19:
-move $s0,$24
-move $2,$s0
-a20:
-move $s0,$2
-sw $s0,0x10010004
-a21:
-lw $s0,0x10010004
-move $4,$s0
-a22:
 li $v0,4
 syscall
-a23:
+a3:
+j a17
+a4:
+la $s0,la1
+la $s1,la4
+bne $s0,$s1,a8
+a5:
+la $s0,la5
+move $4,$s0
+a6:
+li $v0,4
+syscall
+a7:
+j a17
+a8:
+la $s0,la1
+la $s1,la6
+bne $s0,$s1,a12
+a9:
+la $s0,la7
+move $4,$s0
+a10:
+li $v0,4
+syscall
+a11:
+j a17
+a12:
+j a14
+a13:
+la $s0,la1
+la $s1,la8
+bne $s0,$s1,a17
+a14:
+la $s0,la9
+move $4,$s0
+a15:
+li $v0,4
+syscall
+a16:
+j a17
+a17:
 li $s0,0
 move $2,$s0
-a24:
+a18:
 li $v0,10
 syscall
 
@@ -152,7 +138,7 @@ addi $t0,$t0,1
 move $a0,$t0
 li $v0,9
 syscall
-move $t8,$v0
+move $v1,$v0
 
 strconcatboucle:
 lb $t1,0($a1)
@@ -220,6 +206,8 @@ li $t2,1
 strtointboucle:
 lb $t3,0($t4)
 beq $t3,$zero,strtointfin
+li $t5,10
+beq $t3,$t5,strtointfin
 beq $t3,45,strtointnegatif
 beq $t3,43,strtointpositif
 blt $t3,48,error
@@ -246,6 +234,7 @@ error:
 li $t1,0
 la $a0,errorstrtoint
 li $v0,4
+syscall
 li $v0,10
 syscall          #la fonction échoue, on veut convertir des strings non compatibles
 
@@ -261,7 +250,6 @@ intostr:
 li $a0,11
 li $v0,9
 syscall
-move $t8,$v0
 bnez $a1,intostrloop     #cas spécifique du zero
 li $t1,48
 sb $t1,0($v0)
@@ -271,6 +259,18 @@ jr $ra
 intostrloop:
 move $t1,$a1
 blt $t1,$zero,intostrnegatif
+li $t2,10
+
+loopendadd:
+beq $t2,$zero,finloopendadd
+addi $v0,$v0,1
+addi $t2,$t2,-1
+j loopendadd
+
+finloopendadd:
+move $v1,$v0
+addi $v1,$v1,1
+sb $zero,0($v1)
 
 loopnonzero:
 beq $t1,$zero,intostrfin
@@ -280,16 +280,18 @@ mfhi $t3
 mflo $t1
 addi $t3,$t3,48
 sb $t3,0($v0)
-addi $v0,$v0,1
+subi $v0,$v0,1
 j loopnonzero
 
 intostrnegatif:        #if the number is <0
 li $t2,45
-sb $t2,0($v0)
-addi $v0,$v0,1
 j loopnonzero
 
+negfin:
+sb $t2,0($v0)
+jr $ra
+
 intostrfin:
-li $t1,0
-sb $t1,0($v0)
+bne $t2,$zero,negfin
+addi $v0,$v0,1
 jr $ra
