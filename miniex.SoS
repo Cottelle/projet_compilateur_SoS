@@ -1,5 +1,6 @@
-a = 3;
-b= $(expr ${a});
-if test ${a} -eq ${b} then 
-echo Oui
-fi
+fun(3)
+{
+    echo $*
+};
+
+fun Une Belle Fonction

@@ -1,7 +1,7 @@
 fun(2){
-    ba=clafin;
-    if test mm then
-    b=itworks
+    ba="Marche pas";
+    if test a=a then
+    b="ca marche"
     fi
 };
 fun i ab;

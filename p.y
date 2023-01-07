@@ -377,7 +377,7 @@ LISTE_OPERANDES:LISTE_OPERANDES OPERANDE {
                                                 $$.value = concat($$.value, crelist(quad.next));
                                                 struct symbole *s = malloc(sizeof(*s));
                                                 s->memory_place = id->memory_place + i*4;
-                                                s->isint = id->isint;
+                                                s->isint = 0;
                                                 s->nb=1;
                                                 s->name="_for_for";
                                                 s->onstack_reg_label =0;
@@ -391,16 +391,12 @@ LISTE_OPERANDES:LISTE_OPERANDES OPERANDE {
 
 LISTE_ECHO:LISTE_ECHO OPERANDE {
                                              gencode(AFF,avc(reg(4),-1),avc($2.s,$2.addr),avc(NULL,-1),0); 
-                                            //  if ($2.s && $2.s->isint)
-                                                //  gencode(SYS,avc(NULL,1),avc(NULL,-1),avc(NULL,-1),0);
-                                            // else
+ 
                                              gencode(SYS,avc(NULL,4),avc(NULL,-1),avc(NULL,-1),0);
                                         } 
             |OPERANDE                   {
                                              gencode(AFF,avc(reg(4),-1),avc($1.s,$1.addr),avc(NULL,-1),0);
-                                            //  if ($1.s && $1.s->isint)
-                                                //  gencode(SYS,avc(NULL,1),avc(NULL,-1),avc(NULL,-1),0);
-                                            // else
+
                                              gencode(SYS,avc(NULL,4),avc(NULL,-1),avc(NULL,-1),0);
                                         }
             |'$''{'ID'[''*'']''}'        { 
@@ -583,26 +579,46 @@ OPERANDE:'$''{'ID'}'                          {
                                                 }
                                                 $$.s = spfindtable(buf,0);              //Si c'est un int ça ne marche pas ... pb ici
                                                 }
-            |'$''*'                             {          
-                                                    $$.s=NULL;                         //pas connu a la compim
-                                                    if(nbarg==0)
-                                                        $$.addr=writestringmemory(" ");
-                                                    else
+            |'$''*'                             {   
+                                                    $$.addr=-1;     
+                                                    struct symbole *space = clabel(" ");
+                                                    struct symbole *allarg = spfindtable("_allarg",0);      //permet de pas refaire le calcul
+                                                    if (!allarg)
                                                     {
-                                                        char *buf ="$1";
-                                                        $$.addr=spfindtable(buf,0)->memory_place;                //ne marche pas     pb ici
-                                                        for(int i=1;i<nbarg;i++)
+                                                        allarg = spfindtable("_allarg",1);
+                                                        gencode(AFF,avc(allarg,-1),avc(space,-1),avc(NULL,-1),0);
+                                                        for(int i=0;i<nbarg;i++)
                                                         {
+                                                            char *buf = createbuf("$%i",i+1);
+                                                            struct symbole *s=spfindtable(buf,0);
+                                                        gencode(AFF,avc(reg(25),-1),avc(reg(31),-1),avc(NULL,-1),0);            //store ra        
+                                                        gencode(AFF,avc(reg(24),-1),avc(reg(2),-1),avc(NULL,-1),0);             // $?
+
+                                                        gencode(AFF,avc(reg(5),-1),avc(allarg,-1),avc(NULL,-1),0);                
+                                                        gencode(AFF,avc(reg(6),-1),avc(s,-1),avc(NULL,-1),0);                
+                                                        gencode(CALL,avc((struct symbole *)"strconcat",-1 ),avc(NULL,-1),avc(NULL,-1),0);
+
+
+                                                        gencode(AFF,avc(reg(5),-1),avc(reg(3),-1),avc(NULL,-1),0);                
+                                                        gencode(AFF,avc(reg(6),-1),avc(space,-1),avc(NULL,-1),0);                
+                                                        gencode(CALL,avc((struct symbole *)"strconcat",-1 ),avc(NULL,-1),avc(NULL,-1),0);
+                                                        gencode(AFF,avc(allarg,-1),avc(reg(3),-1),avc(NULL,-1),0);
+
+                                                        gencode(AFF,avc(reg(31),-1),avc(reg(25),-1),avc(NULL,-1),0);
+                                                        gencode(AFF,avc(reg(2),-1),avc(reg(24),-1),avc(NULL,-1),0);    
+
+                                                        free(buf);            
 
                                                         }
                                                     }
+                                                    $$.s =allarg;
                                                 }
             |'$''?'                             {
                                                     $$.s= reg(2);
                                                     gencode(AFF,avc(reg(24),-1),avc(reg(2),-1),avc(NULL,-1),0);                
                                                     gencode(AFF,avc(reg(25),-1),avc(reg(31),-1),avc(NULL,-1),0);                
                                                     gencode(AFF,avc(reg(5),-1),avc(reg(2),-1),avc(NULL,-1),0);
-                                                    gencode(CALL,avc((struct symbole *)"intoste",-1 ),avc(NULL,-1),avc(NULL,-1),0);
+                                                    gencode(CALL,avc((struct symbole *)"intostr",-1 ),avc(NULL,-1),avc(NULL,-1),0);
                                                     gencode(AFF,avc(reg(2),-1),avc(reg(24),-1),avc(NULL,-1),0);                
                                                     gencode(AFF,avc(reg(31),-1),avc(reg(25),-1),avc(NULL,-1),0);
                                                     $$.addr = -1; 
@@ -613,7 +629,7 @@ OPERANDE:'$''{'ID'}'                          {
                                                     gencode(AFF,avc(reg(24),-1),avc(reg(2),-1),avc(NULL,-1),0);                
                                                     gencode(AFF,avc(reg(5),-1),avc(reg(23),-1),avc(NULL,-1),0);
                                                     gencode(CALL,avc((struct symbole *)"intostr",-1 ),avc(NULL,-1),avc(NULL,-1),0);
-                                                    gencode(AFF,avc(reg(25),-1),avc(reg(31),-1),avc(NULL,-1),0);                
+                                                    gencode(AFF,avc(reg(31),-1),avc(reg(25),-1),avc(NULL,-1),0);                
                                                     // gencode(AFF,avc(reg(2),-1),avc(reg(24),-1),avc(NULL,-1),0);          --> a modif
                                                     $$.addr=-1;
 
@@ -826,19 +842,23 @@ DECL_LOC: DECL_LOC  local ID '=' CONCATENATION ';'                              
             ;
 
 
-APPEL_FONCTION: ID                                                                      {    
+APPEL_FONCTION: ID                                                                      <entier>{    
                                                                                                 unsigned int stackoff = stack_off();
+                                                                                                $$ = stackoff*4 +8;
                                                                                                 gencode(AFF,avc(stack(stackoff*4),-1),avc(reg(29),-1),avc(NULL,-1),0);             //on empile l'emplacement de l'anciennet pile 
                                                                                                 gencode(AFF,avc(stack(stackoff*4+4),-1),avc(reg(31),-1),avc(NULL,-1),0);             //on stocke notre valeur de retoure car jal
                                                                                                 gencode(AFF,avc(reg(29),-1),avc(reg(29),-1),avc(NULL,stackoff*4 +8),1);             //"nouvelle" pile pour la fonction
                                                                                         }
-                LISTE_ARG                                                                   {
+                LISTE_ARG                                                                   {   
                                                                                                 struct function *f;
                                                                                                 if (!(f = findfun($1,0)))
                                                                                                 {
                                                                                                     fprintf(stderr,"Error ligne %i: %s not declared\n",1+nligne,$1);
                                                                                                     exit(3);
                                                                                                 }
+                                                                                                for(int i=0; i<$3;i++)
+                                                                                                    if (quad.quadrup[quad.next-1-i].one.s && quad.quadrup[quad.next-1-i].one.s->onstack_reg_label ==1)
+                                                                                                        quad.quadrup[quad.next-1-i].one.s = stack(quad.quadrup[quad.next-1-i].one.s->memory_place-$2);
                                                                                                 for(int i =$3; i<f->nbarg; i++)                                     //push other arg at 0 if don't pass
                                                                                                     gencode(AFF,avc(stack(i*4),-1),avc(NULL,0),avc(NULL,-1),0);
                                                                             
