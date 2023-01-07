@@ -183,12 +183,14 @@ void MIPSintostr(FILE *f)
     fprintf(f,"move $t1,$a1\n");//on charge la valeur dans $t1
     fprintf(f,"blt $t1,$zero,intostrnegatif\n");//si la valeur est negative on va dans la boucle negative
 
-    fprintf(f,"li $t1,11\n");//on met 11 dans $t1
+    //boucle pour aller à la fin de la chaine de caractere
+    fprintf(f,"li $t2,11\n");//on met 11 dans $t1
     fprintf(f,"\nloopendadd:\n");
-    fprintf(f,"beq $t1,$zero,intostrfin\n");//si la valeur est nulle on sort de la boucle
-    fprintf(f,"addi $t1,$t1,-1\n");//on decremente $t1
+    fprintf(f,"beq $t2,$zero,intostrfin\n");//si la valeur est nulle on sort de la boucle
+    fprintf(f,"addi $t2,$t2,-1\n");//on decremente $t1
     fprintf(f,"j loopendadd\n");//on recommence
 
+    //boucle pour écrire la chaine de caractere
     fprintf(f,"\nloopnonzero:\n");
     fprintf(f,"beq $t1,$zero,intostrfin\n");//si la valeur est nulle on sort de la boucle
 
