@@ -265,7 +265,7 @@ void MIPSread(FILE *f)
 void labelprint(struct labels l, int size_symb,FILE *f)
 {
     fprintf(f, ".data\n .space %i   #place pour les symboles\n #place pour les lables de chaine de charactere\n", size_symb*4);
-    fprintf(f,"errorstrtoint : .asiicz \"Ce n'est pas un nombre desolé\" \n");
+    fprintf(f,"errorstrtoint : .asciiz \"Ce n'est pas un nombre desolé\" \n");
     for (int i = 1; i < l.cur_place; i++)
         fprintf(f, "la%i : .asciiz \"%s\"\n", i, l.tab[i]);
 

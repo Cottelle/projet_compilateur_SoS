@@ -118,7 +118,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                     fprintf(stderr,"Error ligne %i: %s is not declared (use decalre %s[int])\n",nligne+1,$1,$1);
                                                                                                                                                     exit(1);
                                                                                                                                                 }
-                                                                                                                                                gencode(AFF,avc(reg(23),-1),avc(reg(23),-1),avc(NULL,4),3);
+                                                                                                                                                gencode(AFF,avc(reg(23),-1),avc($3.s,$3.addr),avc(NULL,4),3);
                                                                                                                                                 gencode(AFF,avc(reg(20),-1) ,avc(NULL,s->memory_place + DATA_SEGMENT),avc(reg(23),-1),1);          //addr ds reg(20)
                                                                                                                                                 gencode(AFF,avc(reg(20),-1),avc($6.s,$6.addr) ,avc(NULL,-1), -2);   //STORE indirect sw CONCAT, ($22)
                                                                                                                                             } 
@@ -211,7 +211,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                     fprintf(stderr,"Error ligne %i: %s is not declared (use decalre %s[int])\n",nligne+1,$2,$2);
                                                                                                                                                     exit(1);
                                                                                                                                                 }
-                                                                                                                                                gencode(AFF,avc(reg(23),-1) ,avc(reg(23),-1),avc(NULL,4),3);         
+                                                                                                                                                gencode(AFF,avc(reg(23),-1) ,avc($4.s,$4.addr),avc(NULL,4),3);         
                                                                                                                                                 gencode(AFF,avc(reg(20),-1) ,avc(NULL,s->memory_place*4 +DATA_SEGMENT),avc(reg(23),-1),1);          //addr ds reg(20)
 
                                                                                                                                                 struct symbole *s31=spfindtable("_store$31",1);
@@ -247,7 +247,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                     exit(1);
                                                                                                                                                 }
 
-                                                                                                                                                gencode(AFF,avc(reg(2),-1),avc(reg(23),-1),avc(NULL,-1),0);
+                                                                                                                                                gencode(AFF,avc(reg(2),-1),avc($3.s,$3.addr),avc(NULL,-1),0);
                                                                                                                                                 gencode(GOTO,avc(reg(31),-1) ,avc(NULL,-1),avc(NULL,-1),0);
                                                                                                                                             }
             |APPEL_FONCTION                                                                                                                 {
@@ -264,7 +264,7 @@ INSTRUCTION : ID '=' CONCATENATION                                              
             |exit_ '(' OPERANDE_ENTIER ')'                                                                                                          {
                                                                                                                                                 $$ =NULL;
                                                                                                                                                 printf(">exit entier \n");
-                                                                                                                                                gencode(AFF,avc(reg(2),-1) ,avc(reg(23),-1),avc(NULL,-1),0);
+                                                                                                                                                gencode(AFF,avc(reg(2),-1) ,avc($3.s,$3.addr),avc(NULL,-1),0);
                                                                                                                                                 gencode(SYS,avc(NULL,10) ,avc(NULL,-1),avc(NULL,-1),0);
                                                                                                                                             }
             ;                                       
@@ -562,21 +562,33 @@ OPERANDE:'$''{'ID'}'                          {
                                                     }
                                                 }
             |'$''?'                             {
-                                                    $$.s = reg(2);
-                                                    gencode(AFF,avc(reg(25),-1),avc(reg(31),-1),avc(NULL,-1),0);                //strore $31->$25 ($25 pas utilisé dans inttostr et elle n'utilise pas d'autre foction = simplification)
-                                                    gencode(AFF,avc(reg(4),-1),avc(reg(2),-1),avc(NULL,-1),0);
-                                                    gencode(CALL,avc((struct symbole *s)"inttostring",-1 ),avc(NULL,-1),avc(NULL,-1),0);
+                                                    $$.s= reg(2);
+                                                    gencode(AFF,avc(reg(24),-1),avc(reg(2),-1),avc(NULL,-1),0);                
+                                                    gencode(AFF,avc(reg(25),-1),avc(reg(31),-1),avc(NULL,-1),0);                
+                                                    gencode(AFF,avc(reg(5),-1),avc(reg(2),-1),avc(NULL,-1),0);
+                                                    gencode(CALL,avc((struct symbole *)"intoste",-1 ),avc(NULL,-1),avc(NULL,-1),0);
+                                                    gencode(AFF,avc(reg(2),-1),avc(reg(24),-1),avc(NULL,-1),0);                
                                                     gencode(AFF,avc(reg(31),-1),avc(reg(25),-1),avc(NULL,-1),0);
-
-
                                                     $$.addr = -1; 
                                                 }
-            |'$''('expr SETUP_OPERATEUR_ENTIER ')' 
+            |'$''('expr SETUP_OPERATEUR_ENTIER ')' {
+                                                    $$.s= reg(2);
+                                                    gencode(AFF,avc(reg(25),-1),avc(reg(31),-1),avc(NULL,-1),0);                
+                                                    gencode(AFF,avc(reg(24),-1),avc(reg(2),-1),avc(NULL,-1),0);                
+                                                    gencode(AFF,avc(reg(5),-1),avc(reg(23),-1),avc(NULL,-1),0);
+                                                    gencode(CALL,avc((struct symbole *)"intostr",-1 ),avc(NULL,-1),avc(NULL,-1),0);
+                                                    gencode(AFF,avc(reg(25),-1),avc(reg(31),-1),avc(NULL,-1),0);                
+                                                    gencode(AFF,avc(reg(2),-1),avc(reg(24),-1),avc(NULL,-1),0);
+                                                    $$.addr=-1;
+
+                                                    }
             |'$' '('APPEL_FONCTION ')'          {
                                                     $$.s= reg(2);
-                                                    gencode(AFF,avc(reg(25),-1),avc(reg(31),-1),avc(NULL,-1),0);                //strore $31->$25 ($25 pas utilisé dans inttostr et elle n'utilise pas d'autre foction = simplification)
-                                                    gencode(AFF,avc(reg(4),-1),avc(reg(2),-1),avc(NULL,-1),0);
-                                                    gencode(CALL,avc((struct symbole *s)"inttostring",-1 ),avc(NULL,-1),avc(NULL,-1),0);
+                                                    gencode(AFF,avc(reg(24),-1),avc(reg(2),-1),avc(NULL,-1),0);                
+                                                    gencode(AFF,avc(reg(25),-1),avc(reg(31),-1),avc(NULL,-1),0);                
+                                                    gencode(AFF,avc(reg(5),-1),avc(reg(2),-1),avc(NULL,-1),0);
+                                                    gencode(CALL,avc((struct symbole *)"intostr",-1 ),avc(NULL,-1),avc(NULL,-1),0);
+                                                    gencode(AFF,avc(reg(2),-1),avc(reg(24),-1),avc(NULL,-1),0);                
                                                     gencode(AFF,avc(reg(31),-1),avc(reg(25),-1),avc(NULL,-1),0);
                                                     $$.addr=-1; 
                                                 }
@@ -652,17 +664,41 @@ OPERANDE_ENTIER:'$''{'ID'}' {   struct symbole *s;
 
                                 $$.s = reg(9);
 
+                                gencode(AFF,avc(reg(24),-1),avc(reg(2),-1),avc(NULL,-1),0);                 //store $2 
                                 gencode(AFF,avc(reg(25),-1),avc(reg(31),-1),avc(NULL,-1),0);                //strore $31->$25 ($25 pas utilisé dans strtoint et elle n'utilise pas d'autre foction = simplification)
                                 gencode(AFF, avc(reg(4), -1), avc(s, -1), avc(NULL, -1), 0);
                                 gencode(CALL, avc((struct symbole *)"strtoint", -1), avc(NULL, -1), avc(NULL, -1), 0);
                                 gencode(AFF,avc(reg(31),-1),avc(reg(25),-1),avc(NULL,-1),0);
+                                gencode(AFF,avc(reg(2),-1),avc(reg(24),-1),avc(NULL,-1),0);                
+
 
 
                                 $$.addr=-1;
                             }
-            |'$''{'ID'['SETUP_OPERATEUR_ENTIER']''}'   {
+            |'$''{'ID'['OPERANDE_ENTIER']''}'   {
                                                     $$.s=NULL;
                                                     $$.addr=-1;
+                                                    struct symbole *s =findtable("_tab_temp",1);  //variable pour pouvoir manipuler les tableaux 
+                                                    struct symbole *id = findtable($3,0);
+                                                    if(!id)
+                                                    {
+                                                        fprintf(stderr,"Error ligne %i: %s is not declared \n",nligne+1,$3);
+                                                        exit(1);
+                                                    }
+
+                                                    gencode(AFF,avc(reg(23),-1),avc($5.s,$5.addr),avc(NULL,4),3);
+                                                    gencode(AFF,avc(reg(20),-1),avc(NULL,id->memory_place +DATA_SEGMENT ),avc(reg(23),-1),1);
+                                                    gencode(AFF,avc(s,-1),avc(reg(20),-1),avc(NULL,-1),-1);
+
+                                                    $$.s = reg(9);
+
+                                                    gencode(AFF,avc(reg(24),-1),avc(reg(2),-1),avc(NULL,-1),0);                 //store $2 
+                                                    gencode(AFF,avc(reg(25),-1),avc(reg(31),-1),avc(NULL,-1),0);                //strore $31->$25 ($25 pas utilisé dans strtoint et elle n'utilise pas d'autre foction = simplification)
+                                                    gencode(AFF, avc(reg(4), -1), avc(s, -1), avc(NULL, -1), 0);
+                                                    gencode(CALL, avc((struct symbole *)"strtoint", -1), avc(NULL, -1), avc(NULL, -1), 0);
+                                                    gencode(AFF,avc(reg(31),-1),avc(reg(25),-1),avc(NULL,-1),0);
+                                                    gencode(AFF,avc(reg(2),-1),avc(reg(24),-1),avc(NULL,-1),0);
+                                                    $$.addr =-1;
                                                 }
             |'$' entier {   
                             //on connait sp et le décalage on peut retrouver où il se trouve
@@ -677,10 +713,13 @@ OPERANDE_ENTIER:'$''{'ID'}' {   struct symbole *s;
                             s=spfindtable(createbuf("$%i", $2), 0);
 
                             $$.s = reg(9);
+                            gencode(AFF,avc(reg(24),-1),avc(reg(2),-1),avc(NULL,-1),0);                 //store $2 
                             gencode(AFF,avc(reg(25),-1),avc(reg(31),-1),avc(NULL,-1),0);                //strore $31->$25 ($25 pas utilisé dans strtoint et elle n'utilise pas d'autre foction = simplification)
                             gencode(AFF, avc(reg(4), -1), avc(s, -1), avc(NULL, -1), 0);
                             gencode(CALL, avc((struct symbole *)"strtoint", -1), avc(NULL, -1), avc(NULL, -1), 0);
                             gencode(AFF,avc(reg(31),-1),avc(reg(25),-1),avc(NULL,-1),0);
+                            gencode(AFF,avc(reg(2),-1),avc(reg(24),-1),avc(NULL,-1),0);                
+
 
                             
                             $$.addr=-1;
@@ -689,6 +728,8 @@ OPERANDE_ENTIER:'$''{'ID'}' {   struct symbole *s;
                         $$.addr = $1;
                         $$.s=NULL;
                     }  
+            
+            | '(' OPERATEUR_ENTIER ')' {$$.s = reg(23); $$.addr =-1;}
             ;
 
 
