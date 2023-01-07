@@ -134,12 +134,14 @@ void MIPSstrcompare(FILE *f)
     fprintf(f,"\nstrcompare:\n");
 
     fprintf(f,"li $t0,0\n");//renvoie 0 si les 2 chaines sont egales
+    fprintf(f,"li $t3,10\n");//renvoie 1 si les 2 chaines sont differentes
 
     fprintf(f,"\nstrcompareboucle:\n");
     fprintf(f,"lb $t1,0($a0)\n");//on charge le 1er caractere dans $t1
     fprintf(f,"lb $t2,0($a1)\n");//on charge le 2eme caractere dans $t2
     fprintf(f,"bne $t1,$t2,notequal\n");//si les 2 caracteres sont differents on sort de la boucle
     fprintf(f,"beq $t1,$zero,equal\n");//si le caractere est nul on sort de la boucle
+    fprintf(f,"beq $t1,$t3,equal\n");//si le caractere est \n on sort de la boucle
     fprintf(f,"addi $a0,$a0,1\n");//on incremente l'adresse de la 1ere chaine de caractere
     fprintf(f,"addi $a1,$a1,1\n");//on incremente l'adresse de la 2eme chaine de caractere
     fprintf(f,"j strcompareboucle\n");//on recommence
