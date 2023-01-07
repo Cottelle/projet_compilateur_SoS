@@ -1,5 +1,30 @@
 #include "SoS2MIPS.h"
 
+/*
+bibliothèques MIPS:
+    strtoint: convertit une chaine de caractere en entier
+        entrée: $a0: adresse de la chaine de caractere
+        retour: $t1: entier
+    strlen: calcule la longueur d'une chaine de caractere mise dans $a1
+        entrée: $a1: adresse de la chaine de caractere
+        retour: $t0: longueur de la chaine de caractere
+    strlen2: calcule la longueur d'une chaine de caractere mise dans $a2
+        entrée: $a2: adresse de la chaine de caractere
+        retour: $t3: longueur de la chaine de caractere
+    strcompare: compare deux chaines de caractere
+        entrée: $a0: adresse de la premiere chaine de caractere
+                $a1: adresse de la deuxieme chaine de caractere
+        retour: $t0: 0 si les chaines sont identiques, 1 sinon
+    strconcat: concatene deux chaines de caractere
+        entrée: $a1: adresse de la premiere chaine de caractere (on commence à a1 pour pouvoir allouer la mémoire)
+                $a2: adresse de la deuxieme chaine de caractere
+        retour: $v1: adresse de la chaine de caractere concatenee
+    intostr: convertit un entier en chaine de caractere
+        entrée: $a1: entier                                     (on commence à a1 pour pouvoir allouer la mémoire)
+        retour: $v1: adresse de la chaine de caractere
+*/
+
+
 void MIPSstrtoint(FILE *f)
 {
     //write a string to int converter in MIPS
@@ -262,6 +287,10 @@ void MIPSread(FILE *f)
     fprintf(f,"#the value allocated is in $11\n");
 }
 
+/*
+    FIN DE LA BIBLIOTHEQUE MIPS
+*/
+
 
 //reserver la memoire pour les symboles et pour les labels 
 void labelprint(struct labels l, int size_symb,FILE *f)
@@ -274,6 +303,15 @@ void labelprint(struct labels l, int size_symb,FILE *f)
     fprintf(f, "la0: .space 32         #the buffer for the read buffer of siez 32\n  \n\n .text\n");
 }
 
+/*
+    Fonction qui permet de generer le code MIPS
+    param:
+        quad: la structure qui contient les quadruplets
+        tabsymbole: la structure qui contient les symboles
+        labels: la structure qui contient les labels
+    sortie:
+        codeMIPS.s: le fichier contenant le code MIPS
+*/
 
 void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels labels)
 {
@@ -903,7 +941,7 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
         }//fin switch instruction
     }//fin for quad
 
-    //écriture des fonctions auxiliaires
+    //écriture des fonctions de bibliothèque
     MIPSread(f);
     MIPSstrcompare(f);
     MIPSstrconcat(f);
