@@ -1,17 +1,49 @@
 .data
- .space 4   #place pour les symboles
+ .space 8   #place pour les symboles
  #place pour les lables de chaine de charactere
 errorstrtoint : .asciiz "Ce n'est pas un nombre desolé" 
-la1 : .asciiz "a"
-la2 : .asciiz "b"
+la1 : .asciiz "3"
+la2 : .asciiz "aaaaaaaa"
 la0: .space 32         #the buffer for the read buffer of siez 32
   
 
  .text
-la $a1,la1
-la $a2, la2
+a0:
+la $s0,la1
+sw $s0,0x10010000
+a1:
+move $s0,$2
+move $24,$s0
+a2:
+move $s0,$31
+move $25,$s0
+a3:
+la $s0,la2
+move $5,$s0
+a4:
+lw $s0,0x10010000
+move $6,$s0
+a5:
 jal strconcat
-a13:
+a6:
+move $s0,$24
+move $2,$s0
+a7:
+move $s0,$25
+move $31,$s0
+a8:
+move $s0,$3
+sw $s0,0x10010004
+a9:
+lw $s0,0x10010004
+move $4,$s0
+a10:
+li $v0,4
+syscall
+a11:
+li $s0,0
+move $2,$s0
+a12:
 li $v0,10
 syscall
 
@@ -19,7 +51,6 @@ _read:
 li $v0,8
 li $a1,31
 la $a0, la0
-
 syscall
 li $t0,0
 la $9,la0
@@ -80,8 +111,10 @@ strcomparefin:
 jr $ra
 
 strconcat:
+move $t7,$ra
 jal strlen
 jal strlen2
+move $ra,$t7
 add $t0,$t0,$t3
 addi $t0,$t0,1
 move $a0,$t0
@@ -112,6 +145,7 @@ jr $ra
 
 strlen:
 li $t0,0
+move $t4,$a1
 
 strlenboucle:
 lb $t1,0($a1)
@@ -121,10 +155,12 @@ addi $t0,$t0,1
 j strlenboucle
 
 strlenfin:
+move $a1,$t4
 jr $ra
 
 strlen2:
 li $t3,0
+move $t4,$a2
 
 strlen2boucle:
 lb $t1,0($a2)
@@ -134,6 +170,7 @@ addi $t3,$t3,1
 j strlen2boucle
 
 strlen2fin:
+move $a2,$t4
 jr $ra
 
 strtoint:

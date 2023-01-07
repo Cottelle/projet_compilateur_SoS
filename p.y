@@ -432,7 +432,18 @@ LISTE_ECHO:LISTE_ECHO OPERANDE {
 
 
 
-CONCATENATION: CONCATENATION OPERANDE   {$$.s = NULL ; $$.addr = -1;}
+CONCATENATION: CONCATENATION OPERANDE   {
+                                            $$.s  = reg(3);
+                                            gencode(AFF,avc(reg(24),-1),avc(reg(2),-1),avc(NULL,-1),0);                
+                                            gencode(AFF,avc(reg(25),-1),avc(reg(31),-1),avc(NULL,-1),0);               
+                                            gencode(AFF,avc(reg(5),-1),avc($1.s,$1.addr),avc(NULL,-1),0);                
+                                            gencode(AFF,avc(reg(6),-1),avc($2.s,$2.addr),avc(NULL,-1),0);                
+                                            gencode(CALL,avc((struct symbole *)"strconcat",-1 ),avc(NULL,-1),avc(NULL,-1),0);
+                                            gencode(AFF,avc(reg(2),-1),avc(reg(24),-1),avc(NULL,-1),0);                
+                                            gencode(AFF,avc(reg(31),-1),avc(reg(25),-1),avc(NULL,-1),0);
+                                            $$.addr = -1;
+                                            
+                                        }
             |OPERANDE           {$$ = $1;}
             ;
 
@@ -511,7 +522,12 @@ TEST_INSTRUCTION :CONCATENATION '=' CONCATENATION    {
 
 
 OPERANDE:'$''{'ID'}'                          {
-                                                $$.s = findtable($3,0);
+                                                $$.s = findtable($3,0);             //--> erreur a generer
+                                                if (!$$.s)
+                                                {
+                                                    fprintf(stderr,"Error line %i: %s not declared\n",nligne+1,$3);
+                                                    exit(1);
+                                                }
                                                 $$.addr = -1;
                                                 }
             |'$''{'ID'['OPERANDE_ENTIER']''}' {
@@ -598,7 +614,7 @@ OPERANDE:'$''{'ID'}'                          {
                                                     gencode(AFF,avc(reg(5),-1),avc(reg(23),-1),avc(NULL,-1),0);
                                                     gencode(CALL,avc((struct symbole *)"intostr",-1 ),avc(NULL,-1),avc(NULL,-1),0);
                                                     gencode(AFF,avc(reg(25),-1),avc(reg(31),-1),avc(NULL,-1),0);                
-                                                    // gencode(AFF,avc(reg(2),-1),avc(reg(24),-1),avc(NULL,-1),0);
+                                                    // gencode(AFF,avc(reg(2),-1),avc(reg(24),-1),avc(NULL,-1),0);          --> a modif
                                                     $$.addr=-1;
 
                                                     }

@@ -52,7 +52,6 @@ ALLE [^\"\'" "";""=""\n""\t""\]""\)""\[""\(""$""{""}" "\|"]
 "-lt" return tlt;
 "-le" return tle;
 
-"mm" return magic;
 
 "#".*"\n" nligne++;
 
@@ -77,18 +76,18 @@ ALLE [^\"\'" "";""=""\n""\t""\]""\)""\[""\(""$""{""}" "\|"]
 "esac" {return esac;}
 "echo" {return echo;}
 "read" {return read_;}
-"return" {printf("lex return\n"); return return_;}
+"return" {return return_;}
 "exit" {return exit_;}
 "test" {return test;}
 "expr" {return expr;}
 "local" {return local;}; 
 
 {NUMBER} { yylval = (YYSTYPE)atoi(yytext) ;return entier;}
-{ID} {char *value; value =malloc(strlen(yytext)+1);strcpy(value,yytext);yylval =(YYSTYPE)value;return id;}
+{ID} {printf("id %s\n",yytext);char *value; value =malloc(strlen(yytext)+1);strcpy(value,yytext);yylval =(YYSTYPE)value;return id;}
 
 {QUOTE}.*{QUOTE} {char *value; value =malloc(strlen(yytext)-1);cpy_without_quote(value,yytext);yylval =(YYSTYPE)value;return chaine;}
 
-{ALLE}+     { char *value; value =malloc(strlen(yytext)+1);strcpy(value,yytext);yylval =(YYSTYPE)value;return mot;}
+{ALLE}+     { printf("mot %s\n",yytext);char *value; value =malloc(strlen(yytext)+1);strcpy(value,yytext);yylval =(YYSTYPE)value;return mot;}
 
 
 

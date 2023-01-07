@@ -166,8 +166,14 @@ void MIPSstrcompare(FILE *f)
 void MIPSstrconcat(FILE *f)
 {
     fprintf(f,"\nstrconcat:\n");
+
+    fprintf(f,"move $t7,$ra\n");        //Store ra car jal
+
     fprintf(f,"jal strlen\n");//on calcule la taille de la 1ere chaine de caractere dans $t0
     fprintf(f,"jal strlen2\n");//on calcule la taille de la 2eme chaine de caractere dans $t3
+
+    fprintf(f,"move $ra,$t7\n");         //restore ra
+
     fprintf(f,"add $t0,$t0,$t3\n");//on additionne les 2 tailles
     fprintf(f,"addi $t0,$t0,1\n");//on incremente de 1 pour le caractere nul
     

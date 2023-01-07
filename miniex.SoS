@@ -1,6 +1,3 @@
-read a;
-if test ${a} = a then 
-echo a
-else 
-echo ${a}
-fi
+a=3;
+b=aaaaaaaa${a};
+echo ${b}
