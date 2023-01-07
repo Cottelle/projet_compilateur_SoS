@@ -229,23 +229,3 @@ struct addval casetop(void)
     return ret;
 }
 
-
-/* struct symbole *stackpush(char *name,int value)
-{
-    if(findtable(name,0))
-    {
-        fprintf(stderr,"Error %s is local and already exit (in local)\n",name);
-        exit(3);
-    }
-    struct symbole *s =findtable(name,1); //pas idéal en complexité
-
-    insp(s->memory_place,(char *)&value,CELLSIZE);
-
-    gencode(AFF,avc(s,-1),avc(NULL,value),avc(NULL,-1),0);
-
-    return s;
-
-
-
-}
- */

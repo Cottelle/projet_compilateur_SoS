@@ -1,5 +1,0 @@
-goto <0> 
-<0> := <1> <2> <3>  (<2> operateur)
-if <0> = <1> goto <2>
-appel systeme
-call <0>

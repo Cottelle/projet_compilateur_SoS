@@ -1,6 +1,0 @@
-fun(3)
-{
-    echo $*
-};
-
-fun Une Belle Fonction
