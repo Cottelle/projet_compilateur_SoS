@@ -1,6 +1,5 @@
-case a in               #Ne marche pas
-c)echo c;;
-b) echo b;;
+
+case a in              
 a) echo a ;;
 *) echo rien;;
 esac

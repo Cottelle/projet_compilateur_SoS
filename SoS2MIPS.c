@@ -100,6 +100,7 @@ void MIPSstrlen(FILE *f)
     fprintf(f,"\nstrlen:\n");
 
     fprintf(f,"li $t0,0\n");// compteur de caractere
+    fprintf(f,"move $t4,$a1\n");//on sauvegarde l'adresse de la chaine de caractere dans $t4
 
     fprintf(f,"\nstrlenboucle:\n");
     fprintf(f,"lb $t1,0($a1)\n");//on charge le caractere dans $t1
@@ -109,6 +110,7 @@ void MIPSstrlen(FILE *f)
     fprintf(f,"j strlenboucle\n");//on recommence
 
     fprintf(f,"\nstrlenfin:\n");//on a fini de compter
+    fprintf(f,"move $a1,$t4\n");//on remet l'adresse de la chaine de caractere dans $a1
     fprintf(f,"jr $ra\n");//on retourne
 }
 
@@ -117,6 +119,7 @@ void MIPSstrlen2(FILE *f)
     fprintf(f,"\nstrlen2:\n");
 
     fprintf(f,"li $t3,0\n");// compteur de caractere
+    fprintf(f,"move $t4,$a2\n");//on sauvegarde l'adresse de la chaine de caractere dans $t4
 
     fprintf(f,"\nstrlen2boucle:\n");
     fprintf(f,"lb $t1,0($a2)\n");//on charge le caractere dans $t1
@@ -126,6 +129,7 @@ void MIPSstrlen2(FILE *f)
     fprintf(f,"j strlen2boucle\n");//on recommence
 
     fprintf(f,"\nstrlen2fin:\n");//on a fini de compter
+    fprintf(f,"move $a2,$t4\n");//on remet l'adresse de la chaine de caractere dans $a2
     fprintf(f,"jr $ra\n");//on retourne
 }
 
@@ -177,8 +181,14 @@ void MIPSstrcompare(FILE *f)
 void MIPSstrconcat(FILE *f)
 {
     fprintf(f,"\nstrconcat:\n");
+
+    fprintf(f,"move $t7,$ra\n");        //Store ra car jal
+
     fprintf(f,"jal strlen\n");//on calcule la taille de la 1ere chaine de caractere dans $t0
     fprintf(f,"jal strlen2\n");//on calcule la taille de la 2eme chaine de caractere dans $t3
+
+    fprintf(f,"move $ra,$t7\n");         //restore ra
+
     fprintf(f,"add $t0,$t0,$t3\n");//on additionne les 2 tailles
     fprintf(f,"addi $t0,$t0,1\n");//on incremente de 1 pour le caractere nul
     
@@ -286,15 +296,20 @@ void MIPSread(FILE *f)
 
     fprintf(f,"li $t0,0\n");
     fprintf(f,"la $9,la0\n");
+    fprintf(f,"li $t3,10\n");       //\n
 
-    fprintf(f,"\nloop: 			#taille du buffer lu \n");
+    fprintf(f,"\n_readloop: 			#taille du buffer lu \n");
     fprintf(f,"lb $t2 , ($9)\n");
-    fprintf(f,"beq $t2, $0 , exit\n");
+    fprintf(f,"beq $t2, $0 , _readexit\n");
+    fprintf(f,"beq $t2, $t3 , _readNL\n");
     fprintf(f,"addi $t0, $t0, 1\n");
     fprintf(f,"addi $9 , $t1, 1\n");
-    fprintf(f,"j loop\n");
+    fprintf(f,"j _readloop\n");
+
+    fprintf(f,"_readNL:\n");
+    fprintf(f,"sb $0,($9)");
     
-    fprintf(f,"\nexit : \n");
+    fprintf(f,"\n_readexit : \n");
     fprintf(f,"li $v0, 9\n");
     fprintf(f,"move $a0 , $t0			#alloue\n");
     fprintf(f,"syscall\n");
@@ -302,16 +317,16 @@ void MIPSread(FILE *f)
     fprintf(f,"la $9,la0\n");
     fprintf(f,"move $11, $v0\n");
 
-    fprintf(f,"\nloop2 :\n");
-    fprintf(f,"beq $t0,$0 , exit2\n");
+    fprintf(f,"\n_readloop2 :\n");
+    fprintf(f,"beq $t0,$0 , _readexit2\n");
     fprintf(f,"lb $t2, ($9)\n");
     fprintf(f,"sb $t2, ($v0)\n");
     fprintf(f,"addi $9,$9,1\n");
     fprintf(f,"addi $v0,$v0,1\n");
     fprintf(f,"addi $t0,$t0,-1\n");
-    fprintf(f,"j loop2\n");
+    fprintf(f,"j _readloop2\n");
 
-    fprintf(f,"\nexit2 :\n");
+    fprintf(f,"\n _readexit2 :\n");
 
     fprintf(f,"jr $31					#resulat ds $11\n");
     fprintf(f,"#the value allocated is in $11\n");
@@ -918,7 +933,10 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                     {
                         fprintf(f,"move $a0,$s1\n");
                         fprintf(f,"move $t9,$ra\n");
+                        fprintf(f,"move $s4,$s0\n");    //save the value of s0 beacause use in strtoint
+                        
                         fprintf(f,"jal strtoint\n");
+                        fprintf(f,"move $s0,$s4\n");    //restore
                         fprintf(f,"move $ra,$t9\n");
                         fprintf(f,"move $s1,$t1\n");
                     }

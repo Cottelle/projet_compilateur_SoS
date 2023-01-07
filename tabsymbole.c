@@ -86,7 +86,7 @@ struct symbole *findtable(char *id, int create)
 struct symbole *createsymbole(struct symbole *s)
 {
     struct symbole *sprime = findtable(s->name, 1);
-    sprime->isint = s->isint;
+    sprime->isint = 0;
     sprime->nb = s->nb;
     sprime->onstack_reg_label = s->onstack_reg_label;
     sprime->memory_place = writememory("sos", CELLSIZE);
@@ -174,7 +174,7 @@ struct symbole *clabel(char *buf)
         labels.tab = temp;
     }
     labels.tab[labels.cur_place] = buf;
-    s->isint = labels.cur_place;
+    s->isint = 0;
     s->memory_place = labels.cur_place;
     labels.cur_place++;
 
@@ -291,7 +291,7 @@ struct symbole *spfindtable(char *id, int create)
 struct symbole *spcreatesymbole(struct symbole *s)
 {
     struct symbole *sprime = spfindtable(s->name, 1);
-    sprime->isint = s->isint;
+    sprime->isint =0;
     sprime->nb = 1;
     sprime->onstack_reg_label = 1;
 
@@ -374,7 +374,7 @@ struct symbole *stack(int off)
 
     s->onstack_reg_label = 1;
     s->memory_place = off;
-    s->isint = off;
+    s->isint = 0;
     s->nb = 1;
     s->name = "_stack";
     return s;
@@ -454,7 +454,7 @@ void printtabsymbole(void)
 
     printf("\nLabel\n");
     for (unsigned int i = 0; i < labels.cur_place; i++)
-        printf("la%i: %s \n", i, labels.tab[i]);
+        printf("la%i: %s (len: %li) \n", i, labels.tab[i],strlen(labels.tab[i]));
 
     printf("\n");
 }

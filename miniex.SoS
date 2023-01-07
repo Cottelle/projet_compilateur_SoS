@@ -1,3 +1,6 @@
-a=4;
-b= $(expr 3 * 2 + ${a});
-echo ${b}
+fun(3)
+{
+    echo $*
+};
+
+fun Une Belle Fonction

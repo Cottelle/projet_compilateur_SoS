@@ -52,7 +52,6 @@ ALLE [^\"\'" "";""=""\n""\t""\]""\)""\[""\(""$""{""}" "\|"]
 "-lt" return tlt;
 "-le" return tle;
 
-"mm" return magic;
 
 "#".*"\n" nligne++;
 
@@ -77,7 +76,7 @@ ALLE [^\"\'" "";""=""\n""\t""\]""\)""\[""\(""$""{""}" "\|"]
 "esac" {return esac;}
 "echo" {return echo;}
 "read" {return read_;}
-"return" {printf("lex return\n"); return return_;}
+"return" {return return_;}
 "exit" {return exit_;}
 "test" {return test;}
 "expr" {return expr;}
