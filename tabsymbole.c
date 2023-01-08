@@ -35,7 +35,7 @@ struct symbole *findtable(char *id, int create)
             if (!tabsymbole.tab[i])
             {
                 fprintf(stderr, "Error malloc \n");
-                exit(1);
+                exit(2);
             }
 
             tabsymbole.tab[i]->name = id;
@@ -57,7 +57,7 @@ struct symbole *findtable(char *id, int create)
         if (!temp)
         {
             free(tabsymbole.tab);
-            exit(1);
+            exit(2);
         }
 
         memset(temp + tabsymbole.size, 0, (new_size - tabsymbole.size) * sizeof(struct symbole *));
@@ -68,7 +68,7 @@ struct symbole *findtable(char *id, int create)
         if (!tabsymbole.tab[place])
         {
             fprintf(stderr, "Error malloc \n");
-            exit(1);
+            exit(2);
         }
 
         tabsymbole.size = new_size;
@@ -191,7 +191,7 @@ struct tabsymbolesp *nextstackcreate(void)
     if (!t->next)
     {
         fprintf(stderr, "Error malloc\n");
-        exit(1);
+        exit(2);
     }
 
     t->next->next = NULL;
@@ -237,7 +237,7 @@ struct symbole *spfindtable(char *id, int create)
             if (!tabsp->tab[i])
             {
                 fprintf(stderr, "Error malloc \n");
-                exit(1);
+                exit(2);
             }
 
             tabsp->tab[i]->name = id;
@@ -261,7 +261,7 @@ struct symbole *spfindtable(char *id, int create)
         if (!temp)
         {
             free(tabsp->tab);
-            exit(1);
+            exit(2);
         }
 
         memset(temp + tabsp->size, '\0', (new_size - tabsp->size) * sizeof(struct symbole *));
@@ -273,7 +273,7 @@ struct symbole *spfindtable(char *id, int create)
         if (!tabsp->tab[place])
         {
             fprintf(stderr, "Error malloc \n");
-            exit(1);
+            exit(2);
         }
 
         tabsp->size = new_size;
@@ -340,7 +340,7 @@ struct symbole *reg(int value)
     if (!s)
     {
         fprintf(stderr, "Error malloc\n");
-        exit(1);
+        exit(2);
     }
 
     s->onstack_reg_label = 2;

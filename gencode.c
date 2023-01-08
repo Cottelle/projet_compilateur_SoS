@@ -12,7 +12,7 @@ lpos *crelist(int position)
     if (!new)
     {
         fprintf(stderr, "Error malloc\n");
-        exit(1);
+        exit(2);
     }
     new->position = position;
     new->suivant = NULL;
@@ -65,8 +65,8 @@ void gencode(enum instruction instruction, struct addval z, struct addval o, str
         quadrup *temp = (quadrup *)realloc(quad.quadrup, quad.size * sizeof(*(quad.quadrup)));
         if (!temp)
         {
-            fprintf(stderr, "[gSoSSoS]Erreur genecode: realloc");
-            exit(1);
+            fprintf(stderr, "Erreur genecode: realloc");
+            exit(2);
         }
         quad.quadrup = temp;
     }
@@ -190,7 +190,7 @@ void casepush(struct symbole *s, int addr)
     if (!head)
     {
         fprintf(stderr, "Error malloc (casepush)\n");
-        exit(1);
+        exit(2);
     }
     head->s = s;
     head->addr = addr;
@@ -203,7 +203,7 @@ struct addval casepop(void)
     if (!casestack)
     {
         fprintf(stderr, "Error casestack is empty\n");
-        exit(2);
+        exit(4);
     }
     struct addval ret;
     ret.s = casestack->s;
@@ -220,7 +220,7 @@ struct addval casetop(void)
     if (!casestack)
     {
         fprintf(stderr, "Error casestack is empty\n");
-        exit(2);
+        exit(4);
     }
 
     struct addval ret;

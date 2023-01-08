@@ -366,7 +366,7 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
     if(f==NULL)
     {
         printf("Error opening file");
-        exit(1);
+        exit(2);
     }
 
     //reservation of memory (.data)
@@ -412,7 +412,7 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                                 fprintf(f,"la $s0,la%i\n",quad.quadrup[i].zero.s->memory_place);
                             default:
                                 printf("Error: variable not found");
-                                exit(1);
+                                exit(2);
                         }
 
                         //jalr $s0
@@ -443,7 +443,7 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                                 fprintf(f,"la $s0,la%i\n",quad.quadrup[i].zero.s->memory_place);
                             default:
                                 printf("Error: variable not found");
-                                exit(1);
+                                exit(2);
                         }
 
                         //jr $s0
@@ -455,7 +455,7 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                 if(quad.quadrup[i].zero.s==NULL)
                 {
                     printf("Error: variable not found \n");
-                    exit(1);
+                    exit(2);
                 }
                 switch(quad.quadrup[i].type)
                 {
@@ -482,7 +482,7 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                                     break;
                                 default:
                                     printf("Error: variable not found \n");
-                                    exit(1);
+                                    exit(2);
                             }
                         }
                         fprintf(f,"sw $s1,($s0)\n");
@@ -502,7 +502,7 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                                 break;
                             default:
                                 printf("Error: variable not found");
-                                exit(1);
+                                exit(2);
                         }
                         break;
                     case 0://affectation simple
@@ -522,7 +522,7 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                                     break;
                                 default:
                                     printf("Error: variable not found");
-                                    exit(1);
+                                    exit(2);
                             }
                         }
                         else
@@ -545,7 +545,7 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
 
                                         default:
                                             printf("Error: variable not found");
-                                            exit(1);
+                                            exit(2);
                                     }
                                     break;
                                 case 1:
@@ -564,7 +564,7 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
 
                                         default:
                                             printf("Error: variable not found");
-                                            exit(1);
+                                            exit(2);
                                     }
                                     break;
                                 case 2:
@@ -582,7 +582,7 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                                             break;
                                         default:
                                             printf("Error: variable not found");
-                                            exit(1);
+                                            exit(2);
                                     }
                                     break;
                                 case 3:
@@ -600,12 +600,12 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                                             break;
                                         default:
                                             printf("Error: variable not found");
-                                            exit(1);
+                                            exit(2);
                                     }
                                     break;
                                 default:
                                     printf("Error: variable not found");
-                                    exit(1);
+                                    exit(2);
                             }
                         }
                         break;
@@ -631,7 +631,7 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                                     break;
                                 default:
                                     printf("Error: variable not found");
-                                    exit(1);
+                                    exit(2);
                             }
                         }
                         if(quad.quadrup[i].two.s==NULL)
@@ -653,7 +653,7 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                                     break;
                                 default:
                                     printf("Error: variable not found");
-                                    exit(1);
+                                    exit(2);
                             }
                         }
                         fprintf(f,"add $s0,$s0,$s1\n");
@@ -670,7 +670,7 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                                 break;
                             default:
                                 printf("Error: variable not found");
-                                exit(1);
+                                exit(2);
                         }
                         break;
 

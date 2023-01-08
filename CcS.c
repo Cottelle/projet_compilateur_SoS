@@ -37,7 +37,7 @@ int main(int argc, char **argv)
     }
 
     if (yyparse() != 0)
-        return 0;
+        return 1;
 
     if (options.debug)
         printquad();

@@ -355,7 +355,7 @@ LISTE_OPERANDES:LISTE_OPERANDES OPERANDE {
                                             if(!id) 
                                             {
                                                 fprintf(stderr,"Error ligne %i : %s is Unknow declare it \n",1+nligne,$3); 
-                                                exit(2); 
+                                                exit(1); 
                                             }  
                                             $$.start=NULL;
                                             $$.value= NULL;
@@ -538,7 +538,7 @@ OPERANDE:'$''{'ID'}'                          {
                                                  if (!mal)
                                                  {
                                                     fprintf(stderr,"Error malloc \n");
-                                                    exit(1);
+                                                    exit(2);
                                                  } 
                                                  snprintf(mal,32,"%i",$1);
                                                 $$.s=clabel(mal);
@@ -556,7 +556,7 @@ OPERANDE:'$''{'ID'}'                          {
                                                 if($2>nbarg)
                                                 {
                                                     fprintf(stderr,"Error ligne %i : $%i doesn't exit (there is %i arg) \n",1+nligne,$2,nbarg);
-                                                    exit(3);
+                                                    exit(1);
                                                 }
                                                 char buf[4];
                                                 if (snprintf(buf,4,"$%i",$2)<0)
@@ -790,12 +790,12 @@ DECLARATION_FONTION: ID '(' entier ')'                                          
                                                                                             if ((buf=malloc(4))<0)
                                                                                             { 
                                                                                                 fprintf(stderr,"Error malloc\n");
-                                                                                            exit(1);
+                                                                                                exit(2);
                                                                                             }
                                                                                           if (snprintf(buf,4,"$%i",i+1)<0)
                                                                                           {
                                                                                             fprintf(stderr,"Error snprintf\n");
-                                                                                            exit(1);
+                                                                                            exit(2);
                                                                                           }
                                                                                           struct symbole *s=spfindtable(buf,1);            //create the entry on sp for the arg
                                                                                         }   
@@ -840,7 +840,7 @@ APPEL_FONCTION: ID                                                              
                                                                                                 if (!(f = findfun($1,0)))
                                                                                                 {
                                                                                                     fprintf(stderr,"Error ligne %i: %s not declared\n",1+nligne,$1);
-                                                                                                    exit(3);
+                                                                                                    exit(1);
                                                                                                 }
                                                                                                 for(int i=0; i<$3;i++)
                                                                                                     if (quad.quadrup[quad.next-1-i].one.s && quad.quadrup[quad.next-1-i].one.s->onstack_reg_label ==1)
@@ -863,7 +863,7 @@ APPEL_FONCTION: ID                                                              
                                                                                         if (!(f=findfun($1,0)))
                                                                                         {
                                                                                             fprintf(stderr,"Error ligne %i: %s not declared\n",1+nligne,$1);
-                                                                                            exit(3);
+                                                                                            exit(1);
                                                                                         }
                                                                                         for(int i =0; i<f->nbarg; i++)
                                                                                             gencode(AFF,avc(stack(i*4),-1),avc(NULL,0),avc(NULL,-1),0);
@@ -889,7 +889,7 @@ LISTE_ARG: LISTE_ARG OPERANDE              {                            //Si il 
                                             if(!fun) 
                                             {
                                                 fprintf(stderr,"Error ligne %i: %s is Unknow \n",1+nligne,$3); 
-                                                exit(2); 
+                                                exit(1); 
                                             } 
                                             for(int i=0 ;i<fun->nb ; i++)
                                             {
@@ -941,7 +941,7 @@ lpos *arggencode(lpos **start)
         if (snprintf(buf, 4, "$%i", i + 1) < 0)
         {
             fprintf(stderr, "Error snprintf\n");
-            exit(1);
+            exit(2);
         }
         value = concat(value, crelist(quad.next));
         gencode(AFF, avc(NULL, -1), avc(findtable(buf, 0), -1), avc(NULL, -1), 0); // les argument sont quelque part je sais pas où 's' 'p' à la place

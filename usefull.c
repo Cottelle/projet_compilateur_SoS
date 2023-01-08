@@ -13,7 +13,7 @@ char *createbuf(char *format, ...)
     if(!(buf=malloc(size)))
     {
         fprintf(stderr,"Error malloc creatbuf\n");
-        exit(1);
+        exit(2);
     }
     va_end(ap);
     va_start(ap, format);
