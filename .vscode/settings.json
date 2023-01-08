@@ -9,7 +9,8 @@
         "cmath": "c",
         "limits": "c",
         "*.tcc": "c",
-        "sos2mips.h": "c"
+        "sos2mips.h": "c",
+        "args-parser.h": "c"
     },
     "nrf-connect.toolchain.path": "${nrf-connect.toolchain:2.0.2}",
     "nrf-connect.topdir": "${nrf-connect.sdk:2.0.2}"

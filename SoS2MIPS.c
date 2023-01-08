@@ -358,9 +358,11 @@ void labelprint(struct labels l, int size_symb,FILE *f)
         codeMIPS.s: le fichier contenant le code MIPS
 */
 
-void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels labels)
+void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels labels,char *output)
 {
-    FILE *f=fopen("codeMIPS.s","w");
+    if(!output)
+        output = "codeMIPS.s";
+    FILE *f=fopen(output,"w");
     if(f==NULL)
     {
         printf("Error opening file");

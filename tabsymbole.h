@@ -159,6 +159,6 @@ struct function *findfun(char *name,int create);
 /**
  * Print the tabsymbol
  */
-void printtabsymbole(void);
+void printtabsymbole(int debug);
 
 #endif

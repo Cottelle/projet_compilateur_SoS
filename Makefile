@@ -14,8 +14,11 @@ LDFLAGS = -g -Werror -Wextra -Wall
 
 all: main
 
-main: $(prefixe).tab.o lex.yy.o main.o tabsymbole.o gencode.o usefull.o SoS2MIPS.o
+main: $(prefixe).tab.o lex.yy.o main.o tabsymbole.o gencode.o usefull.o SoS2MIPS.o args-parser.o
 	$(CC) $(LDFLAGS) $^ -o $@ $(LDLIBS)
+
+args-parser.o : args-parser.c
+	gcc -o args-parser.o -c args-parser.c $(LDFLAGS)
 
 SoSMIPS.o : SoS2MIPS.c
 	gcc -o SoS2MIPS.o -c SoS2MIPS.c $(LDFLAGS)

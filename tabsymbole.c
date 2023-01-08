@@ -414,13 +414,15 @@ struct function *findfun(char *name, int create)
     return funtab.ftab[funtab.cur - 1];
 }
 
-void printtabsymbole(void)
+void printtabsymbole(int debug)
 {
     printf("\n Table symbole : \n");
     for (int i = 0; i < tabsymbole.size; i++)
         if (tabsymbole.tab[i])
             printf("-%i- %s [%i]\n", i, tabsymbole.tab[i]->name, tabsymbole.tab[i]->memory_place);
-
+    
+    if (!debug)
+        return;
     printf("\nMemory\n");
     unsigned int nb0 = 0, i = 0;
     while (i < cur_memory && i < MEMORYSIZE && nb0 < 10)
