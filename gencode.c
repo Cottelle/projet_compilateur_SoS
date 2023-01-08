@@ -229,3 +229,7 @@ struct addval casetop(void)
     return ret;
 }
 
+void freequad(void)
+{
+    free(quad.quadrup);
+}

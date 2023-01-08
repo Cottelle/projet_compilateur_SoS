@@ -162,4 +162,10 @@ struct function *findfun(char *name,int create);
  */
 void printtabsymbole(int debug);
 
+
+/**
+ * Free the symbole
+*/
+void freesym(void);
+
 #endif

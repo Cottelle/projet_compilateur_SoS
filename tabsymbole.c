@@ -478,3 +478,31 @@ void printtabsymbole(int debug)
 
     printf("\n");
 }
+
+
+
+void freesym(void)
+{
+    for (int i = 0; i < tabsymbole.size; i++)
+        if (tabsymbole.tab[i])
+            free(tabsymbole.tab[i]);
+    free(tabsymbole.tab);
+
+    if (funtab.size > 0)
+    {
+        for (unsigned int i = 0; i < funtab.size; i++)
+        {
+            free(funtab.ftab[i]->name);
+            if (!funtab.ftab[i]->sym)
+                continue;
+            for (int j = 0; j < funtab.ftab[i]->sym->size; j++)
+                if (funtab.ftab[i]->sym->tab[j])
+                    free(funtab.ftab[i]->sym->tab[j]);
+            free(funtab.ftab[i]->sym->tab);
+
+        }
+    }
+    free(labels.tab);
+
+}
+

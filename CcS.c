@@ -44,5 +44,8 @@ int main(int argc, char **argv)
     if (options.debug || options.tos)
         printtabsymbole(options.debug);
     il2MIPS(quad, tabsymbole, labels, options.output);
+
+    freequad();
+    freesym();
     return 0;
 }

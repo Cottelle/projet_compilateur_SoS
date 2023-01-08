@@ -98,6 +98,11 @@ struct addval avc(struct symbole *s,int value);
 void printquad(void);
 
 /**
+ * free the memory of quad
+*/
+void freequad(void);
+
+/**
  * for case instruction push on a casestack the addval (s,addr)
 */
 void casepush( struct symbole *s,int addr );
