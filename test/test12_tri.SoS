@@ -1,0 +1,7 @@
+#fun(2){
+#    local i = 9;
+#    while test i -ne 0 do 
+#        if 
+#        i = $(expr ${i} - 1)
+#    done
+#}

@@ -1,0 +1,12 @@
+fun(1)
+{
+    return ($1)
+};
+
+fun 1;
+echo $? ;
+if test aaa =aaa then 
+a=a
+fi;
+echo separation;
+echo $(fun 3)

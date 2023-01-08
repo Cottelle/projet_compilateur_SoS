@@ -619,7 +619,7 @@ OPERANDE:'$''{'ID'}'                          {
                                                     gencode(AFF,avc(reg(25),-1),avc(reg(31),-1),avc(NULL,-1),0);                
                                                     gencode(AFF,avc(reg(5),-1),avc(reg(2),-1),avc(NULL,-1),0);
                                                     gencode(CALL,avc((struct symbole *)"intostr",-1 ),avc(NULL,-1),avc(NULL,-1),0);
-                                                    gencode(AFF,avc(reg(2),-1),avc(reg(24),-1),avc(NULL,-1),0);                
+                                                    // gencode(AFF,avc(reg(2),-1),avc(reg(24),-1),avc(NULL,-1),0);                
                                                     gencode(AFF,avc(reg(31),-1),avc(reg(25),-1),avc(NULL,-1),0);
                                                     $$.addr = -1; 
                                                 }
@@ -640,7 +640,7 @@ OPERANDE:'$''{'ID'}'                          {
                                                     gencode(AFF,avc(reg(25),-1),avc(reg(31),-1),avc(NULL,-1),0);                
                                                     gencode(AFF,avc(reg(5),-1),avc(reg(2),-1),avc(NULL,-1),0);
                                                     gencode(CALL,avc((struct symbole *)"intostr",-1 ),avc(NULL,-1),avc(NULL,-1),0);
-                                                    gencode(AFF,avc(reg(2),-1),avc(reg(24),-1),avc(NULL,-1),0);                
+                                                    // gencode(AFF,avc(reg(2),-1),avc(reg(24),-1),avc(NULL,-1),0);                
                                                     gencode(AFF,avc(reg(31),-1),avc(reg(25),-1),avc(NULL,-1),0);
                                                     $$.addr=-1; 
                                                 }

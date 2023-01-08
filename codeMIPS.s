@@ -2,52 +2,157 @@
  .space 4   #place pour les symboles
  #place pour les lables de chaine de charactere
 errorstrtoint : .asciiz "Ce n'est pas un nombre desolé" 
+la1 : .asciiz "1"
+la2 : .asciiz "aaa"
+la3 : .asciiz "aaa"
+la4 : .asciiz "a"
+la5 : .asciiz "separation"
+la6 : .asciiz "3"
 la0: .space 32         #the buffer for the read buffer of siez 32
   
 
  .text
 a0:
-li $s0,10
-move $23,$s0
+j a11
 a1:
-move $s0,$23
-sw $s0,0($sp)
-a2:
-li $s0,3
-move $23,$s0
-a3:
-lw $s0,0($sp)
-move $s1,$23
-div $s0,$s1
-mfhi $s0
-move $23,$s0
-a4:
-move $s0,$31
-move $25,$s0
-a5:
 move $s0,$2
 move $24,$s0
-a6:
-move $s0,$23
-move $5,$s0
-a7:
-jal intostr
-a8:
+a2:
+move $s0,$31
+move $25,$s0
+a3:
+lw $s0,0($sp)
+move $4,$s0
+a4:
+jal strtoint
+a5:
 move $s0,$25
 move $31,$s0
+a6:
+move $s0,$24
+move $2,$s0
+a7:
+move $s0,$9
+move $2,$s0
+a8:
+move $s0,$31
+jr $s0
 a9:
-move $s0,$2
-sw $s0,0x10010000
-a10:
-lw $s0,0x10010000
-move $4,$s0
-a11:
-li $v0,4
-syscall
-a12:
 li $s0,0
 move $2,$s0
+a10:
+move $s0,$31
+jr $s0
+a11:
+move $s0,$29
+sw $s0,0($sp)
+a12:
+move $s0,$31
+sw $s0,4($sp)
 a13:
+move $s0,$29
+li $s1,8
+add $s0,$s0,$s1
+move $29,$s0
+a14:
+la $s0,la1
+sw $s0,0($sp)
+a15:
+jal a1
+a16:
+lw $s0,-4($sp)
+move $31,$s0
+a17:
+lw $s0,-8($sp)
+move $29,$s0
+a18:
+move $s0,$2
+move $24,$s0
+a19:
+move $s0,$31
+move $25,$s0
+a20:
+move $s0,$2
+move $5,$s0
+a21:
+jal intostr
+a22:
+move $s0,$25
+move $31,$s0
+a23:
+move $s0,$2
+move $4,$s0
+a24:
+li $v0,4
+syscall
+a25:
+la $s0,la2
+la $s1,la3
+move $a0,$s0
+move $a1,$s1
+move $t9,$ra
+jal strcompare
+move $ra,$t9
+beq $t0,$0,a27
+a26:
+j a29
+a27:
+la $s0,la4
+sw $s0,0x10010000
+a28:
+j a29
+a29:
+la $s0,la5
+move $4,$s0
+a30:
+li $v0,4
+syscall
+a31:
+move $s0,$29
+sw $s0,0($sp)
+a32:
+move $s0,$31
+sw $s0,4($sp)
+a33:
+move $s0,$29
+li $s1,8
+add $s0,$s0,$s1
+move $29,$s0
+a34:
+la $s0,la6
+sw $s0,0($sp)
+a35:
+jal a1
+a36:
+lw $s0,-4($sp)
+move $31,$s0
+a37:
+lw $s0,-8($sp)
+move $29,$s0
+a38:
+move $s0,$2
+move $24,$s0
+a39:
+move $s0,$31
+move $25,$s0
+a40:
+move $s0,$2
+move $5,$s0
+a41:
+jal intostr
+a42:
+move $s0,$25
+move $31,$s0
+a43:
+move $s0,$2
+move $4,$s0
+a44:
+li $v0,4
+syscall
+a45:
+li $s0,0
+move $2,$s0
+a46:
 li $v0,10
 syscall
 
