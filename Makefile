@@ -1,20 +1,15 @@
 
 prefixe=p
 
-# exige 3 fichiers:
-# - $(prefixe).y (fichier bison)
-# - $(prefixe).lex (fichier flex)
-# - main.c (programme principal)
-# construit un exécutable nommé "main"
 
 # note : le programme principal ne doit surtout pas s'appeler $(prefixe).c
 # (make l'écraserait parce qu'il a une règle "%.c: %.y")
 
 LDFLAGS = -g -Werror -Wextra -Wall
 
-all: main
+all: CcS
 
-main: $(prefixe).tab.o lex.yy.o main.o tabsymbole.o gencode.o usefull.o SoS2MIPS.o args-parser.o
+CcS: $(prefixe).tab.o lex.yy.o CcS.o tabsymbole.o gencode.o usefull.o SoS2MIPS.o args-parser.o
 	$(CC) $(LDFLAGS) $^ -o $@ $(LDLIBS)
 
 args-parser.o : args-parser.c
@@ -46,7 +41,7 @@ doc:
 
 
 clean:
-	rm -f *.o $(prefixe).tab.c $(prefixe).tab.h lex.yy.c main \
+	rm -f *.o $(prefixe).tab.c $(prefixe).tab.h lex.yy.c CcS \
 		$(prefixe).output $(prefixe).dot $(prefixe).pdf
 
 tar:

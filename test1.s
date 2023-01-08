@@ -1,29 +1,83 @@
 .data
- .space 0   #place pour les symboles
+ .space 8   #place pour les symboles
  #place pour les lables de chaine de charactere
 errorstrtoint : .asciiz "Ce n'est pas un nombre desolé" 
 la1 : .asciiz "Hello"
-la2 : .asciiz "World"
+la2 : .asciiz " "
+la3 : .asciiz "World"
 la0: .space 32         #the buffer for the read buffer of siez 32
   
 
  .text
 a0:
 la $s0,la1
-move $4,$s0
+sw $s0,0x10010004
 a1:
-li $v0,4
-syscall
+move $s0,$31
+move $20,$s0
 a2:
-la $s0,la2
-move $4,$s0
+jal a3
 a3:
+move $s0,$31
+li $s1,32
+add $s0,$s0,$s1
+sw $s0,0x10010000
+a4:
+move $s0,$20
+move $31,$s0
+a5:
+j a19
+a6:
+la $s0,la2
+sw $s0,0x10010004
+a7:
+move $s0,$31
+move $20,$s0
+a8:
+jal a9
+a9:
+move $s0,$31
+li $s1,32
+add $s0,$s0,$s1
+sw $s0,0x10010000
+a10:
+move $s0,$20
+move $31,$s0
+a11:
+j a19
+a12:
+la $s0,la3
+sw $s0,0x10010004
+a13:
+move $s0,$31
+move $20,$s0
+a14:
+jal a15
+a15:
+move $s0,$31
+li $s1,32
+add $s0,$s0,$s1
+sw $s0,0x10010000
+a16:
+move $s0,$20
+move $31,$s0
+a17:
+j a19
+a18:
+j a22
+a19:
+lw $s0,0x10010004
+move $4,$s0
+a20:
 li $v0,4
 syscall
-a4:
+a21:
+lw $s0,0x10010000
+jr $s0
+a22:
 li $s0,0
 move $2,$s0
-a5:
+a23:
 li $v0,10
 syscall
 

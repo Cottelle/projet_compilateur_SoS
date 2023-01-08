@@ -41,7 +41,7 @@ void parseArgs(int argc, char **argv, struct options_t *options)
     initOptions(options);
 
     int c;
-    while ((c = getopt(argc, argv, "i:o:d:t:vh")) != -1)
+    while ((c = getopt(argc, argv, "i:o:vdth")) != -1)
     {
         switch (c)
         {

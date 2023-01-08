@@ -148,7 +148,6 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                     complete(start,avc(NULL,quad.next));
                                                                                                                                                  } 
                 LISTE_INTRSUCTIONS done                                                                                                         {
-                                                                                                                                                        printf(">for in (%i)\n",findtable($2,1)->memory_place); 
                                                                                                                                                         $$ =$6; 
                                                                                                                                                         gencode(GOTO,avc(findtable(createbuf("_for%i",nbfor--),1),-1),avc(NULL,-1),avc(NULL,-1),0); 
                                                                                                                                                 }
@@ -163,32 +162,26 @@ INSTRUCTION : ID '=' CONCATENATION                                              
 
                                                                                                                                                      } 
                 LISTE_INTRSUCTIONS done                                                                                                         {
-                                                                                                                                                    printf(">for in \n");
                                                                                                                                                     $$ =crelist($8);
                                                                                                                                                     gencode(GOTO,avc(findtable(createbuf("_for%i",nbfor--),0),-1),avc(NULL,-1),avc(NULL,-1),0);
                                                                                                                                                 } 
             |while_ M TEST_BLOC do_ {complete($3.true,avc(NULL,quad.next));} LISTE_INTRSUCTIONS done                                  {
-                                                                                                                                                printf(">while \n");
                                                                                                                                                 $$ = $3.false;
                                                                                                                                                 complete($6, avc(NULL,$2)), gencode(GOTO,avc(NULL,$2),avc(NULL,-1),avc(NULL,-1),0);
                                                                                                                                             }
             |until M TEST_BLOC do_ {complete($3.false, avc(NULL,quad.next));} LISTE_INTRSUCTIONS done                               {
-                                                                                                                                                printf(">until \n");
                                                                                                                                                 $$ = $3.true;
                                                                                                                                                 complete($6, avc(NULL,$2)), gencode(GOTO,avc(NULL,$2),avc(NULL,-1),avc(NULL,-1),0);
                                                                                                                                             }
             |case_  OPERANDE {casepush($2.s,$2.addr);} in LISTE_CAS esac                                           {
-                                                                                                                                                printf(">case \n");
                                                                                                                                                 $$ = concat($5.follow,$5.next) ;
                                                                                                                                                 casepop();
                                                                                                                                                 }
             |echo LISTE_ECHO                                                                                                           {
                                                                                                                                                 $$ = NULL;
-                                                                                                                                                printf(">echo \n");
                                                                                                                                             }
             |read_ ID                                                                                                                       {           // faudra utiliser le label la-1 de 32
                                                                                                                                                 $$ = NULL;
-                                                                                                                                                printf(">Read \n");
 
                                                                                                                                                 struct symbole *s=spfindtable("_store$31",1);
 
@@ -223,12 +216,10 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                 gencode(AFF, avc(reg(31),-1),avc(s31,-1),avc(NULL,-1),0);
                                                                                                                                             }
             |DECLARATION_FONTION                                                                                                            {
-                                                                                                                                                printf(">declaration fonction \n");
                                                                                                                                                 $$ = NULL;
                                                                                                                                             }
             |return_                                                                                                                        {
                                                                                                                                                 $$ =NULL;
-                                                                                                                                                printf(">return \n");
                                                                                                                                                 if(!infun)
                                                                                                                                                 {
                                                                                                                                                     fprintf(stderr,"Error ligne %i:  you are not in a function you can't return (use exit to exit the programme)\n",1+nligne);
@@ -240,7 +231,6 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                             }
             |return_ '(' OPERANDE_ENTIER ')'                                                                                                        {
                                                                                                                                                 $$ =NULL;
-                                                                                                                                                printf(">return entier \n");
                                                                                                                                                 if(!infun)
                                                                                                                                                 {
                                                                                                                                                     fprintf(stderr,"Error ligne %i: you are not in a function you can't return (use exit to exit the programme)\n",1+nligne);
@@ -251,19 +241,16 @@ INSTRUCTION : ID '=' CONCATENATION                                              
                                                                                                                                                 gencode(GOTO,avc(reg(31),-1) ,avc(NULL,-1),avc(NULL,-1),0);
                                                                                                                                             }
             |APPEL_FONCTION                                                                                                                 {
-                                                                                                                                                printf(">appel fonction \n");
                                                                                                                                                 $$=NULL;
                                                                                                                                                 
                                                                                                                                             }
             |exit_                                                                                                                          {
                                                                                                                                                 $$ =NULL;
-                                                                                                                                                printf(">exit \n");
                                                                                                                                                 gencode(AFF,avc(reg(2),-1) ,avc(NULL,0),avc(NULL,-1),0);
                                                                                                                                                 gencode(SYS,avc(NULL,10) ,avc(NULL,-1),avc(NULL,-1),0);
                                                                                                                                             }
             |exit_ '(' OPERANDE_ENTIER ')'                                                                                                          {
                                                                                                                                                 $$ =NULL;
-                                                                                                                                                printf(">exit entier \n");
                                                                                                                                                 gencode(AFF,avc(reg(2),-1) ,avc($3.s,$3.addr),avc(NULL,-1),0);
                                                                                                                                                 gencode(SYS,avc(NULL,10) ,avc(NULL,-1),avc(NULL,-1),0);
                                                                                                                                             }
@@ -821,7 +808,7 @@ DECLARATION_FONTION: ID '(' entier ')'                                          
                                                                                         complete($8,avc(NULL,quad.next));  // -3 --> valeur de retour de la fonction (:pas encore implementé)
                                                                                         gencode(AFF,avc(reg(2),-1),avc(NULL,0),avc(NULL,-1),0);
                                                                                         gencode(GOTO,avc(reg(31),-1),avc(NULL,-1),avc(NULL,-1),0);
-                                                                                        popstacknext();                  //the local variable space is delete
+                                                                                        findfun($1,0)->sym= popstacknext();                  //the local variable space is delete
                                                                                         complete(crelist($5.quad),avc(NULL,quad.next));
                                                                                         infun--;
                                                                                     }
@@ -830,7 +817,6 @@ DECLARATION_FONTION: ID '(' entier ')'                                          
 
 
 DECL_LOC: DECL_LOC  local ID '=' CONCATENATION ';'                                      {
-                                                                                            printf(">Local\n");
                                                                                             struct symbole s;
                                                                                             s.name = $3;
                                                                                             s.isint =0;

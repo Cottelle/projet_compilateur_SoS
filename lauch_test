@@ -1,11 +1,14 @@
 
 
+make
 for i in $(ls test/) 
 do
-    ./main < test/$i_* >/dev/null
     echo ""
     echo ""
     echo "test"$i
     echo " "
-    java -jar MARS\ Simulateur\ MIPS\ en\ java-20221117/Mars4_5.jar codeMIPS.s
+    ./CcS -i test/$i -o mipscode.s 
+    echo " "
+    java -jar MARS\ Simulateur\ MIPS\ en\ java-20221117/Mars4_5.jar mipscode.s
 done
+rm mipscode.s

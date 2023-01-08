@@ -49,6 +49,7 @@ struct functiontable
 
 struct function{
     char *name;
+    struct tabsymbolesp *sym;
     unsigned int nbarg;
     unsigned int place;
 };
@@ -102,7 +103,7 @@ struct tabsymbolesp *nextstackcreate(void);
 /**
  * pop the last next of tabsymbolesp
  */
-void popstacknext(void);
+struct tabsymbolesp *popstacknext(void);
 
 /**
  * *  return the index in the tabsymbole -1 if issn't present and create = 0, else create. For local variable (on the stack)

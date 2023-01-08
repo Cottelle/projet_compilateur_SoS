@@ -97,17 +97,16 @@ struct symbole *createsymbole(struct symbole *s)
     return sprime;
 }
 
-
-struct symbole *createtab(char *name,int size)
+struct symbole *createtab(char *name, int size)
 {
-    struct symbole *s = findtable(name,0);
-    if(s)
-        s->name[0]='_';                 //destruction du precedent symbole
+    struct symbole *s = findtable(name, 0);
+    if (s)
+        s->name[0] = '_'; // destruction du precedent symbole
 
-    s =findtable(name,1);  //le creer
-    s->nb =size;
+    s = findtable(name, 1); // le creer
+    s->nb = size;
     s->isint = 0;
-    s->onstack_reg_label =0;
+    s->onstack_reg_label = 0;
     for (unsigned int i = 1; i < s->nb; i++)
         writememory((char *)&i, CELLSIZE);
     return s;
@@ -201,9 +200,9 @@ struct tabsymbolesp *nextstackcreate(void)
     return t;
 }
 
-void popstacknext()
+struct tabsymbolesp *popstacknext()
 {
-    struct tabsymbolesp *t = &tabsymbolesp;
+    struct tabsymbolesp *t = &tabsymbolesp, *ret;
     while (t->next->next != NULL)
         t = t->next;
 
@@ -211,8 +210,9 @@ void popstacknext()
     {
         cur_sp = t->next->tab[0]->memory_place; // On retreci la pile
     }
-    // Not free .... à mdeiter       il faut pas free totu de suite car les addr des "symbole" sont encore uilisé
+    ret = t->next;
     t->next = NULL;
+    return ret;
 }
 
 struct symbole *spfindtable(char *id, int create)
@@ -291,7 +291,7 @@ struct symbole *spfindtable(char *id, int create)
 struct symbole *spcreatesymbole(struct symbole *s)
 {
     struct symbole *sprime = spfindtable(s->name, 1);
-    sprime->isint =0;
+    sprime->isint = 0;
     sprime->nb = 1;
     sprime->onstack_reg_label = 1;
 
@@ -411,6 +411,9 @@ struct function *findfun(char *name, int create)
     }
     funtab.cur++;
     funtab.ftab[funtab.cur - 1]->name = name;
+    funtab.ftab[funtab.cur - 1]->sym = NULL;
+    funtab.ftab[funtab.cur - 1]->place = -1;
+    funtab.ftab[funtab.cur - 1]->nbarg = -1;
     return funtab.ftab[funtab.cur - 1];
 }
 
@@ -419,8 +422,23 @@ void printtabsymbole(int debug)
     printf("\n Table symbole : \n");
     for (int i = 0; i < tabsymbole.size; i++)
         if (tabsymbole.tab[i])
-            printf("-%i- %s [%i]\n", i, tabsymbole.tab[i]->name, tabsymbole.tab[i]->memory_place);
-    
+            printf("-%i- %s [%i] size :%i\n", i, tabsymbole.tab[i]->name, tabsymbole.tab[i]->memory_place,tabsymbole.tab[i]->nb);
+
+    printf("\n\n");
+    if (funtab.size > 0)
+    {
+        printf("Table symbole fonction\n");
+        for (unsigned int i = 0; i < funtab.size; i++)
+        {
+            printf(">%s:\n", funtab.ftab[i]->name);
+            if (!funtab.ftab[i]->sym)
+                continue;
+            for (int j = 0; j < funtab.ftab[i]->sym->size; j++)
+                if (funtab.ftab[i]->sym->tab[j])
+                    printf("-%i- %s [<sp>%i]\n", j, funtab.ftab[i]->sym->tab[j]->name, funtab.ftab[i]->sym->tab[j]->memory_place);
+        }
+    }
+
     if (!debug)
         return;
     printf("\nMemory\n");
@@ -456,7 +474,7 @@ void printtabsymbole(int debug)
 
     printf("\nLabel\n");
     for (unsigned int i = 0; i < labels.cur_place; i++)
-        printf("la%i: %s (len: %li) \n", i, labels.tab[i],strlen(labels.tab[i]));
+        printf("la%i: %s (len: %li) \n", i, labels.tab[i], strlen(labels.tab[i]));
 
     printf("\n");
 }
