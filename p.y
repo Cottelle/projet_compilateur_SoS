@@ -522,7 +522,7 @@ OPERANDE:'$''{'ID'}'                          {
                                                         exit(1);
                                                     }
 
-                                                    gencode(AFF,avc(reg(23),-1),avc(reg(23),-1),avc(NULL,4),3);
+                                                    gencode(AFF,avc(reg(23),-1),avc($5.s,$5.addr),avc(NULL,4),3);
                                                     gencode(AFF,avc(reg(20),-1),avc(NULL,id->memory_place +DATA_SEGMENT ),avc(reg(23),-1),1);
                                                     gencode(AFF,avc(s,-1),avc(reg(20),-1),avc(NULL,-1),-1);
 
@@ -727,7 +727,7 @@ OPERANDE_ENTIER:'$''{'ID'}' {   struct symbole *s;
 
                                                     gencode(AFF,avc(reg(23),-1),avc($5.s,$5.addr),avc(NULL,4),3);
                                                     gencode(AFF,avc(reg(20),-1),avc(NULL,id->memory_place +DATA_SEGMENT ),avc(reg(23),-1),1);
-                                                    gencode(AFF,avc(s,-1),avc(reg(20),-1),avc(NULL,-1),-1);
+                                                    gencode(AFF,avc(s,-1),avc(reg(20),-1),avc(NULL,-1),0);
 
                                                     $$.s = reg(9);
 

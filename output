@@ -1,29 +1,18 @@
 .data
- .space 44   #place pour les symboles
+ .space 4   #place pour les symboles
  #place pour les lables de chaine de charactere
 errorstrtoint : .asciiz "Ce n'est pas un nombre desolé" 
 la1 : .asciiz "0"
 la2 : .asciiz "0"
-la3 : .asciiz "0"
-la4 : .asciiz "0"
-la5 : .asciiz "10"
-la6 : .asciiz "0"
-la7 : .asciiz "10"
-la8 : .asciiz "0"
-la9 : .asciiz "1"
-la10 : .asciiz "1"
 la0: .space 32         #the buffer for the read buffer of siez 32
   
 
  .text
 a0:
-j a16
+j a35
 a1:
-la $s0,la1
-sw $s0,0($sp)
-a2:
 lw $s0,0($sp)
-la $s1,la2
+la $s1,la1
 move $a0,$s0
 move $t9,$ra
 jal strtoint
@@ -36,447 +25,142 @@ jal strtoint
 move $s0,$s4
 move $ra,$t9
 move $s1,$t1
-bne $s0,$s1,a4
+beq $s0,$s1,a3
+a2:
+j a8
 a3:
-j a14
-a4:
-move $s0,$2
-move $24,$s0
-a5:
-move $s0,$31
-move $25,$s0
-a6:
-lw $s0,0($sp)
+la $s0,la2
 move $4,$s0
-a7:
-jal strtoint
-a8:
-move $s0,$25
-move $31,$s0
-a9:
-move $s0,$24
-move $2,$s0
-a10:
-move $s0,$9
-li $s1,4
-mult $s0,$s1
-mflo $s0
-move $23,$s0
-a11:
-li $s0,268500992
-move $s1,$23
-add $s0,$s0,$s1
-move $20,$s0
-a12:
-move $s0,$20
-la $s1,la3
-sw $s1,($s0)
-a13:
-j a2
-a14:
+a4:
+li $v0,4
+syscall
+a5:
 li $s0,0
 move $2,$s0
-a15:
+a6:
 move $s0,$31
 jr $s0
-a16:
-j a55
-a17:
-la $s0,la4
-sw $s0,4($sp)
-a18:
-lw $s0,4($sp)
-la $s1,la5
-move $a0,$s0
-move $t9,$ra
-jal strtoint
-move $ra,$t9
-move $s0,$t1
-move $a0,$s1
-move $t9,$ra
-move $s4,$s0
-jal strtoint
-move $s0,$s4
-move $ra,$t9
-move $s1,$t1
-bne $s0,$s1,a20
-a19:
-j a53
-a20:
+a7:
+j a33
+a8:
 move $s0,$2
 move $24,$s0
-a21:
+a9:
 move $s0,$31
 move $25,$s0
-a22:
-lw $s0,4($sp)
+a10:
+lw $s0,0($sp)
 move $4,$s0
-a23:
+a11:
 jal strtoint
-a24:
+a12:
 move $s0,$25
 move $31,$s0
-a25:
+a13:
 move $s0,$24
 move $2,$s0
-a26:
+a14:
 move $s0,$9
-li $s1,4
-mult $s0,$s1
-mflo $s0
 move $23,$s0
-a27:
-li $s0,268500992
-move $s1,$23
-add $s0,$s0,$s1
-move $20,$s0
-a28:
-lw,$s0,($20)
-sw $s0,0x10010028
-a29:
-lw $s0,0x10010028
-lw $s1,0($sp)
-move $a0,$s0
-move $t9,$ra
-jal strtoint
-move $ra,$t9
-move $s0,$t1
-move $a0,$s1
-move $t9,$ra
-move $s4,$s0
-jal strtoint
-move $s0,$s4
-move $ra,$t9
-move $s1,$t1
-beq $s0,$s1,a31
-a30:
-j a34
-a31:
+a15:
+move $s0,$23
+sw $s0,4($sp)
+a16:
 li $s0,1
-move $2,$s0
-a32:
+move $23,$s0
+a17:
+lw $s0,4($sp)
+move $s1,$23
+sub $s0,$s0,$s1
+move $23,$s0
+a18:
 move $s0,$31
-jr $s0
-a33:
-j a18
-a34:
+move $25,$s0
+a19:
 move $s0,$2
 move $24,$s0
+a20:
+move $s0,$23
+move $5,$s0
+a21:
+jal intostr
+a22:
+move $s0,$25
+move $31,$s0
+a23:
+move $s0,$2
+sw $s0,0x10010000
+a24:
+move $s0,$29
+sw $s0,4($sp)
+a25:
+move $s0,$31
+sw $s0,8($sp)
+a26:
+move $s0,$29
+li $s1,12
+add $s0,$s0,$s1
+move $29,$s0
+a27:
+lw $s0,0x10010000
+sw $s0,0($sp)
+a28:
+jal a1
+a29:
+lw $s0,-4($sp)
+move $31,$s0
+a30:
+lw $s0,-8($sp)
+move $29,$s0
+a31:
+lw $s0,0($sp)
+move $4,$s0
+a32:
+li $v0,4
+syscall
+a33:
+li $s0,0
+move $2,$s0
+a34:
+move $s0,$31
+jr $s0
 a35:
 move $s0,$31
-move $25,$s0
+sw $s0,0($sp)
 a36:
-lw $s0,4($sp)
-move $4,$s0
+jal _read
 a37:
-jal strtoint
+move $s0,$11
+sw $s0,0x10010000
 a38:
-move $s0,$25
+lw $s0,0($sp)
 move $31,$s0
 a39:
-move $s0,$24
-move $2,$s0
+move $s0,$29
+sw $s0,4($sp)
 a40:
-move $s0,$9
-move $23,$s0
+move $s0,$31
+sw $s0,8($sp)
 a41:
-move $s0,$23
-sw $s0,8($sp)
+move $s0,$29
+li $s1,12
+add $s0,$s0,$s1
+move $29,$s0
 a42:
-li $s0,1
-move $23,$s0
+lw $s0,0x10010000
+sw $s0,0($sp)
 a43:
-lw $s0,8($sp)
-move $s1,$23
-add $s0,$s0,$s1
-move $23,$s0
+jal a1
 a44:
-move $s0,$31
-move $25,$s0
+lw $s0,-4($sp)
+move $31,$s0
 a45:
-move $s0,$2
-move $24,$s0
+lw $s0,-8($sp)
+move $29,$s0
 a46:
-move $s0,$23
-move $5,$s0
+li $s0,0
+move $2,$s0
 a47:
-jal intostr
-a48:
-move $s0,$25
-move $31,$s0
-a49:
-move $s0,$2
-sw $s0,4($sp)
-a50:
-j a18
-a51:
-li $s0,0
-move $2,$s0
-a52:
-move $s0,$31
-jr $s0
-a53:
-li $s0,0
-move $2,$s0
-a54:
-move $s0,$31
-jr $s0
-a55:
-j a101
-a56:
-la $s0,la6
-sw $s0,4($sp)
-a57:
-lw $s0,4($sp)
-la $s1,la7
-move $a0,$s0
-move $t9,$ra
-jal strtoint
-move $ra,$t9
-move $s0,$t1
-move $a0,$s1
-move $t9,$ra
-move $s4,$s0
-jal strtoint
-move $s0,$s4
-move $ra,$t9
-move $s1,$t1
-bne $s0,$s1,a59
-a58:
-j a99
-a59:
-move $s0,$2
-move $24,$s0
-a60:
-move $s0,$31
-move $25,$s0
-a61:
-lw $s0,4($sp)
-move $4,$s0
-a62:
-jal strtoint
-a63:
-move $s0,$25
-move $31,$s0
-a64:
-move $s0,$24
-move $2,$s0
-a65:
-move $s0,$9
-li $s1,4
-mult $s0,$s1
-mflo $s0
-move $23,$s0
-a66:
-li $s0,268500992
-move $s1,$23
-add $s0,$s0,$s1
-move $20,$s0
-a67:
-lw,$s0,($20)
-sw $s0,0x10010028
-a68:
-lw $s0,0x10010028
-la $s1,la8
-move $a0,$s0
-move $t9,$ra
-jal strtoint
-move $ra,$t9
-move $s0,$t1
-move $a0,$s1
-move $t9,$ra
-move $s4,$s0
-jal strtoint
-move $s0,$s4
-move $ra,$t9
-move $s1,$t1
-beq $s0,$s1,a70
-a69:
-j a82
-a70:
-move $s0,$2
-move $24,$s0
-a71:
-move $s0,$31
-move $25,$s0
-a72:
-lw $s0,4($sp)
-move $4,$s0
-a73:
-jal strtoint
-a74:
-move $s0,$25
-move $31,$s0
-a75:
-move $s0,$24
-move $2,$s0
-a76:
-move $s0,$9
-li $s1,4
-mult $s0,$s1
-mflo $s0
-move $23,$s0
-a77:
-li $s0,268500992
-move $s1,$23
-add $s0,$s0,$s1
-move $20,$s0
-a78:
-move $s0,$20
-lw $s1,0($sp)
-sw $s1,($s0)
-a79:
-li $s0,0
-move $2,$s0
-a80:
-move $s0,$31
-jr $s0
-a81:
-j a57
-a82:
-move $s0,$2
-move $24,$s0
-a83:
-move $s0,$31
-move $25,$s0
-a84:
-lw $s0,4($sp)
-move $4,$s0
-a85:
-jal strtoint
-a86:
-move $s0,$25
-move $31,$s0
-a87:
-move $s0,$24
-move $2,$s0
-a88:
-move $s0,$9
-move $23,$s0
-a89:
-move $s0,$23
-sw $s0,8($sp)
-a90:
-li $s0,1
-move $23,$s0
-a91:
-lw $s0,8($sp)
-move $s1,$23
-add $s0,$s0,$s1
-move $23,$s0
-a92:
-move $s0,$31
-move $25,$s0
-a93:
-move $s0,$2
-move $24,$s0
-a94:
-move $s0,$23
-move $5,$s0
-a95:
-jal intostr
-a96:
-move $s0,$25
-move $31,$s0
-a97:
-move $s0,$2
-sw $s0,4($sp)
-a98:
-j a57
-a99:
-li $s0,0
-move $2,$s0
-a100:
-move $s0,$31
-jr $s0
-a101:
-move $s0,$29
-sw $s0,0($sp)
-a102:
-move $s0,$31
-sw $s0,4($sp)
-a103:
-move $s0,$29
-li $s1,8
-add $s0,$s0,$s1
-move $29,$s0
-a104:
-la $s0,la9
-sw $s0,0($sp)
-a105:
-jal a17
-a106:
-lw $s0,-4($sp)
-move $31,$s0
-a107:
-lw $s0,-8($sp)
-move $29,$s0
-a108:
-move $s0,$2
-move $24,$s0
-a109:
-move $s0,$31
-move $25,$s0
-a110:
-move $s0,$2
-move $5,$s0
-a111:
-jal intostr
-a112:
-move $s0,$25
-move $31,$s0
-a113:
-move $s0,$2
-move $4,$s0
-a114:
-li $v0,4
-syscall
-a115:
-move $s0,$29
-sw $s0,0($sp)
-a116:
-move $s0,$31
-sw $s0,4($sp)
-a117:
-move $s0,$29
-li $s1,8
-add $s0,$s0,$s1
-move $29,$s0
-a118:
-la $s0,la10
-sw $s0,0($sp)
-a119:
-jal a56
-a120:
-lw $s0,-4($sp)
-move $31,$s0
-a121:
-lw $s0,-8($sp)
-move $29,$s0
-a122:
-move $s0,$2
-move $24,$s0
-a123:
-move $s0,$31
-move $25,$s0
-a124:
-move $s0,$2
-move $5,$s0
-a125:
-jal intostr
-a126:
-move $s0,$25
-move $31,$s0
-a127:
-move $s0,$2
-move $4,$s0
-a128:
-li $v0,4
-syscall
-a129:
-li $s0,0
-move $2,$s0
-a130:
 li $v0,10
 syscall
 

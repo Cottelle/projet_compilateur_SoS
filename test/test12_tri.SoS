@@ -1,7 +1,37 @@
-#fun(2){
-#    local i = 9;
-#    while test i -ne 0 do 
-#        if 
-#        i = $(expr ${i} - 1)
-#    done
-#}
+declare a[10];
+setup(0){
+    local i=0;
+    while test ${i} -ne 0 do
+        a[${i}] = 0
+    done
+};
+
+intab(1){
+    local i =0;
+    while test ${i} -ne 10 do
+        if test ${a[ ${i} ]} -eq $1 then 
+            return (1)
+        fi;
+        i = $(expr ${i} + 1)
+    done;
+    return (0)
+};
+
+add(1){
+    local i =0;
+    while test ${i} -ne 10 do
+        if test ${a[ ${i} ]} -eq 0 then 
+            a[${i}] = $1;
+            return 
+        fi;
+        i = $(expr ${i} + 1)
+    done
+};
+
+
+
+setup;
+intab 1;
+echo $?;
+add 1;
+echo $?

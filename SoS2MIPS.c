@@ -478,7 +478,7 @@ void il2MIPS(struct quad quad, struct tabsymbole tabsymbole, struct labels label
                                     fprintf(f,"move $s1,$%i\n",quad.quadrup[i].one.s->isint);
                                     break;
                                 case 3:
-                                    fprintf(f,"la $s1,la%i\n",quad.quadrup[i].one.s->isint);
+                                    fprintf(f,"la $s1,la%i\n",quad.quadrup[i].one.s->memory_place);
                                     break;
                                 default:
                                     printf("Error: variable not found \n");
